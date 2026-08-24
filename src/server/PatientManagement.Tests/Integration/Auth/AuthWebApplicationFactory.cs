@@ -45,11 +45,22 @@ public class AuthWebApplicationFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            var dbContextDescriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<PatientManagementDbContext>));
-            if (dbContextDescriptor is not null)
+            // Removing only the DbContextOptions<T> descriptor isn't enough: AddDbContext also
+            // registers an internal IDbContextOptionsConfiguration<T> marker recording the
+            // SqlServer configuration delegate, and that's additive (TryAddEnumerable) — so a
+            // second AddDbContext call for the same context leaves both the SqlServer and
+            // SQLite configurations applied together, which EF Core rejects at runtime with
+            // "Services for database providers ... have been registered". Strip every
+            // descriptor touching PatientManagementDbContext before re-registering it here.
+            var dbContextDescriptors = services.Where(d =>
+                    d.ServiceType == typeof(DbContextOptions<PatientManagementDbContext>) ||
+                    d.ServiceType == typeof(PatientManagementDbContext) ||
+                    (d.ServiceType.IsGenericType &&
+                     d.ServiceType.GenericTypeArguments.Contains(typeof(PatientManagementDbContext))))
+                .ToList();
+            foreach (var descriptor in dbContextDescriptors)
             {
-                services.Remove(dbContextDescriptor);
+                services.Remove(descriptor);
             }
 
             services.AddDbContext<PatientManagementDbContext>(options =>

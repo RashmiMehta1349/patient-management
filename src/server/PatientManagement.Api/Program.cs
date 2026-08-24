@@ -123,7 +123,19 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<PatientManagementDbContext>();
-    dbContext.Database.Migrate();
+
+    // Integration tests (WebApplicationFactory) swap in an isolated SQLite in-memory DB. Real
+    // SQL Server migrations carry provider-specific annotations (e.g. `uniqueidentifier`) that
+    // trip EF Core's PendingModelChangesWarning when replayed against a different provider, so
+    // the test DB is built straight from the current model instead of the migration history.
+    if (app.Environment.IsEnvironment("Testing"))
+    {
+        dbContext.Database.EnsureCreated();
+    }
+    else
+    {
+        dbContext.Database.Migrate();
+    }
 
     var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasherService>();
     var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("UserSeeder");
