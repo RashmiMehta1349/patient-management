@@ -27,6 +27,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
   },
   {
+    path: 'patients',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/patients/list/patients-list.component').then((m) => m.PatientsListComponent)
+  },
+  {
     path: 'patients/new',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -1,0 +1,105 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.grid-card {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  padding: 2rem;
+}
+
+.grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  h1 {
+    font-size: 1.25rem;
+    margin: 0;
+    color: #0b5fff;
+  }
+}
+
+.add-patient-button {
+  padding: 0.6rem 1rem;
+  background: #0b5fff;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.search-box {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd2d9;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.patients-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+  }
+
+  .edit-col {
+    width: 3rem;
+    text-align: center;
+  }
+}
+
+.edit-icon {
+  text-decoration: none;
+  color: #0b5fff;
+  font-size: 1.1rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd2d9;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 0;
+
+  .add-patient-link {
+    color: #0b5fff;
+  }
+}
+
+.banner-error {
+  color: #b91c1c;
+  margin-bottom: 0.75rem;
+}
