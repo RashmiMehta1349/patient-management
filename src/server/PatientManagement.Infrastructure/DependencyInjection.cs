@@ -17,10 +17,10 @@ public static class DependencyInjection
         services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.SectionName));
 
         var connectionString = configuration.GetConnectionString("Default")
-            ?? "Data Source=patientmanagement.db";
+            ?? "Server=(localdb)\\mssqllocaldb;Database=PatientManagement;Trusted_Connection=True;TrustServerCertificate=True;";
 
         services.AddDbContext<PatientManagementDbContext>(options =>
-            options.UseSqlite(connectionString));
+            options.UseSqlServer(connectionString));
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
