@@ -1,0 +1,12 @@
+<header class="app-shell-header">
+  <span class="brand">Patient Management</span>
+  <div class="header-right">
+    <span *ngIf="currentUser">{{ currentUser.email }}</span>
+    <button type="button" (click)="logout()">Logout</button>
+  </div>
+</header>
+
+<main class="dashboard-content">
+  <h1>Dashboard</h1>
+  <p>You are signed in. Other modules will build out this screen.</p>
+</main>

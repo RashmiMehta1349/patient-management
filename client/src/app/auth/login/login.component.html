@@ -1,0 +1,32 @@
+<div class="auth-page">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <h1>Sign in</h1>
+
+    <p class="info-message" *ngIf="sessionExpiredMessage">{{ sessionExpiredMessage }}</p>
+    <p class="info-message" *ngIf="passwordUpdatedMessage">{{ passwordUpdatedMessage }}</p>
+
+    <label for="email">Email</label>
+    <input id="email" type="text" formControlName="email" autocomplete="username" />
+
+    <label for="password">Password</label>
+    <div class="password-field">
+      <input
+        id="password"
+        [type]="showPassword ? 'text' : 'password'"
+        formControlName="password"
+        autocomplete="current-password"
+      />
+      <button type="button" class="link-button" (click)="togglePasswordVisibility()">
+        {{ showPassword ? 'Hide' : 'Show' }}
+      </button>
+    </div>
+
+    <p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+    <button type="submit" [disabled]="submitting">
+      {{ submitting ? 'Signing in…' : 'Login' }}
+    </button>
+
+    <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+  </form>
+</div>
