@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +28,7 @@ public class CreatePatientCommandHandler
 
     public async Task<Result<PatientDto>> HandleAsync(CreatePatientRequestDto request, CancellationToken cancellationToken = default)
     {
-        var errors = Validate(request, _dateTimeProvider.UtcNow, out var dateOfBirth);
+        var errors = PatientValidation.Validate(request.FullName, request.DateOfBirth, request.Gender, request.PhoneNumber, _dateTimeProvider.UtcNow, out var dateOfBirth);
         if (errors.Count > 0)
         {
             return Result<PatientDto>.Failure(string.Join(" ", errors));
@@ -50,47 +49,6 @@ public class CreatePatientCommandHandler
         await _patientRepository.AddAsync(patient, cancellationToken);
 
         return Result<PatientDto>.Success(ToDto(patient, now));
-    }
-
-    private static List<string> Validate(CreatePatientRequestDto request, DateTime utcNow, out DateOnly dateOfBirth)
-    {
-        var errors = new List<string>();
-        dateOfBirth = default;
-
-        if (string.IsNullOrWhiteSpace(request.FullName))
-        {
-            errors.Add("Full name is required.");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.DateOfBirth))
-        {
-            errors.Add("Date of birth is required.");
-        }
-        else if (!DateOnly.TryParseExact(request.DateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfBirth)
-                 && !DateOnly.TryParse(request.DateOfBirth, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfBirth))
-        {
-            errors.Add("Date of birth is invalid.");
-        }
-        else if (dateOfBirth > DateOnly.FromDateTime(utcNow))
-        {
-            errors.Add("Date of birth cannot be in the future.");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.Gender))
-        {
-            errors.Add("Gender is required.");
-        }
-        else if (!PatientGenders.IsValid(request.Gender.Trim()))
-        {
-            errors.Add("Gender must be one of: Male, Female, Other.");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.PhoneNumber))
-        {
-            errors.Add("Phone number is required.");
-        }
-
-        return errors;
     }
 
     internal static PatientDto ToDto(Patient patient, DateTime utcNow)
