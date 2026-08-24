@@ -1,0 +1,45 @@
+.auth-card {
+  max-width: 360px;
+  margin: 4rem auto;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.password-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.password-row input {
+  flex: 1;
+}
+
+.error-message {
+  color: #b91c1c;
+}
+
+.session-expired {
+  color: #92400e;
+  background: #fef3c7;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.submit-button {
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  cursor: pointer;
+}
+
+.forgot-link {
+  display: block;
+  margin-top: 1rem;
+  text-align: center;
+}
