@@ -25,4 +25,12 @@ public class PatientRepository : IPatientRepository
         await _dbContext.Patients.AddAsync(patient, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task UpdateAsync(Patient patient, CancellationToken cancellationToken = default)
+    {
+        // The change tracker already has this entity attached from a prior GetByIdAsync call
+        // within the same DbContext scope, so persisting the mutated tracked instance is
+        // sufficient — mirrors UserRepository.UpdateAsync's load-mutate-save pattern.
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

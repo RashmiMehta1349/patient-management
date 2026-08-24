@@ -1,8 +1,10 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PatientManagement.Application.Patients.Commands;
 using PatientManagement.Application.Patients.Dtos;
+using PatientManagement.Application.Patients.Queries;
 
 namespace PatientManagement.Api.Controllers;
 
@@ -15,10 +17,17 @@ namespace PatientManagement.Api.Controllers;
 public class PatientsController : ControllerBase
 {
     private readonly CreatePatientCommandHandler _createPatientHandler;
+    private readonly GetPatientByIdQueryHandler _getPatientByIdHandler;
+    private readonly UpdatePatientCommandHandler _updatePatientHandler;
 
-    public PatientsController(CreatePatientCommandHandler createPatientHandler)
+    public PatientsController(
+        CreatePatientCommandHandler createPatientHandler,
+        GetPatientByIdQueryHandler getPatientByIdHandler,
+        UpdatePatientCommandHandler updatePatientHandler)
     {
         _createPatientHandler = createPatientHandler;
+        _getPatientByIdHandler = getPatientByIdHandler;
+        _updatePatientHandler = updatePatientHandler;
     }
 
     [HttpPost]
@@ -30,8 +39,35 @@ public class PatientsController : ControllerBase
             return BadRequest(new { message = result.Error });
         }
 
-        // No GET /api/patients/{id} endpoint exists yet (that lands in Increment 2), so the
-        // Location header is built manually rather than via CreatedAtAction/CreatedAtRoute.
-        return Created($"/api/patients/{result.Value!.Id}", result.Value);
+        return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<PatientDto>> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var patient = await _getPatientByIdHandler.HandleAsync(id, cancellationToken);
+        if (patient is null)
+        {
+            return NotFound(new { message = "Patient not found." });
+        }
+
+        return Ok(patient);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<PatientDto>> Update(Guid id, [FromBody] UpdatePatientRequestDto request, CancellationToken cancellationToken)
+    {
+        var result = await _updatePatientHandler.HandleAsync(id, request, cancellationToken);
+        if (result.IsNotFound)
+        {
+            return NotFound(new { message = result.Error });
+        }
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(new { message = result.Error });
+        }
+
+        return Ok(result.Value);
     }
 }

@@ -32,5 +32,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/patients/form/patient-form.component').then((m) => m.PatientFormComponent)
   },
+  // Ordering matters: 'patients/new' (above) must be declared before the parameterized
+  // 'patients/:id' routes below, or Angular's route matcher would resolve /patients/new to the
+  // detail component with id: 'new' — see Planning\02_Patient_Management_Plan.md §9a.8.
+  {
+    path: 'patients/:id/edit',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/patients/form/patient-form.component').then((m) => m.PatientFormComponent)
+  },
+  {
+    path: 'patients/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/patients/detail/patient-detail.component').then((m) => m.PatientDetailComponent)
+  },
   { path: '**', redirectTo: 'dashboard' }
 ];

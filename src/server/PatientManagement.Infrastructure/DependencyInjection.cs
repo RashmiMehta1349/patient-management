@@ -5,6 +5,7 @@ using PatientManagement.Application.Auth;
 using PatientManagement.Application.Auth.Commands;
 using PatientManagement.Application.Auth.Services;
 using PatientManagement.Application.Patients.Commands;
+using PatientManagement.Application.Patients.Queries;
 using PatientManagement.Application.Patients.Services;
 using PatientManagement.Infrastructure.Persistence;
 using PatientManagement.Infrastructure.Repositories;
@@ -38,6 +39,8 @@ public static class DependencyInjection
         services.AddScoped<ForgotPasswordCommandHandler>();
         services.AddScoped<ResetPasswordCommandHandler>();
         services.AddScoped<CreatePatientCommandHandler>();
+        services.AddScoped<GetPatientByIdQueryHandler>();
+        services.AddScoped<UpdatePatientCommandHandler>();
 
         return services;
     }
