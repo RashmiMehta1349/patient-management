@@ -32,6 +32,34 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
       },
+      {
+        path: 'patients',
+        loadComponent: () =>
+          import('./features/patients/patient-search/patient-search.component').then(
+            (m) => m.PatientSearchComponent
+          )
+      },
+      {
+        path: 'patients/new',
+        loadComponent: () =>
+          import('./features/patients/patient-add/patient-add.component').then(
+            (m) => m.PatientAddComponent
+          )
+      },
+      {
+        path: 'patients/:id/edit',
+        loadComponent: () =>
+          import('./features/patients/patient-edit/patient-edit.component').then(
+            (m) => m.PatientEditComponent
+          )
+      },
+      {
+        path: 'patients/:id',
+        loadComponent: () =>
+          import('./features/patients/patient-profile/patient-profile.component').then(
+            (m) => m.PatientProfileComponent
+          )
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' }
       // Later modules add their protected routes here as siblings of 'dashboard',
       // all riding on this same ShellComponent + authGuard.

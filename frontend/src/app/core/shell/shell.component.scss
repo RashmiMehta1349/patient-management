@@ -7,6 +7,21 @@
   color: #fff;
 }
 
+.app-nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.app-nav a {
+  color: #d1d5db;
+  text-decoration: none;
+}
+
+.app-nav a.active-link,
+.app-nav a:hover {
+  color: #fff;
+}
+
 .app-header-right {
   display: flex;
   align-items: center;

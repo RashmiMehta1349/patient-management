@@ -1,0 +1,50 @@
+<div *ngIf="loading">Loading patient…</div>
+
+<p class="error-message" *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+
+<div class="profile-card" *ngIf="patient as p">
+  <div class="header-row">
+    <div>
+      <h1>{{ p.fullName }}</h1>
+      <span class="patient-code">{{ p.patientCode }}</span>
+    </div>
+    <a [routerLink]="['/patients', p.id, 'edit']" class="edit-button">Edit</a>
+  </div>
+
+  <dl class="profile-details">
+    <dt>Age / Date of birth</dt>
+    <dd>{{ ageDisplay }}</dd>
+
+    <dt>Gender</dt>
+    <dd>{{ p.gender }}</dd>
+
+    <dt>Phone</dt>
+    <dd>{{ p.phoneNumber }}</dd>
+
+    <dt>Email</dt>
+    <dd>{{ p.email || '—' }}</dd>
+
+    <dt>Address</dt>
+    <dd>{{ p.address || '—' }}</dd>
+
+    <dt>Created</dt>
+    <dd>{{ p.createdAt | date: 'medium' }}</dd>
+
+    <dt>Last updated</dt>
+    <dd>{{ p.updatedAt | date: 'medium' }}</dd>
+  </dl>
+
+  <!-- Cross-navigation entry points into Modules 3/4/6, implemented by those modules.
+       Not yet built — shown as clearly-labeled, disabled placeholders. -->
+  <div class="action-row">
+    <button type="button" disabled title="Coming soon — Appointment Management module">
+      Schedule Appointment
+    </button>
+    <button type="button" disabled title="Coming soon — Consultation & Clinical Records module">
+      Start Consultation
+    </button>
+    <button type="button" disabled title="Coming soon — Patient History module">View History</button>
+  </div>
+
+  <a routerLink="/patients" class="back-link">Back to search</a>
+</div>

@@ -1,5 +1,9 @@
 <header class="app-header">
   <span class="app-title">Patient Management</span>
+  <nav class="app-nav">
+    <a routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
+    <a routerLink="/patients" routerLinkActive="active-link">Patients</a>
+  </nav>
   <div class="app-header-right">
     <span class="user-email" *ngIf="userEmail()">{{ userEmail() }}</span>
     <button type="button" class="logout-button" (click)="logout()">Logout</button>
