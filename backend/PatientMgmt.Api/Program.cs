@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PatientMgmt.Api.Middleware;
 using PatientMgmt.BusinessLogic.Auth;
+using PatientMgmt.BusinessLogic.Interfaces;
+using PatientMgmt.BusinessLogic.Patients;
 using PatientMgmt.DataAccess;
 using PatientMgmt.DataAccess.Repositories;
 using PatientMgmt.Domain.Options;
@@ -28,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
 // ---- Business-logic tier ----
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -37,6 +40,7 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IPatientService, PatientService>();
 
 // ---- API tier ----
 builder.Services.AddControllers();

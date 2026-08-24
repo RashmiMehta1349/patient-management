@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PatientMgmt.BusinessLogic\PatientMgmt.BusinessLogic.csproj" />
     <ProjectReference Include="..\PatientMgmt.Domain\PatientMgmt.Domain.csproj" />
+    <ProjectReference Include="..\PatientMgmt.DataAccess\PatientMgmt.DataAccess.csproj" />
   </ItemGroup>
 
 </Project>

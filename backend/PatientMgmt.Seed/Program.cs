@@ -51,4 +51,9 @@ db.Users.Add(user);
 await db.SaveChangesAsync();
 
 Console.WriteLine($"Provisioned doctor account for {user.Email}. Please share the password out-of-band and require a reset on first login if policy dictates.");
+
+// Module 2: seed sample patients so downstream modules (Appointment, Consultation, etc.)
+// have data to build/test against (plan §9 task #12). No-op if patients already exist.
+await PatientMgmt.Seed.PatientSeedData.SeedAsync(db);
+
 return 0;

@@ -12,6 +12,7 @@ namespace PatientMgmt.DataAccess
         public DbSet<User> Users => Set<User>();
         public DbSet<Session> Sessions => Set<Session>();
         public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+        public DbSet<Patient> Patients => Set<Patient>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,6 +56,25 @@ namespace PatientMgmt.DataAccess
                     .WithMany()
                     .HasForeignKey(t => t.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Patient>(b =>
+            {
+                b.ToTable("Patients");
+                b.HasKey(p => p.Id);
+                b.Property(p => p.PatientCode).HasMaxLength(20).IsRequired();
+                b.HasIndex(p => p.PatientCode).IsUnique();
+                b.Property(p => p.FullName).HasMaxLength(200).IsRequired();
+                b.HasIndex(p => p.FullName);
+                b.Property(p => p.DateOfBirth).HasColumnType("date");
+                b.Property(p => p.Gender).HasConversion<string>().HasMaxLength(20).IsRequired();
+                b.Property(p => p.PhoneNumber).HasMaxLength(20).IsRequired();
+                b.HasIndex(p => p.PhoneNumber);
+                b.HasIndex(p => new { p.FullName, p.PhoneNumber });
+                b.Property(p => p.Email).HasMaxLength(256);
+                b.Property(p => p.Address).HasMaxLength(500);
+                b.Property(p => p.CreatedAt).IsRequired();
+                b.Property(p => p.UpdatedAt).IsRequired();
             });
         }
     }
