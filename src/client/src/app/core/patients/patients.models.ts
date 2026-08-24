@@ -11,6 +11,9 @@ export interface CreatePatientRequest {
   phoneNumber: string;
 }
 
+/** Same four-field shape as CreatePatientRequest — full-payload PUT per the approved plan §4. */
+export type UpdatePatientRequest = CreatePatientRequest;
+
 export interface Patient {
   id: string;
   fullName: string;
