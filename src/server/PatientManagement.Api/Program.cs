@@ -90,8 +90,23 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddHttpsRedirection(options =>
 {
-    options.HttpsPort = 5443;
+    options.HttpsPort = 7299;
 });
+
+const string DevCorsPolicy = "DevClient";
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(options =>
+    {
+        // Allows the local Angular dev server (ng serve, default port 4200) to call this API
+        // cross-origin; browsers block XHR/fetch across origins without this even when the
+        // request itself would otherwise succeed.
+        options.AddPolicy(DevCorsPolicy, policy =>
+            policy.WithOrigins("http://localhost:4200")
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+    });
+}
 
 if (builder.Environment.IsProduction())
 {
@@ -126,11 +141,18 @@ else
 }
 
 // TestServer (used by WebApplicationFactory-based integration tests) is in-memory and never
-// actually serves TLS, so HTTPS redirection is skipped only in the "Testing" environment —
-// every real deployment target (Development/Production) still enforces it.
-if (!app.Environment.IsEnvironment("Testing"))
+// actually serves TLS, so HTTPS redirection is skipped in "Testing". It's also skipped in
+// Development: the Angular dev server (environment.development.ts) talks to the API over plain
+// HTTP on a fixed local port, and forcing a redirect here would send it to a port Kestrel isn't
+// bound on unless the "https" launch profile is used explicitly.
+if (!app.Environment.IsEnvironment("Testing") && !app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors(DevCorsPolicy);
 }
 
 app.UseAuthentication();
