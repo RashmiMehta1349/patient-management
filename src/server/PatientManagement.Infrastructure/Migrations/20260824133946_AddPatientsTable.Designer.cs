@@ -12,7 +12,7 @@ using PatientManagement.Infrastructure.Persistence;
 namespace PatientManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(PatientManagementDbContext))]
-    [Migration("20260824135318_AddPatientsTable")]
+    [Migration("20260824133946_AddPatientsTable")]
     partial class AddPatientsTable
     {
         /// <inheritdoc />
