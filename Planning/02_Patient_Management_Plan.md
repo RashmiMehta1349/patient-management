@@ -81,20 +81,21 @@ The driving user request for this increment is specifically "doctor will create 
 
 ## 6. APIs
 
-| Method | Path | Purpose | Auth |
-|---|---|---|---|
-| `POST` | `/api/patients` | Create (register) a new patient | Bearer JWT required |
-| `GET` | `/api/patients/{id}` | Retrieve a single patient's full profile | Bearer JWT required |
-| `PUT` | `/api/patients/{id}` | Update an existing patient's details (full payload) | Bearer JWT required |
-| `GET` | `/api/patients?query={term}` | Search patients by partial name or phone match | Bearer JWT required |
+| Method | Path | Purpose | Auth | Success | Failure |
+|---|---|---|---|---|---|
+| `POST` | `/api/patients` | Create (register) a new patient | Bearer JWT required | `201` + `PatientDto`, `Location` header → `GET /api/patients/{id}` (via `CreatedAtAction`, Increment 2) | `400` invalid payload |
+| `GET` | `/api/patients/{id}` | Retrieve a single patient's full profile | Bearer JWT required | `200` + `PatientDto` | `404` unknown id |
+| `PUT` | `/api/patients/{id}` | Update an existing patient's details (full payload) | Bearer JWT required | `200` + updated `PatientDto` | `404` unknown id (checked first) / `400` invalid payload |
+| `GET` | `/api/patients?query={term}` | Search patients by partial name or phone match | Bearer JWT required | `200` + list (Increment 3) | — |
 
-All routes sit behind the existing fallback `RequireAuthenticatedUser` policy — no controller-level `[AllowAnonymous]` needed. Validation failures return `400` with field-level error detail (matching the `Result`-pattern precedent in `PatientManagement.Application\Common\Result.cs`). Not-found lookups return `404`.
+All routes sit behind the existing fallback `RequireAuthenticatedUser` policy — no controller-level `[AllowAnonymous]` needed. Validation failures return `400` with field-level error detail (matching the `Result`-pattern precedent in `PatientManagement.Application\Common\Result.cs`, extended in Increment 2 with an `IsNotFound` flag — see §9a.2). Not-found lookups return `404`, checked before validation on `PUT` since there's no point validating a payload for a record that doesn't exist.
 
 ## 7. UI / Screens
 
 - **Patients List / Search screen** (`features/patients/list`): search box (name/phone), results table (name, DOB/age, gender, phone), "Add Patient" button, empty state.
 - **Patient Form screen** (`features/patients/form`), reused for both Add and Edit: Full Name, DOB (date picker) or Age, Gender (dropdown), Phone, optional Email/Address fields, Save/Cancel actions, inline validation messages.
-- **Patient Profile / Detail screen** (`features/patients/detail`): read-only display of all captured fields, "Edit" action, and placeholder navigation tabs/links for Appointments / Consultations / History (wired up as those modules land — Module 2 only needs to render the anchors, not the content).
+- **Patient Profile / Detail screen** (`features/patients/detail`): read-only display of all captured fields, "Edit" action, and placeholder navigation tabs/links for Appointments / Consultations / History (wired up as those modules land — Module 2 only needs to render the anchors, not the content). Loading / loaded / not-found / error states (see §9a.7).
+- **Patient Form screen, edit-mode**: same `features/patients/form` component as Add, extended (not duplicated) to pre-populate from `GET /api/patients/{id}` and submit via `PUT`; see §9a.6 for the reuse-vs-separate-component decision and rationale.
 - **Dashboard integration**: extend the existing `dashboard.component` with a "Recent Patients" or "Search Patients" entry point so the doctor's post-login flow reaches this module directly.
 
 ## 8. Dependencies
@@ -117,11 +118,14 @@ All routes sit behind the existing fallback `RequireAuthenticatedUser` policy �
 10. Angular unit/component tests for the form (required-field validation, submit success/error handling).
 
 **Increment 2 — View + Edit**
-11. Add `GetPatientByIdQuery` + handler, `GET /api/patients/{id}` endpoint.
-12. Add `UpdatePatientCommand` + handler, `PUT /api/patients/{id}` endpoint.
-13. Unit/integration tests for get-by-id (found/not-found) and update (valid edit, validation failure, not-found).
-14. Angular `features/patients/detail` component; extend `features/patients/form` to support edit-mode (pre-populate + PUT).
-15. Component tests for detail view and edit flow.
+
+> Superseded by §9a "Increment 2 — Detailed Design" below, which expands tasks 11–15 to implementation-ready detail (exact repository/DTO/handler/controller shapes, Angular component decisions, concurrency/not-found handling, and test cases). This condensed list is kept for at-a-glance sequencing only.
+
+11. Extend `IPatientRepository` (`UpdateAsync`), add `GetPatientByIdQueryHandler` returning `PatientDto?` directly (no `Result<T>` wrapper — mirrors the `AuthController.Me` null-check precedent), wire `GET /api/patients/{id}` on `PatientsController` (200 / 404).
+12. Add `UpdatePatientRequestDto`, `UpdatePatientCommand` + handler (reuses `CreatePatientCommandHandler`'s validation logic — extract to a shared static validator), extend `Result<T>` with a non-breaking `NotFound` variant, wire `PUT /api/patients/{id}` on `PatientsController` (200 / 400 / 404). Also switch `POST`'s `Created()` call to `CreatedAtAction(nameof(GetById), ...)` now that the GET route exists.
+13. Unit tests: `GetPatientByIdQueryHandler` (found → correct DTO incl. recomputed `Age`; not found → null). `UpdatePatientCommandHandler` (valid edit persists + bumps `UpdatedAt`; same validation failures as create; unknown `Id` → `NotFound` result). Integration tests: `GET`/`PUT` auth-required (401), `GET` 200/404, `PUT` 200/400/404, edited field visible on a subsequent `GET`.
+14. Angular: add `getById()`/`update()` to `patient.service.ts`; add `features/patients/detail/patient-detail.component.ts` (new); extend `features/patients/form/patient-form.component.ts` in place to support edit-mode via route param (no new form component — see §9a rationale); register `patients/:id` and `patients/:id/edit` routes in `app.routes.ts`, taking care that the literal `patients/new` route is declared before the `patients/:id` wildcard so it keeps matching correctly.
+15. Component tests: detail component (loading/loaded/not-found/error states, Edit button navigation), form component in edit-mode (pre-population from resolved patient, PUT submit success/error, validation reuse, Cancel/navigation back to detail instead of the create-mode "register another" flow).
 
 **Increment 3 — Search**
 16. Add `SearchPatientsQuery` + handler (name/phone partial match), `GET /api/patients?query=` endpoint.
@@ -133,6 +137,102 @@ All routes sit behind the existing fallback `RequireAuthenticatedUser` policy �
 **Cross-cutting**
 21. Confirm PK type/GUID convention against Module 1's `User`/`PasswordResetToken` entities before writing the migration, to keep the schema internally consistent.
 22. Resolve Open Questions (Gender picklist values, Email/Address inclusion, pagination) with Product Owner before Increment 1 sign-off if they block the entity shape.
+
+## 9a. Increment 2 — Detailed Design
+
+This section expands §9 tasks 11–15 to implementation-ready detail. It reflects the **actual current shape** of the Increment 1 code (verified by reading the files directly, not assumed): `IPatientRepository` today only has `GetByIdAsync`/`AddAsync`; `PatientsController` only has `POST`, returning a manually-built `Created()` Location header pointing at a route that doesn't exist yet; `Result<T>` has no not-found concept, only `Succeeded`/`Value`/`Error`; `CreatePatientCommandHandler` has a private `Validate(...)` and an `internal static ToDto(Patient, DateTime)` that Increment 2 should reuse rather than duplicate.
+
+### 9a.1 Backend — Repository
+
+- Extend `IPatientRepository` with `Task UpdateAsync(Patient patient, CancellationToken cancellationToken = default)`. `GetByIdAsync` already exists and is reused as-is for both the query handler and the update handler's "does this patient exist" check — no new repository method needed for lookup.
+- `PatientRepository.UpdateAsync`: since EF Core's change tracker already has the entity attached from a prior `GetByIdAsync` call within the same handler (same `DbContext` scope, scoped per-request), `UpdateAsync` can simply call `await _dbContext.SaveChangesAsync(cancellationToken)` — no explicit `Update()`/`Attach()` call needed as long as the handler mutates the tracked instance returned by `GetByIdAsync` rather than constructing a new detached `Patient`. This is the same "load, mutate, save" pattern implicitly used by `UserRepository.UpdateAsync` for `LastLoginAt` in `LoginCommandHandler` — confirm that method's shape before writing this one, to stay consistent.
+
+### 9a.2 Backend — `Result<T>` extension (new, non-breaking)
+
+Increment 2 is the first place the codebase needs to distinguish "validation failed" (400) from "record doesn't exist" (404) inside a single `Result<T>`-returning handler. Rather than inventing a new return type, extend `Result<T>` with a third state:
+
+- Add `public bool IsNotFound { get; }` (defaults `false` on the existing `Success`/`Failure` factories — fully backward compatible with `LoginCommand`, `ForgotPasswordCommand`, `ResetPasswordCommand`, `CreatePatientCommand`, none of which need to change).
+- Add a new factory: `public static Result<T> NotFound(string error) => new(false, default, error, isNotFound: true);`
+- `UpdatePatientCommandHandler` returns `Result<PatientDto>.NotFound("Patient not found.")` when `GetByIdAsync` returns null, before running field validation (no point validating a payload for a patient that doesn't exist).
+- `PatientsController.Update` checks `result.IsNotFound` first, then `!result.Succeeded` (validation), matching the 404-before-400 precedence a caller would expect.
+
+### 9a.3 Backend — Query: `GetPatientByIdQuery`
+
+No `Result<T>` wrapper — not-found is a normal, expected outcome for a GET-by-id, not an application error, matching the existing `AuthController.Me` null-check precedent (return `PatientDto?`, controller maps `null` → `NotFound()`).
+
+- `GetPatientByIdQueryHandler.HandleAsync(Guid id, CancellationToken)` → `Task<PatientDto?>`: calls `_patientRepository.GetByIdAsync(id, ct)`; if null, return null; else return `CreatePatientCommandHandler.ToDto(patient, _dateTimeProvider.UtcNow)` (reuse the existing `internal static` method — requires `InternalsVisibleTo` already in place for `PatientManagement.Tests`, confirm it also covers cross-handler use within the same assembly, which it does since both live in `PatientManagement.Application`).
+- Controller: `[HttpGet("{id:guid}")] GetById(Guid id, CancellationToken)` → `200 OK` with `PatientDto`, or `404 NotFound()` (no body needed, or `{ message = "Patient not found." }` for consistency with the existing error-shape convention used elsewhere in this controller/`AuthController`).
+
+### 9a.4 Backend — Command: `UpdatePatientCommand`
+
+- New DTO `UpdatePatientRequestDto`: identical shape to `CreatePatientRequestDto` (`FullName`, `DateOfBirth` as `yyyy-MM-dd` string, `Gender`, `PhoneNumber`) — no `Id` field in the body; `Id` comes from the route. Full-payload `PUT` per the already-settled Architecture Approach (§4) — the client always sends all four fields, not a partial diff.
+- Extract `CreatePatientCommandHandler.Validate(...)`'s field-validation body into a shared static helper (e.g., `PatientValidation.Validate(string fullName, string dateOfBirth, string gender, string phoneNumber, DateTime utcNow, out DateOnly dob) : List<string>`) that both `CreatePatientCommandHandler` and `UpdatePatientCommandHandler` call, so the create-path behavior (task 5) isn't duplicated or allowed to drift from the edit-path behavior. Place it in `PatientManagement.Application\Patients\PatientValidation.cs` alongside `PatientGenders.cs`.
+- `UpdatePatientCommandHandler.HandleAsync(Guid id, UpdatePatientRequestDto request, CancellationToken)`:
+  1. `var patient = await _patientRepository.GetByIdAsync(id, ct);` — if null, `return Result<PatientDto>.NotFound("Patient not found.")`.
+  2. Run the shared validator against `request`; if errors, `return Result<PatientDto>.Failure(string.Join(" ", errors))` (same shape as create).
+  3. Mutate the tracked `patient` in place: `FullName`, `DateOfBirth`, `Gender`, `PhoneNumber` from the validated request, `.Trim()`'d consistently with create; set `UpdatedAt = _dateTimeProvider.UtcNow` — leave `CreatedAt`/`Id` untouched.
+  4. `await _patientRepository.UpdateAsync(patient, ct);`
+  5. `return Result<PatientDto>.Success(CreatePatientCommandHandler.ToDto(patient, now));`
+- Controller: `[HttpPut("{id:guid}")] Update(Guid id, [FromBody] UpdatePatientRequestDto request, CancellationToken)` → `200 OK` with updated `PatientDto` / `404` if `result.IsNotFound` / `400` with `{ message = result.Error }` otherwise.
+- While in the controller, also change `POST`'s `Created($"/api/patients/{result.Value!.Id}", ...)` to `CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value)` now that `GetById` exists — closes the gap the Increment 1 code comment (`PatientsController.cs` line 33–35) explicitly flagged as pending.
+
+### 9a.5 Concurrency handling — assumption, not a silent decision
+
+The BRD does not mention concurrent-edit conflict handling, and this is a **single-user, single-clinic** application (BRD scope statement) — there is exactly one doctor account, so two simultaneous edits to the same patient by different actors is not a realistic scenario (unlike the multi-tab/multi-device case, which is still technically possible but out of scope to defend against per the BRD's Phase 1 boundaries). **Assumption**: no optimistic concurrency control (no `RowVersion`/`xmin` check) — last-write-wins on `PUT`. Flagged here as an explicit assumption for Product Owner awareness, not built silently as a "just in case" feature, consistent with this plan's stated boundary against inventing unrequested requirements.
+
+### 9a.6 Frontend — one form component vs. a separate edit component
+
+**Decision: extend `patient-form.component.ts` in place to support both create- and edit-mode, rather than adding a second `patient-edit-form` component.**
+
+Rationale:
+- The two modes differ only in: (a) whether the form is pre-populated from a `GET`, (b) whether submit calls `create()` or `update(id, ...)`, and (c) the post-submit destination (create → inline "registered successfully" confirmation with a "register another" action; edit → navigate back to the Patient Detail view). The field set, validators, and markup are otherwise identical — duplicating the template/validators into a second component would immediately violate DRY and risk the two modes' validation drifting apart, mirroring the exact reason `CreatePatientCommandHandler`'s validation is being extracted into a shared helper server-side (§9a.4).
+- Angular idiom for this (single reactive form, mode driven by route data) is already close to how `patients/new` is wired today (component reads nothing from the route currently; edit-mode adds an `ActivatedRoute` paramMap read).
+- Implementation: add an `id: string | null` field resolved from `ActivatedRoute.snapshot.paramMap.get('id')` in `ngOnInit`; when present, call `patientService.getById(id)`, `patchValue()` the form, and set an `isEditMode` flag; `submit()` branches on `isEditMode` to call `update(id, ...)` vs `create(...)`; on edit success, `router.navigate(['/patients', id])` instead of setting `createdPatient`; the existing `createdPatient`/`registerAnother()` inline-confirmation flow stays create-mode-only, gated behind `!isEditMode`.
+- Loading state needed for edit-mode's initial `getById()` fetch (the create-mode form currently has no equivalent "loading" state to await, since it starts blank) — add a `loading` flag distinct from `submitting`, and a not-found/error state if `getById()` 404s (e.g., bad/stale URL), rendering an inline message with a link back to `/dashboard` rather than crashing the form.
+- Page heading changes from the current hard-coded "Add Patient" (`patient-form.component.html` line 3) to `{{ isEditMode ? 'Edit Patient' : 'Add Patient' }}`, and the Cancel/back link in edit-mode should return to `/patients/{{id}}` rather than `/dashboard`.
+
+### 9a.7 Frontend — Patient Detail component (new)
+
+`features/patients/detail/patient-detail.component.ts`, standalone, mirroring the `patient-form` component's structure:
+
+- On init, reads `id` from `ActivatedRoute.snapshot.paramMap`, calls `patientService.getById(id)`.
+- States to render: `loading` (spinner/placeholder), `loaded` (patient fields), `notFound` (404 → inline message + link to `/dashboard`), `error` (unexpected failure → inline message + retry).
+- Loaded state displays: Full Name, Date of Birth + computed Age, Gender, Phone Number, and (read-only, not editable here) `CreatedAt`/registration date if useful for context — no Email/Address fields per the resolved Open Question #2.
+- "Edit" button/link navigates to `/patients/{{id}}/edit`.
+- Placeholder navigation anchors for "Appointments," "Consultations," "History" per §7/Modules\02 — render as visibly inactive/disabled links or a short "coming soon" note (not functional buttons) so it's unambiguous to a doctor testing today's build that those tabs aren't wired to real data yet; avoid implying functionality that doesn't exist.
+- No Delete action anywhere on this screen (AC6/§4 "No delete endpoint").
+
+### 9a.8 Frontend — service, models, routes
+
+- `patient.service.ts`: add `getById(id: string): Observable<Patient>` (`GET /patients/{id}`) and `update(id: string, request: UpdatePatientRequest): Observable<Patient>` (`PUT /patients/{id}`). Update the class-level comment (currently "Increment 1 scope: create only...") since it's now stale.
+- `patients.models.ts`: add `UpdatePatientRequest` type — identical field shape to `CreatePatientRequest` (can be a type alias, e.g., `export type UpdatePatientRequest = CreatePatientRequest;`, since the payload is the same four fields for both).
+- `app.routes.ts`: add two routes — `patients/:id` (lazy-loads `PatientDetailComponent`) and `patients/:id/edit` (lazy-loads `PatientFormComponent`). **Ordering matters**: the existing literal route `patients/new` (line 30) must remain declared before the `patients/:id` parameterized route, or Angular's route matcher will interpret `/patients/new` as `id: 'new'` and route it to the detail component instead of the form. Both new routes need the same `auth.guard` protection already applied to `patients/new`.
+
+### 9a.9 Test cases (concrete, supersedes §12's Increment-2-relevant bullets with specifics)
+
+**Unit — `GetPatientByIdQueryHandler`**
+- Existing `Id` → returns a `PatientDto` with `Age` correctly recomputed from `DateOfBirth` against the injected `IDateTimeProvider`'s `UtcNow` (not the real clock — reuse the fake `IDateTimeProvider` test double already used in `CreatePatientCommandTests`).
+- Non-existent `Id` → returns `null`.
+
+**Unit — `UpdatePatientCommandHandler`**
+- Valid full payload on an existing patient → `Result.Succeeded == true`, returned DTO reflects new values, `UpdatedAt` advances past the original `CreatedAt`/`UpdatedAt`, `CreatedAt`/`Id` unchanged.
+- Same four validation failure cases as `CreatePatientCommandTests` (missing name/DOB/gender/phone, future DOB, invalid gender) — confirms the shared validator behaves identically for edit as for create.
+- Non-existent `Id` with an otherwise-valid payload → `Result.IsNotFound == true`, `Result.Succeeded == false`.
+
+**Integration (`WebApplicationFactory`, extending `PatientsEndpointsTests`)**
+- `GET /api/patients/{id}` without a token → `401`.
+- `GET /api/patients/{id}` for a patient created via the existing `POST` flow → `200` with matching fields.
+- `GET /api/patients/{id}` for a random unused GUID → `404`.
+- `PUT /api/patients/{id}` without a token → `401`.
+- `PUT /api/patients/{id}` with a valid payload on an existing patient → `200`, and a subsequent `GET` on the same id reflects the change (this is AC2, and is the first test able to use a real `GET` instead of a direct-DbContext check, unlike the Increment 1 comment at `PatientsEndpointsTests.cs` line 20–21 which had to work around the missing endpoint).
+- `PUT /api/patients/{id}` with an invalid payload (e.g., blank name) on an existing patient → `400`.
+- `PUT /api/patients/{id}` for a random unused GUID with an otherwise-valid payload → `404`.
+- `POST /api/patients` still returns `201` and now a `Location` header that resolves via the new `GetById` route (regression check on the `CreatedAtAction` change in §9a.4).
+
+**Angular component tests**
+- `patient-detail.component`: renders loading → loaded transition given a mocked `PatientService.getById` observable; renders not-found state on a `404` error response; Edit button link points at `/patients/{id}/edit`.
+- `patient-form.component` in edit-mode: pre-populates all four fields from a mocked `getById` response; submit calls `PatientService.update` with the route id and form values, not `create`; on success navigates to `/patients/{id}` (spy on `Router.navigate`); on server-side validation error, displays the same inline error banner used by create-mode; Cancel link points at `/patients/{id}`, not `/dashboard`.
+- `patient-form.component` in create-mode: existing Increment 1 tests continue to pass unmodified (regression check that the edit-mode branch doesn't change create-mode behavior).
 
 ## 10. File Structure (indicative, framework-agnostic)
 
@@ -146,45 +246,53 @@ src/server/
       Dtos/
         PatientDto.cs
         CreatePatientRequestDto.cs
-        UpdatePatientRequestDto.cs
+        UpdatePatientRequestDto.cs        # new, Increment 2
       Commands/
         CreatePatientCommand.cs
-        UpdatePatientCommand.cs
+        UpdatePatientCommand.cs           # new, Increment 2 (handler + NotFound-aware Result usage)
       Queries/
-        GetPatientByIdQuery.cs
+        GetPatientByIdQuery.cs            # new, Increment 2 (handler only — returns PatientDto?, no Result<T>)
         SearchPatientsQuery.cs
       Services/
-        IPatientRepository.cs
+        IPatientRepository.cs             # extended, Increment 2: + UpdateAsync
+      PatientValidation.cs                # new, Increment 2 — shared field validator extracted from CreatePatientCommandHandler
+      PatientGenders.cs
+  PatientManagement.Application/
+    Common/
+      Result.cs                           # extended, Increment 2: + IsNotFound flag + NotFound(string) factory
   PatientManagement.Infrastructure/
     Persistence/
       Configurations/
         PatientConfiguration.cs
     Repositories/
-      PatientRepository.cs
+      PatientRepository.cs                # extended, Increment 2: + UpdateAsync
     Migrations/
       <timestamp>_AddPatientsTable.cs
   PatientManagement.Api/
     Controllers/
-      PatientsController.cs
+      PatientsController.cs               # extended, Increment 2: + GetById, + Update; POST switches to CreatedAtAction
   PatientManagement.Tests/
     Unit/Patients/
       CreatePatientCommandTests.cs
-      UpdatePatientCommandTests.cs
+      GetPatientByIdQueryHandlerTests.cs   # new, Increment 2
+      UpdatePatientCommandTests.cs         # new, Increment 2
       SearchPatientsQueryTests.cs
     Integration/Patients/
-      PatientsEndpointsTests.cs
+      PatientsEndpointsTests.cs            # extended, Increment 2: GET/PUT cases added
 
 src/client/src/app/
   core/patients/
-    patient.service.ts
-    patients.models.ts
+    patient.service.ts                    # extended, Increment 2: + getById, + update
+    patients.models.ts                    # extended, Increment 2: + UpdatePatientRequest
   features/patients/
     list/
       patients-list.component.ts / .html / .scss
     form/
-      patient-form.component.ts / .html / .scss
+      patient-form.component.ts / .html / .scss   # extended, Increment 2: create- and edit-mode
+      patient-form.component.spec.ts
     detail/
-      patient-detail.component.ts / .html / .scss
+      patient-detail.component.ts / .html / .scss  # new, Increment 2
+      patient-detail.component.spec.ts              # new, Increment 2
 ```
 
 ## 11. Security Considerations
@@ -239,6 +347,9 @@ src/client/src/app/
 | Search performance at scale unverified until real data volumes exist | Could miss the 2–5s NFR if patient volume grows beyond "moderate" | Add indexes proactively (§5); include a performance test in Increment 3; revisit indexing/pagination strategy if volume assumptions change |
 | Pagination for a full patient list/browse view not explicitly required by BRD (only "search") | Could build an unnecessary feature, or conversely fail a real doctor workflow if a browse-all view turns out to be needed | Treated as optional in this plan (§6, "Optional" list endpoint); confirm with Product Owner whether a browse-all view is needed or search-only is sufficient |
 | PK type consistency with Module 1 entities not yet confirmed from this plan alone | Migration rework if `Patient.Id` type diverges from established convention | Task #21 explicitly requires confirming `User`/`PasswordResetToken` PK type before writing the `Patient` entity/migration |
+| No optimistic concurrency control on `PUT` (Increment 2) | Last-write-wins if the same patient record is somehow edited from two open tabs/sessions | Documented assumption (§9a.5): acceptable for a single-user, single-clinic app per BRD scope; revisit only if Product Owner flags real-world multi-tab conflicts |
+| `Result<T>` extended with a new `IsNotFound` state (Increment 2) touches a shared type used by Module 1's Auth handlers | Regression risk if the extension isn't purely additive | §9a.2 specifies the extension as backward-compatible (`IsNotFound` defaults `false` on existing factories); Increment 2 tests should include a quick regression pass on existing Auth unit tests after the change |
+| Angular route ordering (`patients/new` vs `patients/:id`) is order-sensitive | `/patients/new` could silently resolve to the detail component with `id: 'new'` if routes are declared/reordered incorrectly | §9a.8 flags this explicitly; add an integration/E2E check that navigating to `/patients/new` still renders the create form, not a "patient not found" state |
 
 ---
 
@@ -248,6 +359,11 @@ src/client/src/app/
 2. Email/Address: **not captured** — strictly the four BRD fields (Name, DOB, Gender, Phone).
 3. Browse-all paginated list: **not built in Increment 1** — search only; can be added later if needed.
 4. DOB vs Age: **store `DateOfBirth`, compute Age on read**.
+
+## Open Questions — Resolved by Product Owner (Increment 2 Planning)
+
+5. Concurrency handling on edit: **last-write-wins, no RowVersion/optimistic concurrency check** — matches single-user/single-clinic Phase 1 scope.
+6. 404 response body shape: **`404` with a `{ message: "Patient not found." }` body**, matching the existing error-shape convention elsewhere in the API.
 
 ---
 
