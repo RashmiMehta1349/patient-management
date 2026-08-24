@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { InactivityTimerService } from '../../core/auth/inactivity-timer.service';
 import { CurrentUser } from '../../core/auth/auth.models';
@@ -13,7 +14,7 @@ import { CurrentUser } from '../../core/auth/auth.models';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

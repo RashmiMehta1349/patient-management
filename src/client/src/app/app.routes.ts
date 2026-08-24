@@ -26,5 +26,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
   },
+  {
+    path: 'patients/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/patients/form/patient-form.component').then((m) => m.PatientFormComponent)
+  },
   { path: '**', redirectTo: 'dashboard' }
 ];
