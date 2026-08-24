@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using PatientManagement.Application.Auth;
 using PatientManagement.Application.Auth.Commands;
 using PatientManagement.Application.Auth.Services;
+using PatientManagement.Application.Patients.Commands;
+using PatientManagement.Application.Patients.Services;
 using PatientManagement.Infrastructure.Persistence;
 using PatientManagement.Infrastructure.Repositories;
 using PatientManagement.Infrastructure.Services;
@@ -24,6 +26,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IPatientRepository, PatientRepository>();
 
         services.AddSingleton<IPasswordHasherService, PasswordHasherService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
@@ -34,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<LoginCommandHandler>();
         services.AddScoped<ForgotPasswordCommandHandler>();
         services.AddScoped<ResetPasswordCommandHandler>();
+        services.AddScoped<CreatePatientCommandHandler>();
 
         return services;
     }
