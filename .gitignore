@@ -3,6 +3,9 @@ bin/
 obj/
 *.user
 *.suo
+*.db
+*.db-shm
+*.db-wal
 
 # Angular / Node
 node_modules/
