@@ -1,0 +1,40 @@
+<div class="page">
+  <div class="card">
+    <h1>Patient Profile</h1>
+
+    @if (loading) {
+      <p role="status">Loading patient…</p>
+    } @else if (notFound) {
+      <div class="banner banner-error" role="alert">Patient not found.</div>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else if (error) {
+      <div class="banner banner-error" role="alert">Could not load patient. Please try again.</div>
+      <button type="button" (click)="retry()">Retry</button>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else if (patient) {
+      <dl>
+        <dt>Full name</dt>
+        <dd>{{ patient.fullName }}</dd>
+        <dt>Date of birth</dt>
+        <dd>{{ patient.dateOfBirth }} (age {{ patient.age }})</dd>
+        <dt>Gender</dt>
+        <dd>{{ patient.gender }}</dd>
+        <dt>Phone</dt>
+        <dd>{{ patient.phoneNumber }}</dd>
+        <dt>Registered</dt>
+        <dd>{{ patient.createdAt | date: 'medium' }}</dd>
+      </dl>
+
+      <div class="actions">
+        <a [routerLink]="['/patients', patient.id, 'edit']">Edit</a>
+        <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      </div>
+
+      <nav class="placeholder-nav" aria-label="Related records (coming soon)">
+        <span class="placeholder-link" aria-disabled="true">Appointments (coming soon)</span>
+        <span class="placeholder-link" aria-disabled="true">Consultations (coming soon)</span>
+        <span class="placeholder-link" aria-disabled="true">History (coming soon)</span>
+      </nav>
+    }
+  </div>
+</div>

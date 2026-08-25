@@ -1,0 +1,80 @@
+<div class="page">
+  <div class="card">
+    @if (loading) {
+      <h1>Edit Patient</h1>
+      <p role="status">Loading patient…</p>
+    } @else if (notFound) {
+      <h1>Edit Patient</h1>
+      <div class="banner banner-error" role="alert">Patient not found.</div>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else if (loadError) {
+      <h1>Edit Patient</h1>
+      <div class="banner banner-error" role="alert">Could not load patient. Please try again.</div>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else {
+      <h1>{{ isEditMode ? 'Edit Patient' : 'Add Patient' }}</h1>
+
+      @if (createdPatient) {
+        <div class="banner banner-success" role="status">
+          <p><strong>{{ createdPatient.fullName }}</strong> was registered successfully.</p>
+          <dl>
+            <dt>Date of birth</dt>
+            <dd>{{ createdPatient.dateOfBirth }} (age {{ createdPatient.age }})</dd>
+            <dt>Gender</dt>
+            <dd>{{ createdPatient.gender }}</dd>
+            <dt>Phone</dt>
+            <dd>{{ createdPatient.phoneNumber }}</dd>
+          </dl>
+        </div>
+        <button type="button" (click)="registerAnother()">Register another patient</button>
+        <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          @if (errorMessage) {
+            <div class="banner banner-error" role="alert">{{ errorMessage }}</div>
+          }
+
+          <label for="fullName">Full name</label>
+          <input id="fullName" type="text" formControlName="fullName" autocomplete="off" />
+          @if (form.controls.fullName.invalid && form.controls.fullName.touched) {
+            <div class="field-error">Full name is required.</div>
+          }
+
+          <label for="dateOfBirth">Date of birth</label>
+          <input id="dateOfBirth" type="date" formControlName="dateOfBirth" [max]="today" />
+          @if (form.controls.dateOfBirth.invalid && form.controls.dateOfBirth.touched) {
+            <div class="field-error">Date of birth is required.</div>
+          }
+
+          <label for="gender">Gender</label>
+          <select id="gender" formControlName="gender">
+            <option value="" disabled>Select…</option>
+            @for (gender of genders; track gender) {
+              <option [value]="gender">{{ gender }}</option>
+            }
+          </select>
+          @if (form.controls.gender.invalid && form.controls.gender.touched) {
+            <div class="field-error">Gender is required.</div>
+          }
+
+          <label for="phoneNumber">Phone number</label>
+          <input id="phoneNumber" type="tel" formControlName="phoneNumber" autocomplete="off" />
+          @if (form.controls.phoneNumber.invalid && form.controls.phoneNumber.touched) {
+            <div class="field-error">Phone number is required.</div>
+          }
+
+          <div class="actions">
+            <button type="submit" [disabled]="submitting">
+              {{ submitting ? 'Saving…' : 'Save patient' }}
+            </button>
+            @if (isEditMode && id) {
+              <a class="back-link" [routerLink]="['/patients', id]">Cancel</a>
+            } @else {
+              <a class="back-link" routerLink="/dashboard">Cancel</a>
+            }
+          </div>
+        </form>
+      }
+    }
+  </div>
+</div>

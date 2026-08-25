@@ -1,0 +1,7 @@
+<main class="dashboard-content">
+  <h1>Dashboard</h1>
+  <p>You are signed in.</p>
+  @if (currentUser) {
+    <p class="user-email">{{ currentUser.email }}</p>
+  }
+</main>

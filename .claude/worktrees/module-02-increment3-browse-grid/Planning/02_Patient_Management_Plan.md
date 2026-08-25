@@ -51,13 +51,6 @@ The driving user request for this increment is specifically "doctor will create 
 4. Doctor selects a result to open that Patient Profile (3.3).
 5. If no results, client shows an empty state with a shortcut to "Add Patient."
 
-### 3.5 Browse All Patients (grid) — new, Increment 3 revision
-1. Doctor selects "Patients" from the app header navigation menu (available on every authenticated screen, not just the dashboard).
-2. Client calls `GET /api/patients` (no `query` param) — the full, unfiltered patient list — and renders it as a grid/table.
-3. Doctor clicks "Add Patient" (button on the grid page) to reach `patients/new` (existing Increment 1 flow, unchanged).
-4. Doctor clicks the edit icon on a row to navigate directly to `patients/:id/edit` (existing Increment 2 form, edit-mode, unchanged) — bypassing the Patient Detail (view) screen entirely for this entry point, which is a deliberate one-click affordance the user asked for ("edit icon to edit patient record").
-5. If the grid has zero rows (first-run, no patients yet), show an empty state with a shortcut to "Add Patient," matching the search screen's empty-state convention (3.4 step 5).
-
 ## 4. Architecture Approach
 
 - **Layering**: Follow the existing Clean Architecture split proven in Module 1 — `PatientManagement.Domain` (Patient entity), `PatientManagement.Application` (Patients feature: DTOs, Commands/Queries, validation, repository interface), `PatientManagement.Infrastructure` (EF Core configuration, repository implementation, migration), `PatientManagement.Api` (PatientsController), `PatientManagement.Tests` (unit + integration). No code is written in this plan, but this is the structure implementation should target.
@@ -69,9 +62,6 @@ The driving user request for this increment is specifically "doctor will create 
 - **Search implementation**: Server-side `LIKE`/`Contains()` (EF Core translated) against `FullName` and `PhoneNumber`, backed by non-clustered indexes on both columns to meet the 2–5s NFR (R5) even as patient volume grows moderately (BRD Scalability NFR — "moderate patient volume").
 - **Auth**: All endpoints require the existing `RequireAuthenticatedUser` fallback policy from `Program.cs` — no new `[AllowAnonymous]` surface is introduced by this module.
 - **Rendering**: Angular standalone components, following the `features/auth/*` structure precedent — a new `features/patients/*` area with `list`, `detail`, `form` components, plus a `core/patients/patient.service.ts` and `patients.models.ts` mirroring `core/auth`'s structure.
-- **Revision (Increment 3 scope change — see §9b for full rationale)**: The current Angular app has **no app-level header/shell component** — `AppComponent` is a bare `RouterOutlet` (`app.component.ts`), and the only navigation today is the `DashboardComponent`'s own inline logout control plus ad-hoc `routerLink`s scattered per-page. The user's request explicitly asks for a persistent header "Patient" menu tab, which requires introducing a new `AppShellComponent` (or equivalent) — this is new scaffolding, not an extension of an existing nav bar. This also **reopens Open Question 3** ("browse-all paginated list: not built... search only"), which this plan now revises — see the reconciliation note below.
-- **Reconciling Open Question 3**: Increment 1 planning explicitly decided against a browse-all list endpoint in favor of search-only. The user's current request — "clicking on Patient Tab, Show Patient records in grid" — unambiguously asks for a browse-all grid, not a search box. This plan treats the new request as **superseding** Open Question 3's prior answer, since the literal ask has no search input at all, just a grid of records reachable from a menu click. Flagged explicitly here rather than silently reconciled; final confirmation from Product Owner requested in the new Open Questions below, but implementation should proceed on the "yes, supersedes" reading since the request is unambiguous and low-risk to build (see pagination decision below).
-- **List endpoint shape — paginated, `GET /api/patients`** (Product Owner-confirmed, Open Question 7 resolved): the browse-all endpoint returns a **paged** result, not the full set, ordered by `FullName` ascending. This reverses the original "unpaginated for now" recommendation in this plan — the Product Owner explicitly chose the more scalable option over the leaner unpaginated build. See §9b.1 for the full API contract and §9b.3 for the Angular grid's paging controls.
 
 ## 5. Database Entities
 
@@ -96,19 +86,17 @@ The driving user request for this increment is specifically "doctor will create 
 | `POST` | `/api/patients` | Create (register) a new patient | Bearer JWT required | `201` + `PatientDto`, `Location` header → `GET /api/patients/{id}` (via `CreatedAtAction`, Increment 2) | `400` invalid payload |
 | `GET` | `/api/patients/{id}` | Retrieve a single patient's full profile | Bearer JWT required | `200` + `PatientDto` | `404` unknown id |
 | `PUT` | `/api/patients/{id}` | Update an existing patient's details (full payload) | Bearer JWT required | `200` + updated `PatientDto` | `404` unknown id (checked first) / `400` invalid payload |
-| `GET` | `/api/patients?query={term}&page={n}&pageSize={n}` | Search patients by partial name or phone match, paginated | Bearer JWT required | `200` + paged envelope (Increment 3) | — |
-| `GET` | `/api/patients?page={n}&pageSize={n}` (no `query` param) | Browse-all: return one page of the patient list, ordered by `FullName` ascending, for the grid page | Bearer JWT required | `200` + paged envelope (Increment 3 revision, §9b) | — (empty `items` array if no patients / page beyond range) |
+| `GET` | `/api/patients?query={term}` | Search patients by partial name or phone match | Bearer JWT required | `200` + list (Increment 3) | — |
 
-All routes sit behind the existing fallback `RequireAuthenticatedUser` policy — no controller-level `[AllowAnonymous]` needed. Validation failures return `400` with field-level error detail (matching the `Result`-pattern precedent in `PatientManagement.Application\Common\Result.cs`, extended in Increment 2 with an `IsNotFound` flag — see §9a.2). Not-found lookups return `404`, checked before validation on `PUT` since there's no point validating a payload for a record that doesn't exist. The browse-all and search behaviors share the same `GET /api/patients` route, distinguished only by whether `query` is present/non-empty, and **both** are paginated using the same `page`/`pageSize` params and response envelope — see §9b.1 for the single-handler design and pagination contract.
+All routes sit behind the existing fallback `RequireAuthenticatedUser` policy — no controller-level `[AllowAnonymous]` needed. Validation failures return `400` with field-level error detail (matching the `Result`-pattern precedent in `PatientManagement.Application\Common\Result.cs`, extended in Increment 2 with an `IsNotFound` flag — see §9a.2). Not-found lookups return `404`, checked before validation on `PUT` since there's no point validating a payload for a record that doesn't exist.
 
 ## 7. UI / Screens
 
-- **App Header / Shell** (`core/shell/app-shell.component`, new — see §9b.2): persistent top navigation bar shown on every authenticated route, containing at minimum a "Patients" menu tab (routes to `patients`, the new grid page) and the existing logout control (moved out of `DashboardComponent` into the shell so it's available everywhere, not just on the dashboard). Not shown on `login`/`forgot-password`/`reset-password`.
-- **Patients Grid screen** (`features/patients/list`, revised scope — was "List / Search" in the original Increment 3 plan, now **browse-all by default, paginated**): grid/table of one page of patient records (columns: Full Name, DOB/Age, Gender, Phone Number, per-row Edit icon), pagination controls below the grid, "Add Patient" button (top of page, routes to `patients/new`), empty state ("No patients yet — Add Patient"). Reachable via the header "Patients" tab. See §9b.3 for the search-box reconciliation (kept, optional, layered on top of the paginated grid — not removed) and pagination control design.
+- **Patients List / Search screen** (`features/patients/list`): search box (name/phone), results table (name, DOB/age, gender, phone), "Add Patient" button, empty state.
 - **Patient Form screen** (`features/patients/form`), reused for both Add and Edit: Full Name, DOB (date picker) or Age, Gender (dropdown), Phone, optional Email/Address fields, Save/Cancel actions, inline validation messages.
 - **Patient Profile / Detail screen** (`features/patients/detail`): read-only display of all captured fields, "Edit" action, and placeholder navigation tabs/links for Appointments / Consultations / History (wired up as those modules land — Module 2 only needs to render the anchors, not the content). Loading / loaded / not-found / error states (see §9a.7).
-- **Patient Form screen, edit-mode**: same `features/patients/form` component as Add, extended (not duplicated) to pre-populate from `GET /api/patients/{id}` and submit via `PUT`; see §9a.6 for the reuse-vs-separate-component decision and rationale. Reached either from the Patient Detail screen's "Edit" button, or directly from the Patients Grid's per-row edit icon (new entry point, §9b.3).
-- **Dashboard integration**: the original plan's dashboard entry point is superseded by the header nav as the primary access path (see §9b.4 reconciliation) — the header tab is the sole, canonical navigation route into this module; the dashboard does not retain a separate "Patients" card/link (Open Question 8, resolved).
+- **Patient Form screen, edit-mode**: same `features/patients/form` component as Add, extended (not duplicated) to pre-populate from `GET /api/patients/{id}` and submit via `PUT`; see §9a.6 for the reuse-vs-separate-component decision and rationale.
+- **Dashboard integration**: extend the existing `dashboard.component` with a "Recent Patients" or "Search Patients" entry point so the doctor's post-login flow reaches this module directly.
 
 ## 8. Dependencies
 
@@ -139,20 +127,12 @@ All routes sit behind the existing fallback `RequireAuthenticatedUser` policy �
 14. Angular: add `getById()`/`update()` to `patient.service.ts`; add `features/patients/detail/patient-detail.component.ts` (new); extend `features/patients/form/patient-form.component.ts` in place to support edit-mode via route param (no new form component — see §9a rationale); register `patients/:id` and `patients/:id/edit` routes in `app.routes.ts`, taking care that the literal `patients/new` route is declared before the `patients/:id` wildcard so it keeps matching correctly.
 15. Component tests: detail component (loading/loaded/not-found/error states, Edit button navigation), form component in edit-mode (pre-population from resolved patient, PUT submit success/error, validation reuse, Cancel/navigation back to detail instead of the create-mode "register another" flow).
 
-**Increment 3 — Search + Browse-All Grid + Header Navigation (revised scope)**
-
-> Revised from the original "Search" increment per the user's explicit request for a header-menu-driven, browse-all patient grid with an Add Patient button and per-row edit icon. Original tasks 16–18 (search) are retained unchanged; tasks 19–20 are superseded by 19a–23 below. See §9b for implementation-ready detail.
-
+**Increment 3 — Search**
 16. Add `SearchPatientsQuery` + handler (name/phone partial match), `GET /api/patients?query=` endpoint.
 17. Add DB indexes on `FullName`/`PhoneNumber` via migration.
 18. Unit/integration tests for search (name match, phone match, partial match, no results).
-19a. Extend the same `GET /api/patients` endpoint to also serve the **browse-all** case (empty/absent `query` → full list, ordered by `FullName`) — see §9b.1 for the single-handler design.
-19b. Unit/integration tests for browse-all (empty query returns all patients ordered by name; zero patients returns empty array; still `401` without a token).
-20a. Angular: create `core/shell/app-shell.component` (new) with a header nav bar containing a "Patients" tab and the relocated logout control; wire it into `AppComponent`'s template so it wraps `RouterOutlet` for all authenticated routes (see §9b.2).
-20b. Angular: build/revise `features/patients/list` (`PatientsListComponent`) as a **grid** — table of all patients (Full Name, DOB/Age, Gender, Phone, Edit icon column), "Add Patient" button, empty state; default data source is the browse-all call; optional search box layered on top calls the same service method with a `query` param (§9b.3).
-21. Add `list()` and/or extend `search()` on `patient.service.ts` to call `GET /api/patients` with an optional `query` param; reconcile into a single method (§9b.1).
-22. Register `patients` route (list/grid page) in `app.routes.ts`, guarded by `authGuard`, declared with the same ordering care already documented for `patients/new` vs `patients/:id` (the literal `patients` segment doesn't collide with `patients/:id`, but keep it grouped with the other `patients/*` routes for readability).
-23. Angular component tests for `PatientsListComponent` (grid renders rows, Add Patient button navigates to `patients/new`, edit icon navigates to `patients/:id/edit`, empty state renders with zero patients) and for `app-shell.component` (Patients tab present and routes correctly, logout control still works after relocation, hidden on unauthenticated routes).
+19. Angular `features/patients/list` component with debounced search input, results table, empty state.
+20. Dashboard integration — add navigation entry point to Patients list/search.
 
 **Cross-cutting**
 21. Confirm PK type/GUID convention against Module 1's `User`/`PasswordResetToken` entities before writing the migration, to keep the schema internally consistent.
@@ -254,85 +234,6 @@ Rationale:
 - `patient-form.component` in edit-mode: pre-populates all four fields from a mocked `getById` response; submit calls `PatientService.update` with the route id and form values, not `create`; on success navigates to `/patients/{id}` (spy on `Router.navigate`); on server-side validation error, displays the same inline error banner used by create-mode; Cancel link points at `/patients/{id}`, not `/dashboard`.
 - `patient-form.component` in create-mode: existing Increment 1 tests continue to pass unmodified (regression check that the edit-mode branch doesn't change create-mode behavior).
 
-## 9b. Increment 3 — Header Nav + Browse-All Grid — Detailed Design
-
-This section expands §9 tasks 19a–23 to implementation-ready detail, triggered by the user's explicit request: header "Patient" menu tab → grid of all patient records → Add Patient button → per-row edit icon → `patients/:id/edit`.
-
-### 9b.1 Backend — single, paginated `GET /api/patients` handler for both browse-all and search
-
-Rather than adding a second endpoint, extend `SearchPatientsQueryHandler` (or the controller action wrapping it) to branch on whether `query` is present, and to page **both** branches identically (Product Owner-confirmed, Open Question 7 resolved: pagination is added now).
-
-**API contract**
-
-- `[HttpGet] GetAll([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 25, CancellationToken)`:
-  - If `query` is null/empty/whitespace → browse-all branch: call a `GetAllPatientsQueryHandler` (new) that returns a **paged** result over all rows ordered by `FullName`.
-  - If `query` is non-empty → search branch: existing `SearchPatientsQueryHandler` (task 16), now also returning a **paged** result over the matching rows, ordered by `FullName`.
-  - Both branches return the identical response envelope shape — pagination applies consistently whether browsing or searching, so the client never has to special-case one mode's response shape versus the other's. This is the simpler, more consistent option versus paginating only pure browse-all and leaving search unpaginated.
-- **Defaults / bounds**: `page` defaults to `1` (1-based, not 0-based, to match typical UI page-number display); `pageSize` defaults to `25`; `pageSize` is server-clamped to a maximum of `100` (protects against a caller requesting an unbounded page size — defense in depth even though this is a single-trusted-client app). `page < 1` or `pageSize < 1` in the request is treated as the default rather than a `400`, since a malformed page param shouldn't hard-fail a grid render — flagged as an implementation convenience, not a BRD-mandated behavior.
-- **Response envelope** (applies to both branches): `{ items: PatientDto[], totalCount: int, page: int, pageSize: int }` — `items` is the current page's rows (empty array if `page` is beyond the last page, not a `404`), `totalCount` is the full matching-row count (all rows for browse-all, matching rows for search) so the client can compute total pages (`Math.Ceiling(totalCount / pageSize)`) without a second round-trip, `page`/`pageSize` echo back the effective (post-clamp/post-default) values actually applied, so the client can reconcile its own state against what the server used.
-- Add `Task<(IReadOnlyList<Patient> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken ct = default)` to `IPatientRepository` (replaces the previously-planned non-paged `GetAllAsync(CancellationToken)` shape — this plan had not yet been implemented, so no prior signature is broken), implemented in `PatientRepository` via `OrderBy(p => p.FullName).Skip((page-1)*pageSize).Take(pageSize).ToListAsync(ct)` plus a separate `CountAsync(ct)` (EF Core will issue two queries; acceptable at this data volume, avoids a single combined query with window-function complexity for no real benefit here).
-- `SearchPatientsQueryHandler`'s existing (already-implemented, task 16) signature similarly gains `page`/`pageSize` parameters and returns the same `(Items, TotalCount)` shape from a `Contains()`-filtered, `Skip`/`Take`-paged query — this is a signature change to an already-built handler from Increment 3's earlier work, called out explicitly since it's a rework, not new-from-scratch.
-- Rationale for one route, not two: keeps the API surface small (one client method, one controller action), matches how the user described it ("Show Patient records in grid" — a superset of "search," not a parallel feature), and avoids the client needing to decide which of two endpoints to call.
-
-### 9b.2 Frontend — App Shell / Header Navigation (new)
-
-No header/shell component exists today (`app.component.ts` is a bare `RouterOutlet`; logout lives only inside `DashboardComponent`). This increment introduces one:
-
-- New `core/shell/app-shell.component.ts` (standalone), containing: app/product name or logo placeholder, a nav tab list (currently just "Patients," extensible for future modules' nav entries — Appointments, etc., added by their own increments), and the logout button (moved from `DashboardComponent`, reusing the same `AuthService.logout(true)` call and `InactivityTimerService` wiring already proven in Module 1).
-- `AppComponent`'s template changes from a bare `<router-outlet>` to conditionally wrap it with `<app-shell><router-outlet /></app-shell>` (or an `<ng-content>`-based layout) **only when authenticated** — the shell must not render on `login`/`forgot-password`/`reset-password`, where there's no session yet and nothing to navigate to. Implementation approach: the shell component itself checks route/auth state (e.g., subscribes to `Router` events and an `isAuthRoute` allow-list, or simpler — reads `AuthService`'s current-session signal and renders nothing if absent), rather than duplicating route logic in `AppComponent`. Exact mechanism is an implementation detail; the constraint (hidden on unauthenticated routes) is the requirement.
-- `DashboardComponent` is trimmed: its own logout button is removed (now redundant with the shell's), but its `ngOnInit` still starts the inactivity timer and calls `authService.me()` for its own greeting content — or, alternatively, the shell takes over the inactivity-timer start since it's now the component present on every authenticated screen, and `DashboardComponent` stops owning that responsibility. **Flagged as an implementation decision for the developer to make consistently, not a BRD-mandated detail** — either placement satisfies the underlying NFR (idle timeout), but it should only live in one place to avoid double timers.
-- The "Patients" tab is a simple `routerLink="/patients"` with `routerLinkActive` styling — no dropdown/submenu needed, since there is exactly one target today (per user request, literally "Patient Menu... clicking on Patient Tab").
-
-### 9b.3 Frontend — Patients Grid (`PatientsListComponent`, revised from original "list/search" component), now paginated
-
-- On init, calls `patientService.list({ page: 1 })` (new/renamed method — see §9b.5) with no `query` → renders page 1 of the grid, using the server's default `pageSize`.
-- Grid columns: Full Name, Date of Birth (or computed Age — reuse whichever display convention `patient-detail.component` already uses for consistency), Gender, Phone Number, and a final **Edit** column containing an icon/button per row.
-- **Pagination controls**: simple **Previous / Next** buttons plus a "Page X of Y" label below the grid, rather than a numbered page-picker — kept deliberately simple since this is a single-clinic, low-volume app where jumping to an arbitrary page number isn't a real need; "Previous" disabled on page 1, "Next" disabled on the last page (derived from the response envelope's `totalCount`/`pageSize`). Page size is **fixed** at the server default (`25`) with no client-facing page-size selector in this increment — another simplicity call consistent with the low-volume framing; flagged as an implementation choice the developer/Product Owner can revisit, not a BRD-mandated control.
-- "Add Patient" button placed above the grid (top-left or top-right, developer's call on exact placement — not a BRD-specified detail), `routerLink="/patients/new"`, reusing the existing Increment 1 create flow unchanged.
-- Edit icon per row: `routerLink="['/patients', patient.id, 'edit']"`, navigating straight into `patient-form.component` in edit-mode (§9a.6) — **does not** route through the Patient Detail (view) screen first; this is the direct one-click behavior the user asked for and is additive to, not a replacement for, the existing Detail screen's own "Edit" button (3.3/9a.7 flow is unchanged and still reachable via search or direct profile links).
-- States: loading (initial fetch, and again on every page-change fetch), loaded (grid populated for the current page), empty (zero patients total → "No patients yet" + Add Patient shortcut, matching 3.4 step 5's convention — distinct from "this page happens to be past the end," which shouldn't occur in normal use since Next is disabled once on the last page), error (fetch failure → inline message + retry).
-- Search box: **kept, not removed** — layered above the grid as an optional filter; typing into it (debounced per the existing 3.4 workflow) calls the same `list()` method with `query` set. **Typing into the search box resets pagination to page 1** — standard pattern, since a new filter invalidates whatever page position applied to the previous (unfiltered or differently-filtered) result set; clearing the search box reverts to the full browse-all grid, also reset to page 1. This reconciles the original Increment 3 search-component work with the new browse-all + pagination requirement in one component rather than two competing screens.
-
-### 9b.4 Reconciling the Dashboard entry point (original plan) vs. the new header tab
-
-The original plan's task 20 ("Dashboard integration — add navigation entry point to Patients list/search") is superseded, not deleted: the header nav (§9b.2) is now the primary, always-available entry point per the user's explicit request, satisfying the same underlying need (a way to reach Patient Management from the post-login screen) more generally, since it works from *any* authenticated screen, not just the dashboard. **Resolved (Open Question 8): header tab only** — the dashboard does not get its own "Patients" card/link; the header tab is the sole navigation path into this module.
-
-### 9b.5 Frontend — service/model/route changes
-
-- `patient.service.ts`: rename or extend the existing search-oriented method (whatever Increment 3's original task 19 would have added) into a single `list(options: { query?: string; page?: number; pageSize?: number }): Observable<PagedResult<Patient>>` that calls `GET /api/patients` with `query` (omitted or empty for browse-all, populated for search) plus `page`/`pageSize`. Avoids having two near-identical service methods (`getAll()` and `search()`) calling the same route, and keeps pagination handling in one place for both modes.
-- `patients.models.ts`: add a new generic `PagedResult<T>` type (`{ items: T[]; totalCount: number; page: number; pageSize: number }`) matching the backend envelope (§9b.1); `PatientsListComponent` consumes `PagedResult<Patient>` from `list()`. No change to the existing `Patient`/`PatientDto`-shaped type itself, still reused as-is by `getById`.
-- `app.routes.ts`: add `{ path: 'patients', canActivate: [authGuard], loadComponent: () => import('./features/patients/list/patients-list.component').then(m => m.PatientsListComponent) }`, grouped with the other `patients/*` routes; no ordering conflict with `patients/new` or `patients/:id` since `patients` (no further segment) is distinct from both.
-
-### 9b.6 New test cases (concrete)
-
-**Unit — `GetAllPatientsQueryHandler` (paginated)**
-- Page 1 with `pageSize=25` and 30 seeded patients → returns the first 25, ordered by `FullName` ascending, `totalCount == 30`.
-- Page 2 of the same 30-patient set → returns the remaining 5, `totalCount == 30`, `page == 2`.
-- A page beyond the total (e.g., page 3 of a 30-row, pageSize-25 set → only 2 pages exist) → returns an empty `items` array, `totalCount` still `30` (not a `404`, not an error).
-- Returns an empty `items` array and `totalCount == 0` when no patients exist at all.
-- `pageSize` above the server max (e.g., request `pageSize=500`) → clamped to `100`.
-- `page=0` or negative `page` → treated as `page=1` (default fallback, not `400`).
-
-**Unit — `SearchPatientsQueryHandler` (paginated, reworked from its existing task-16 unpaged version)**
-- A query matching more rows than one page → returns only the current page's matches, `totalCount` reflects the full matching-row count, not just the page.
-- Same page-size clamp and page-bounds behavior as the browse-all handler above, confirming both handlers apply pagination identically.
-
-**Integration (`WebApplicationFactory`, extending `PatientsEndpointsTests`)**
-- `GET /api/patients` (no `query`) without a token → `401`.
-- `GET /api/patients?page=1&pageSize=25` with a token and several created patients → `200` with the envelope shape (`items`, `totalCount`, `page`, `pageSize`), `items.length` matching whichever is smaller of `pageSize` or the seeded count, ordered by name.
-- `GET /api/patients?page=2&pageSize=10` with 15 seeded patients → `200` with the remaining 5 in `items`, `totalCount == 15`.
-- `GET /api/patients?page=99` with far fewer than 99 pages of data → `200` with an empty `items` array (not `404`), `totalCount` unchanged.
-- `GET /api/patients` (no `query`) with zero patients seeded → `200` with `items: []`, `totalCount: 0`.
-- `GET /api/patients?query=` (empty string) behaves identically to no `query` param at all, including pagination (regression guard against an off-by-one in the "is query present" branch, §9b.1).
-- `GET /api/patients?query={term}&page=2&pageSize=5` with a search term matching more than 5 patients → `200` with page 2 of the matching set, `totalCount` reflecting only matches, confirming search and browse-all share identical paging behavior.
-- `GET /api/patients?pageSize=1000` → `200` with `pageSize` echoed back as the clamped `100` (or fewer rows if fewer exist), not `1000`.
-
-**Angular component tests**
-- `PatientsListComponent`: renders a grid row per patient from a mocked `list()` response's `items`; "Add Patient" button has `routerLink` to `/patients/new`; each row's edit icon has `routerLink` to `/patients/{id}/edit`; empty state renders with zero total patients and includes an Add Patient shortcut; search box re-invokes `list()` with the typed `query` (debounced) and resets to page 1, and clearing it re-invokes `list()` with no `query`, also reset to page 1.
-- `PatientsListComponent` pagination: "Next" button calls `list()` with `page` incremented and renders the new page's `items`; "Previous" is disabled on page 1; "Next" is disabled when `page * pageSize >= totalCount` (last page); "Page X of Y" label reflects `page` and `Math.ceil(totalCount / pageSize)` from the mocked response.
-- `app-shell.component`: renders the "Patients" nav tab with a link to `/patients`; renders the logout button and calls `AuthService.logout(true)` on click (moved from the old `dashboard.component.spec.ts` coverage); does not render when there is no authenticated session (e.g., on `/login`).
-- `DashboardComponent` regression: existing tests updated to reflect the removed inline logout button (now owned by the shell), without losing coverage of whatever `DashboardComponent` still owns (its own greeting/`me()` call).
-
 ## 10. File Structure (indicative, framework-agnostic)
 
 ```
@@ -352,11 +253,8 @@ src/server/
       Queries/
         GetPatientByIdQuery.cs            # new, Increment 2 (handler only — returns PatientDto?, no Result<T>)
         SearchPatientsQuery.cs
-        GetAllPatientsQuery.cs            # new, Increment 3 revision — paginated browse-all handler (§9b.1)
-      Dtos/
-        PagedResultDto.cs                 # new, Increment 3 revision — generic { Items, TotalCount, Page, PageSize } envelope (§9b.1)
       Services/
-        IPatientRepository.cs             # extended, Increment 2: + UpdateAsync; Increment 3: + paginated GetAllAsync(page, pageSize)
+        IPatientRepository.cs             # extended, Increment 2: + UpdateAsync
       PatientValidation.cs                # new, Increment 2 — shared field validator extracted from CreatePatientCommandHandler
       PatientGenders.cs
   PatientManagement.Application/
@@ -367,37 +265,28 @@ src/server/
       Configurations/
         PatientConfiguration.cs
     Repositories/
-      PatientRepository.cs                # extended, Increment 2: + UpdateAsync; Increment 3: + paginated GetAllAsync(page, pageSize)
+      PatientRepository.cs                # extended, Increment 2: + UpdateAsync
     Migrations/
       <timestamp>_AddPatientsTable.cs
   PatientManagement.Api/
     Controllers/
       PatientsController.cs               # extended, Increment 2: + GetById, + Update; POST switches to CreatedAtAction
-                                           # extended, Increment 3: GetAll branches browse-all vs search on `query` (§9b.1)
   PatientManagement.Tests/
     Unit/Patients/
       CreatePatientCommandTests.cs
       GetPatientByIdQueryHandlerTests.cs   # new, Increment 2
       UpdatePatientCommandTests.cs         # new, Increment 2
       SearchPatientsQueryTests.cs
-      GetAllPatientsQueryHandlerTests.cs   # new, Increment 3 revision (§9b.6)
     Integration/Patients/
       PatientsEndpointsTests.cs            # extended, Increment 2: GET/PUT cases added
-                                           # extended, Increment 3: browse-all GET cases added (§9b.6)
 
 src/client/src/app/
-  core/shell/
-    app-shell.component.ts / .html / .scss   # new, Increment 3 revision — header nav + logout (§9b.2)
-    app-shell.component.spec.ts               # new, Increment 3 revision
   core/patients/
     patient.service.ts                    # extended, Increment 2: + getById, + update
-                                           # extended, Increment 3: paginated list({query, page, pageSize}) GET (§9b.5)
     patients.models.ts                    # extended, Increment 2: + UpdatePatientRequest
-                                           # extended, Increment 3: + PagedResult<T> (§9b.5)
   features/patients/
     list/
-      patients-list.component.ts / .html / .scss   # revised, Increment 3 — browse-all grid + optional search + Add Patient button + edit icon (§9b.3)
-      patients-list.component.spec.ts               # new, Increment 3 (§9b.6)
+      patients-list.component.ts / .html / .scss
     form/
       patient-form.component.ts / .html / .scss   # extended, Increment 2: create- and edit-mode
       patient-form.component.spec.ts
@@ -413,8 +302,6 @@ src/client/src/app/
 - No PII beyond what's clinically necessary (Name, DOB, Gender, Phone, optional Email/Address) — consistent with BRD's minimal-scope stance; do not add SSN/insurance ID fields (explicitly out of scope).
 - Data in transit protected via the app's existing HTTPS enforcement (BRD Security NFR: encryption at rest and in transit); data at rest encryption is a Module 9 (Backup & Reliability) concern for the DB itself, not something this module implements directly, but this module must not weaken it (e.g., no plaintext export outside the sanctioned Module 8 flow).
 - Input sanitization on `FullName`/search `query` parameters to prevent injection — mitigated structurally by using parameterized EF Core LINQ queries (`Contains()`), never raw SQL string concatenation.
-- **Browse-all endpoint (Increment 3 revision)**: `GET /api/patients` (no `query`) returns one bounded page (at most `pageSize`, server-capped to `100`) of patient records per call, not the full table in one response — still behind the same `RequireAuthenticatedUser` policy as every other endpoint, so this introduces no new unauthenticated surface, and pagination further bounds the per-response PII exposure versus an unpaginated full-table return. Acceptable given single-user/single-clinic scope (only the one doctor account can ever call it) and no BRD requirement to restrict bulk-read within an authenticated session; flagged here as a deliberate, scope-consistent decision, not an oversight.
-- The new header/shell component must not leak the logout/nav affordance onto unauthenticated routes (`login`/`forgot-password`/`reset-password`) — enforced via the auth-state check in §9b.2, verified by the corresponding component test.
 
 ## 12. Test Strategy
 
@@ -438,14 +325,6 @@ src/client/src/app/
 
 **Performance**
 - Search endpoint response time under representative "moderate" patient volume (e.g., a few thousand rows) stays within the 2–5s Success Criteria target (R5) — validate via a simple load/timing test once the index is in place; flag if volume assumptions need Product Owner input.
-- Browse-all grid page load time (`GET /api/patients?page=1&pageSize=25`, no `query`) stays within the same 2–5s target — with pagination now in place (Open Question 7 resolved), this should comfortably hold even at higher volumes than the earlier unpaginated design assumed, since each response is bounded to at most `pageSize` (max `100`) rows regardless of total patient count.
-
-**New — Increment 3 revision (header nav + paginated browse-all grid)**
-- Component test: clicking the header "Patients" tab from any authenticated screen navigates to `/patients` and renders the grid (page 1).
-- Component test: `PatientsListComponent` grid renders one row per patient for the current page's `items`, in `FullName` order, matching the `GET /api/patients` response envelope.
-- Component test: "Add Patient" button navigates to `/patients/new`; edit icon on a row navigates to `/patients/{id}/edit` (not `/patients/{id}` — confirms the direct-to-edit behavior the user asked for).
-- Component test: pagination — page 2 renders the correct slice of patients given a mocked multi-page response; an empty page beyond the total renders the grid's empty-row state without erroring; "Next"/"Previous" disabled states match the boundary pages.
-- E2E: doctor logs in, clicks "Patients" in the header, sees page 1 of the grid, clicks Add Patient, registers a new patient, returns to the grid (manually or via nav) and sees the new row (on whichever page it sorts to); clicks the edit icon on an existing row and lands directly on the pre-populated edit form; with more than one page of seeded data, clicks "Next" and sees the next page's rows, then "Previous" to return to page 1.
 
 ## 13. Acceptance Criteria
 
@@ -456,10 +335,6 @@ src/client/src/app/
 - AC5: All Patient Management endpoints reject unauthenticated requests with `401`. (BRD Security NFR)
 - AC6: No delete/merge functionality is exposed anywhere in the UI or API for this module. (Modules\02 §3, §5)
 - AC7: Patient search returns results within the BRD's 2–5 second target under representative load. (BRD Success Criteria)
-- AC8: A "Patients" tab is present in a persistent header navigation menu on every authenticated screen and, when clicked, opens a paginated grid showing all patient records (page 1 by default), with Previous/Next controls to reach further pages. (User request, Increment 3 revision; pagination per Open Question 7 resolution)
-- AC9: The Patients grid page has an "Add Patient" button that opens the existing create-patient form (`patients/new`). (User request, Increment 3 revision)
-- AC10: Each row in the Patients grid has an edit icon/control that, when clicked, opens the existing edit-patient form pre-populated for that patient (`patients/:id/edit`). (User request, Increment 3 revision)
-- AC11: The header/nav menu does not render on unauthenticated screens (login, forgot-password, reset-password). (BRD Security NFR; §9b.2)
 
 ## 14. Risks & Mitigations
 
@@ -475,10 +350,6 @@ src/client/src/app/
 | No optimistic concurrency control on `PUT` (Increment 2) | Last-write-wins if the same patient record is somehow edited from two open tabs/sessions | Documented assumption (§9a.5): acceptable for a single-user, single-clinic app per BRD scope; revisit only if Product Owner flags real-world multi-tab conflicts |
 | `Result<T>` extended with a new `IsNotFound` state (Increment 2) touches a shared type used by Module 1's Auth handlers | Regression risk if the extension isn't purely additive | §9a.2 specifies the extension as backward-compatible (`IsNotFound` defaults `false` on existing factories); Increment 2 tests should include a quick regression pass on existing Auth unit tests after the change |
 | Angular route ordering (`patients/new` vs `patients/:id`) is order-sensitive | `/patients/new` could silently resolve to the detail component with `id: 'new'` if routes are declared/reordered incorrectly | §9a.8 flags this explicitly; add an integration/E2E check that navigating to `/patients/new` still renders the create form, not a "patient not found" state |
-| This plan's Increment 3 revision **supersedes** the earlier Open Question 3 answer ("browse-all: not built, search only") without a fresh, explicit Product Owner sign-off cycle before implementation starts | Rework risk if Product Owner actually wanted search-only preserved and the header tab to open a search screen instead of a grid | §4/§9b.1 document the reasoning for treating the user's literal request as superseding; new Open Question 6 (below) asks for explicit confirmation before/alongside Increment 3 build-out — do not treat this plan's reasoning as a substitute for that confirmation |
-| Pagination changes the `GET /api/patients` response shape (envelope with `items`/`totalCount`/`page`/`pageSize` instead of a flat array) for a route not yet released to any client | Low risk in practice since this plan's earlier unpaginated version of the route was never implemented (Increment 3 work is still upcoming per the task list), but the search handler (task 16) may already exist unpaginated — its signature/return type must be rewired to the paged shape as part of this change, not left as a second, inconsistent response format | §9b.1 explicitly calls out the `SearchPatientsQueryHandler` rework; ensure any already-written tests for the unpaged search handler are updated in the same change, not left passing against a stale contract |
-| Fixed page size with no client-facing page-size selector may not suit every doctor's preference | Minor UX friction if 25 rows per page feels too small/large for a given clinic's typical patient count | §9b.3 flags this as a deliberate simplicity choice for a low-volume single-clinic app; revisit with a page-size selector only if Product Owner requests it post-launch |
-| Introducing a new `AppShellComponent` touches `AppComponent` (previously untouched since Module 1) and relocates the logout control out of `DashboardComponent` | Regression risk to existing Module 1 auth/logout tests and the inactivity-timer wiring if the relocation isn't done carefully | §9b.2 flags the single-owner-of-inactivity-timer decision explicitly; existing `dashboard.component.spec.ts` and `app.component.spec.ts` must be updated in the same change, not left stale |
 
 ---
 
@@ -493,16 +364,6 @@ src/client/src/app/
 
 5. Concurrency handling on edit: **last-write-wins, no RowVersion/optimistic concurrency check** — matches single-user/single-clinic Phase 1 scope.
 6. 404 response body shape: **`404` with a `{ message: "Patient not found." }` body**, matching the existing error-shape convention elsewhere in the API.
-
----
-
-## Open Questions — Resolved by Product Owner (Increment 3 Revision)
-
-6. **Does the new browse-all grid + header nav supersede the original Increment 1 decision that Module 2 would be "search-only, no browse-all list"?** **Confirmed: yes.** The browse-all grid supersedes the earlier search-only decision.
-7. **Expected patient volume ceiling / pagination**: **Add pagination now.** This reverses this plan's earlier "unpaginated for now" recommendation — the Product Owner explicitly chose the more scalable, paginated option over the leaner unpaginated build. See §9b.1 for the API contract and §9b.3 for the Angular grid's paging controls.
-8. **Does the dashboard keep its own "Patients" entry point/card alongside the new header tab, or is the header tab the sole navigation path?** **Confirmed: header tab only** — no separate dashboard card. §9b.4's "optional dashboard card" language is superseded; the dashboard does not get a Patients card in this build.
-9. **Grid columns**: **Confirmed** — Full Name, DOB/Age, Gender, Phone, Edit icon, as originally proposed. No additional columns (e.g., no "last visit date," which remains out of reach until Module 6 History exists).
-10. **Search box on the grid page**: **Confirmed: keep it** — layered on top of the paginated browse-all list, per the dual-mode UX this plan proposed (§9b.3).
 
 ---
 
