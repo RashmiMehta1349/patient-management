@@ -1,15 +1,7 @@
-<header class="app-header">
-  <span class="app-title">Patient Management</span>
-  <div class="header-actions">
-    @if (currentUser) {
-      <span class="user-email">{{ currentUser.email }}</span>
-    }
-    <button type="button" class="logout-button" (click)="logout()">Logout</button>
-  </div>
-</header>
-
 <main class="dashboard-content">
   <h1>Dashboard</h1>
   <p>You are signed in.</p>
-  <a routerLink="/patients/new" class="add-patient-link">+ Add Patient</a>
+  @if (currentUser) {
+    <p class="user-email">{{ currentUser.email }}</p>
+  }
 </main>

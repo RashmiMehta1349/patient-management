@@ -14,6 +14,14 @@ export interface CreatePatientRequest {
 /** Same four-field shape as CreatePatientRequest — full-payload PUT per the approved plan §4. */
 export type UpdatePatientRequest = CreatePatientRequest;
 
+/** Generic paged response envelope matching the backend's PagedResultDto<T> (§9b.1/§9b.5). */
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
 export interface Patient {
   id: string;
   fullName: string;

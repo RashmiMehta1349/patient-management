@@ -206,6 +206,134 @@ public class PatientsEndpointsTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task GetAll_WithoutToken_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/patients");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetAll_BrowseAll_ReturnsPagedEnvelopeOrderedByName()
+    {
+        var client = _factory.CreateClient();
+        var token = await LoginAndGetTokenAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        await client.PostAsJsonAsync("/api/patients", NamedPayload("Zack Adams"));
+        await client.PostAsJsonAsync("/api/patients", NamedPayload("Amy Baker"));
+
+        var response = await client.GetAsync("/api/patients?page=1&pageSize=25");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(1, body.GetProperty("page").GetInt32());
+        Assert.Equal(25, body.GetProperty("pageSize").GetInt32());
+        var items = body.GetProperty("items").EnumerateArray().ToList();
+        Assert.True(items.Count >= 2);
+        var names = items.Select(i => i.GetProperty("fullName").GetString()).ToList();
+        Assert.Equal(names.OrderBy(n => n, StringComparer.Ordinal), names);
+    }
+
+    [Fact]
+    public async Task GetAll_Page2With15Seeded_ReturnsRemaining5()
+    {
+        var client = _factory.CreateClient();
+        var token = await LoginAndGetTokenAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        for (var i = 0; i < 15; i++)
+        {
+            await client.PostAsJsonAsync("/api/patients", NamedPayload($"Patient {i:D2}"));
+        }
+
+        var response = await client.GetAsync("/api/patients?page=2&pageSize=10");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(15, body.GetProperty("totalCount").GetInt32());
+        Assert.Equal(5, body.GetProperty("items").GetArrayLength());
+    }
+
+    [Fact]
+    public async Task GetAll_PageFarBeyondRange_ReturnsEmptyItemsNot404()
+    {
+        var client = _factory.CreateClient();
+        var token = await LoginAndGetTokenAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        await client.PostAsJsonAsync("/api/patients", NamedPayload("Only Patient"));
+
+        var response = await client.GetAsync("/api/patients?page=99&pageSize=25");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Empty(body.GetProperty("items").EnumerateArray());
+        Assert.True(body.GetProperty("totalCount").GetInt32() >= 1);
+    }
+
+    [Fact]
+    public async Task GetAll_EmptyQueryString_BehavesIdenticallyToNoQuery()
+    {
+        var client = _factory.CreateClient();
+        var token = await LoginAndGetTokenAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        await client.PostAsJsonAsync("/api/patients", NamedPayload("Query Regression"));
+
+        var response = await client.GetAsync("/api/patients?query=&page=1&pageSize=25");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        var names = body.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("fullName").GetString());
+        Assert.Contains("Query Regression", names);
+    }
+
+    [Fact]
+    public async Task GetAll_WithQueryMatchingMoreThanPageSize_ReturnsPagedMatches()
+    {
+        var client = _factory.CreateClient();
+        var token = await LoginAndGetTokenAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        for (var i = 0; i < 7; i++)
+        {
+            await client.PostAsJsonAsync("/api/patients", NamedPayload($"Searchable Patient {i:D2}"));
+        }
+
+        var response = await client.GetAsync("/api/patients?query=Searchable&page=2&pageSize=5");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(7, body.GetProperty("totalCount").GetInt32());
+        Assert.Equal(2, body.GetProperty("items").GetArrayLength());
+    }
+
+    [Fact]
+    public async Task GetAll_PageSizeAboveMax_EchoesClampedPageSize()
+    {
+        var client = _factory.CreateClient();
+        var token = await LoginAndGetTokenAsync(client);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await client.GetAsync("/api/patients?pageSize=1000");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(100, body.GetProperty("pageSize").GetInt32());
+    }
+
+    private static object NamedPayload(string fullName) => new
+    {
+        fullName,
+        dateOfBirth = "1990-05-15",
+        gender = "Female",
+        phoneNumber = "555-123-4567"
+    };
+
     private static object ValidPayload() => new
     {
         fullName = "Jane Doe",

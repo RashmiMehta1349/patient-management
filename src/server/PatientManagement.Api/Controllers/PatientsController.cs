@@ -19,15 +19,40 @@ public class PatientsController : ControllerBase
     private readonly CreatePatientCommandHandler _createPatientHandler;
     private readonly GetPatientByIdQueryHandler _getPatientByIdHandler;
     private readonly UpdatePatientCommandHandler _updatePatientHandler;
+    private readonly GetAllPatientsQueryHandler _getAllPatientsHandler;
+    private readonly SearchPatientsQueryHandler _searchPatientsHandler;
 
     public PatientsController(
         CreatePatientCommandHandler createPatientHandler,
         GetPatientByIdQueryHandler getPatientByIdHandler,
-        UpdatePatientCommandHandler updatePatientHandler)
+        UpdatePatientCommandHandler updatePatientHandler,
+        GetAllPatientsQueryHandler getAllPatientsHandler,
+        SearchPatientsQueryHandler searchPatientsHandler)
     {
         _createPatientHandler = createPatientHandler;
         _getPatientByIdHandler = getPatientByIdHandler;
         _updatePatientHandler = updatePatientHandler;
+        _getAllPatientsHandler = getAllPatientsHandler;
+        _searchPatientsHandler = searchPatientsHandler;
+    }
+
+    /// <summary>
+    /// Serves both the browse-all and search cases, distinguished only by whether `query` is
+    /// present/non-empty (Increment 3 revision, §9b.1). Both branches are paginated using the
+    /// same page/pageSize params and response envelope.
+    /// </summary>
+    [HttpGet]
+    public async Task<ActionResult<PagedResultDto<PatientDto>>> GetAll(
+        [FromQuery] string? query,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 25,
+        CancellationToken cancellationToken = default)
+    {
+        var result = string.IsNullOrWhiteSpace(query)
+            ? await _getAllPatientsHandler.HandleAsync(page, pageSize, cancellationToken)
+            : await _searchPatientsHandler.HandleAsync(query, page, pageSize, cancellationToken);
+
+        return Ok(result);
     }
 
     [HttpPost]
