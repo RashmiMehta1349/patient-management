@@ -30,9 +30,70 @@
         <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
       </div>
 
+      <section class="appointments-section">
+        <div class="appointments-header">
+          <h2>Appointments</h2>
+          <a [routerLink]="['/appointments/new']" [queryParams]="{ patientId: patient.id }">+ Schedule</a>
+        </div>
+
+        @if (appointmentsLoading) {
+          <p role="status">Loading appointments…</p>
+        } @else if (appointmentsError) {
+          <div class="banner banner-error" role="alert">Could not load appointments.</div>
+        } @else if (appointments.length === 0) {
+          <p class="no-appointments">No appointments for this patient yet.</p>
+        } @else {
+          <ul class="appointments-list">
+            @for (appointment of appointments; track appointment.id) {
+              <li>
+                <span class="appointment-date">{{ appointment.appointmentDate }} {{ appointment.appointmentTime }}</span>
+                <span class="appointment-status">{{ appointment.status }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="consultations-section">
+        <div class="consultations-header">
+          <h2>Consultations</h2>
+          <a [routerLink]="['/consultations/new']" [queryParams]="{ patientId: patient.id }">+ New Consultation</a>
+        </div>
+
+        @if (visitsLoading) {
+          <p role="status">Loading consultations…</p>
+        } @else if (visitsError) {
+          <div class="banner banner-error" role="alert">Could not load consultations.</div>
+        } @else if (visits.length === 0) {
+          <p class="no-consultations">No consultations recorded for this patient yet.</p>
+        } @else {
+          <ul class="consultations-list">
+            @for (visit of visits; track visit.id) {
+              <li>
+                <a [routerLink]="['/consultations', visit.id, 'edit']">
+                  <span class="visit-date">{{ visit.visitDate | date: 'medium' }}</span>
+                  <span class="visit-vitals">
+                    Temp: {{ visit.temperatureNotRecorded ? 'Not recorded' : visit.temperatureValue }}
+                    · BP: {{ visit.bloodPressureNotRecorded ? 'Not recorded' : visit.bloodPressureValue }}
+                    · Pulse: {{ visit.pulseNotRecorded ? 'Not recorded' : visit.pulseValue }}
+                  </span>
+                  @if (visit.diagnosis) {
+                    <span class="visit-diagnosis">{{ visit.diagnosis }}</span>
+                  }
+                  @if (visit.medications.length > 0) {
+                    <span class="medication-badge">{{ visit.medications.length }} medicine{{ visit.medications.length === 1 ? '' : 's' }}</span>
+                  }
+                </a>
+                <button type="button" class="print-prescription-btn" (click)="printPrescription(visit.id)" [disabled]="printingVisitId === visit.id">
+                  {{ printingVisitId === visit.id ? 'Preparing…' : 'Print Prescription' }}
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
       <nav class="placeholder-nav" aria-label="Related records (coming soon)">
-        <span class="placeholder-link" aria-disabled="true">Appointments (coming soon)</span>
-        <span class="placeholder-link" aria-disabled="true">Consultations (coming soon)</span>
         <span class="placeholder-link" aria-disabled="true">History (coming soon)</span>
       </nav>
     }

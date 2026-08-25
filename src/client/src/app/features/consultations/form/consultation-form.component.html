@@ -1,0 +1,131 @@
+<div class="page">
+  <div class="card">
+    @if (loading) {
+      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+      <p role="status">Loading…</p>
+    } @else if (notFound) {
+      <h1>Edit Consultation</h1>
+      <div class="banner banner-error" role="alert">Consultation not found.</div>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else if (loadError) {
+      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+      <div class="banner banner-error" role="alert">Could not load data. Please try again.</div>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else if (savedVisit) {
+      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+      <div class="banner banner-success" role="status">
+        <p>Consultation for <strong>{{ savedVisit.patientName }}</strong> saved.</p>
+      </div>
+      <div class="actions">
+        <a [routerLink]="backLink()">Back to patient</a>
+        <button type="button" class="print-link" (click)="printPrescription(savedVisit.id)" [disabled]="printing">
+          {{ printing ? 'Preparing…' : 'Print Prescription' }}
+        </button>
+      </div>
+      @if (printError) {
+        <div class="banner banner-error" role="alert">Could not generate prescription PDF. Please try again.</div>
+      }
+    } @else {
+      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+
+      @if (patient) {
+        <p class="patient-context">Patient: <strong>{{ patient.fullName }}</strong></p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        @if (errorMessage) {
+          <div class="banner banner-error" role="alert">{{ errorMessage }}</div>
+        }
+
+        <fieldset class="vital-row" [class.invalid]="showVitalsValidation && !isTemperatureAddressed">
+          <legend>Temperature *</legend>
+          <input
+            type="number"
+            step="0.1"
+            formControlName="temperatureValue"
+            placeholder="e.g. 98.6"
+            aria-label="Temperature value"
+          />
+          <label class="not-recorded-toggle">
+            <input type="checkbox" formControlName="temperatureNotRecorded" />
+            Not recorded
+          </label>
+          @if (showVitalsValidation && !isTemperatureAddressed) {
+            <div class="field-error">Enter a value or check "Not recorded".</div>
+          }
+        </fieldset>
+
+        <fieldset class="vital-row" [class.invalid]="showVitalsValidation && !isBloodPressureAddressed">
+          <legend>Blood Pressure *</legend>
+          <input
+            type="text"
+            formControlName="bloodPressureValue"
+            placeholder="e.g. 120/80"
+            aria-label="Blood pressure value"
+          />
+          <label class="not-recorded-toggle">
+            <input type="checkbox" formControlName="bloodPressureNotRecorded" />
+            Not recorded
+          </label>
+          @if (showVitalsValidation && !isBloodPressureAddressed) {
+            <div class="field-error">Enter a value or check "Not recorded".</div>
+          }
+        </fieldset>
+
+        <fieldset class="vital-row" [class.invalid]="showVitalsValidation && !isPulseAddressed">
+          <legend>Pulse *</legend>
+          <input
+            type="number"
+            formControlName="pulseValue"
+            placeholder="e.g. 72"
+            aria-label="Pulse value"
+          />
+          <label class="not-recorded-toggle">
+            <input type="checkbox" formControlName="pulseNotRecorded" />
+            Not recorded
+          </label>
+          @if (showVitalsValidation && !isPulseAddressed) {
+            <div class="field-error">Enter a value or check "Not recorded".</div>
+          }
+        </fieldset>
+
+        <div class="field">
+          <label for="complaints">Complaints</label>
+          <textarea id="complaints" formControlName="complaints" rows="3"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="diagnosis">Diagnosis</label>
+          <textarea id="diagnosis" formControlName="diagnosis" rows="3"></textarea>
+        </div>
+
+        <fieldset class="medications-section" formArrayName="medications">
+          <legend>Medications</legend>
+
+          @for (row of medications.controls; track row; let i = $index) {
+            <div class="medication-row" [formGroupName]="i" [class.invalid]="showMedicationValidation && isMedicationRowIncomplete(i)">
+              <input type="text" formControlName="name" placeholder="Name" aria-label="Medicine name" maxlength="200" />
+              <input type="text" formControlName="dosage" placeholder="Dosage" aria-label="Dosage" maxlength="100" />
+              <input type="text" formControlName="frequency" placeholder="Frequency" aria-label="Frequency" maxlength="100" />
+              <input type="text" formControlName="duration" placeholder="Duration" aria-label="Duration" maxlength="100" />
+              <input type="text" formControlName="instructions" placeholder="Instructions" aria-label="Instructions" maxlength="500" />
+              <button type="button" class="remove-row" (click)="removeMedicationRow(i)" aria-label="Remove medicine">Remove</button>
+              @if (showMedicationValidation && isMedicationRowIncomplete(i)) {
+                <div class="field-error">Complete all 5 fields for this medicine, or remove the row.</div>
+              }
+            </div>
+          }
+
+          <button type="button" class="add-row" (click)="addMedicationRow()">+ Add Medicine</button>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit" [disabled]="submitting">
+            {{ submitting ? 'Saving…' : 'Save consultation' }}
+          </button>
+          <a class="back-link" [routerLink]="backLink()">Cancel</a>
+        </div>
+      </form>
+    }
+  </div>
+</div>

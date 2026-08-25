@@ -38,7 +38,9 @@
         <tbody>
           @for (patient of patients; track patient.id) {
             <tr>
-              <td>{{ patient.fullName }}</td>
+              <td>
+                <a [routerLink]="['/patients', patient.id]" class="patient-name-link">{{ patient.fullName }}</a>
+              </td>
               <td>{{ patient.dateOfBirth }} ({{ patient.age }})</td>
               <td>{{ patient.gender }}</td>
               <td>{{ patient.phoneNumber }}</td>

@@ -1,0 +1,105 @@
+<div class="page">
+  <div class="card">
+    @if (loading) {
+      <h1>Edit Appointment</h1>
+      <p role="status">Loading appointment…</p>
+    } @else if (notFound) {
+      <h1>Edit Appointment</h1>
+      <div class="banner banner-error" role="alert">Appointment not found.</div>
+      <a class="back-link" routerLink="/appointments">Back to appointments</a>
+    } @else if (loadError) {
+      <h1>Edit Appointment</h1>
+      <div class="banner banner-error" role="alert">Could not load data. Please try again.</div>
+      <a class="back-link" routerLink="/appointments">Back to appointments</a>
+    } @else {
+      <h1>{{ isEditMode ? 'Edit Appointment' : 'Schedule Appointment' }}</h1>
+
+      @if (savedAppointment) {
+        <div class="banner banner-success" role="status">
+          <p>Appointment for <strong>{{ savedAppointment.patientName }}</strong> scheduled for
+            {{ savedAppointment.appointmentDate }} at {{ savedAppointment.appointmentTime }}.</p>
+        </div>
+        @if (savedAppointment.hasOverlapWarning) {
+          <div class="banner banner-warning" role="alert">
+            This overlaps with an existing appointment
+            @for (conflict of savedAppointment.conflictingAppointments; track conflict.id) {
+              for {{ conflict.patientName }} at {{ conflict.appointmentTime }}.
+            }
+          </div>
+        }
+        <button type="button" (click)="scheduleAnother()">Schedule another appointment</button>
+        <a class="back-link" routerLink="/appointments">Back to appointments</a>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          @if (errorMessage) {
+            <div class="banner banner-error" role="alert">{{ errorMessage }}</div>
+          }
+
+          <div class="field">
+            <label for="patientSearch">Patient</label>
+            @if (selectedPatient) {
+              <div class="selected-patient">
+                <span>{{ selectedPatient.fullName }}</span>
+                @if (!patientLocked) {
+                  <button type="button" class="clear-patient" (click)="clearSelectedPatient()">Change</button>
+                }
+              </div>
+            } @else {
+              <input
+                id="patientSearch"
+                type="text"
+                placeholder="Search by name or phone…"
+                [ngModel]="patientSearchTerm"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onPatientSearchChange($event)"
+                autocomplete="off"
+              />
+              @if (patientResults.length > 0) {
+                <ul class="patient-results">
+                  @for (patient of patientResults; track patient.id) {
+                    <li>
+                      <button type="button" (click)="selectPatient(patient)">
+                        {{ patient.fullName }} — {{ patient.phoneNumber }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+              @if (patientTouched && !selectedPatient) {
+                <div class="field-error">Patient is required.</div>
+              }
+            }
+          </div>
+
+          <div class="field">
+            <label for="appointmentDate">Date</label>
+            <input id="appointmentDate" type="date" formControlName="appointmentDate" />
+            @if (form.controls.appointmentDate.invalid && form.controls.appointmentDate.touched) {
+              <div class="field-error">Date is required.</div>
+            }
+          </div>
+
+          <div class="field">
+            <label for="appointmentTime">Time</label>
+            <input id="appointmentTime" type="time" formControlName="appointmentTime" />
+            @if (form.controls.appointmentTime.invalid && form.controls.appointmentTime.touched) {
+              <div class="field-error">Time is required.</div>
+            }
+          </div>
+
+          <div class="field">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" formControlName="notes" rows="3"></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="submit" [disabled]="submitting">
+              {{ submitting ? 'Saving…' : 'Save appointment' }}
+            </button>
+            <a class="back-link" routerLink="/appointments">Cancel</a>
+          </div>
+        </form>
+      }
+    }
+  </div>
+</div>

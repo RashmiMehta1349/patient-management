@@ -34,34 +34,42 @@
             <div class="banner banner-error" role="alert">{{ errorMessage }}</div>
           }
 
-          <label for="fullName">Full name</label>
-          <input id="fullName" type="text" formControlName="fullName" autocomplete="off" />
-          @if (form.controls.fullName.invalid && form.controls.fullName.touched) {
-            <div class="field-error">Full name is required.</div>
-          }
-
-          <label for="dateOfBirth">Date of birth</label>
-          <input id="dateOfBirth" type="date" formControlName="dateOfBirth" [max]="today" />
-          @if (form.controls.dateOfBirth.invalid && form.controls.dateOfBirth.touched) {
-            <div class="field-error">Date of birth is required.</div>
-          }
-
-          <label for="gender">Gender</label>
-          <select id="gender" formControlName="gender">
-            <option value="" disabled>Select…</option>
-            @for (gender of genders; track gender) {
-              <option [value]="gender">{{ gender }}</option>
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input id="fullName" type="text" formControlName="fullName" autocomplete="off" />
+            @if (form.controls.fullName.invalid && form.controls.fullName.touched) {
+              <div class="field-error">Full name is required.</div>
             }
-          </select>
-          @if (form.controls.gender.invalid && form.controls.gender.touched) {
-            <div class="field-error">Gender is required.</div>
-          }
+          </div>
 
-          <label for="phoneNumber">Phone number</label>
-          <input id="phoneNumber" type="tel" formControlName="phoneNumber" autocomplete="off" />
-          @if (form.controls.phoneNumber.invalid && form.controls.phoneNumber.touched) {
-            <div class="field-error">Phone number is required.</div>
-          }
+          <div class="field">
+            <label for="dateOfBirth">Date of birth</label>
+            <input id="dateOfBirth" type="date" formControlName="dateOfBirth" [max]="today" />
+            @if (form.controls.dateOfBirth.invalid && form.controls.dateOfBirth.touched) {
+              <div class="field-error">Date of birth is required.</div>
+            }
+          </div>
+
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select id="gender" formControlName="gender">
+              <option value="" disabled>Select…</option>
+              @for (gender of genders; track gender) {
+                <option [value]="gender">{{ gender }}</option>
+              }
+            </select>
+            @if (form.controls.gender.invalid && form.controls.gender.touched) {
+              <div class="field-error">Gender is required.</div>
+            }
+          </div>
+
+          <div class="field">
+            <label for="phoneNumber">Phone number</label>
+            <input id="phoneNumber" type="tel" formControlName="phoneNumber" autocomplete="off" />
+            @if (form.controls.phoneNumber.invalid && form.controls.phoneNumber.touched) {
+              <div class="field-error">Phone number is required.</div>
+            }
+          </div>
 
           <div class="actions">
             <button type="submit" [disabled]="submitting">

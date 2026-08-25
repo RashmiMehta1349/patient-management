@@ -16,6 +16,12 @@ public class PatientManagementDbContext : DbContext
 
     public DbSet<Patient> Patients => Set<Patient>();
 
+    public DbSet<Appointment> Appointments => Set<Appointment>();
+
+    public DbSet<Visit> Visits => Set<Visit>();
+
+    public DbSet<Medication> Medications => Set<Medication>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

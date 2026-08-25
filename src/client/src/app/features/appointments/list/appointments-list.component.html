@@ -1,0 +1,86 @@
+<div class="page">
+  <div class="card grid-card">
+    <div class="grid-header">
+      <h1>Appointments</h1>
+      <a routerLink="/appointments/new" class="add-appointment-button">+ Add Appointment</a>
+    </div>
+
+    <div class="date-nav">
+      <button type="button" (click)="previousDay()" aria-label="Previous day">&larr;</button>
+      <input
+        type="date"
+        class="date-picker"
+        [ngModel]="selectedDate"
+        (ngModelChange)="onDateChange($event)"
+        aria-label="Selected date"
+      />
+      <button type="button" (click)="nextDay()" aria-label="Next day">&rarr;</button>
+    </div>
+
+    @if (loading) {
+      <p role="status">Loading appointments…</p>
+    } @else if (error) {
+      <div class="banner banner-error" role="alert">Could not load appointments. Please try again.</div>
+      <button type="button" (click)="retry()">Retry</button>
+    } @else if (isEmpty) {
+      <div class="empty-state">
+        <p>No appointments scheduled for this day.</p>
+        <a routerLink="/appointments/new" class="add-appointment-link">+ Add Appointment</a>
+      </div>
+    } @else {
+      <table class="appointments-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Patient</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (appointment of appointments; track appointment.id) {
+            <tr>
+              <td>{{ appointment.appointmentTime }}</td>
+              <td>{{ appointment.patientName }}</td>
+              <td>
+                <select
+                  class="status-select"
+                  [ngModel]="appointment.status"
+                  (ngModelChange)="onStatusChange(appointment, $event)"
+                  [attr.aria-label]="'Status for ' + appointment.patientName"
+                >
+                  @for (status of statuses; track status) {
+                    <option [value]="status">{{ status }}</option>
+                  }
+                </select>
+                @if (statusUpdateErrorId === appointment.id) {
+                  <div class="field-error">Could not update status. Try again.</div>
+                }
+              </td>
+              <td class="notes-col">
+                @if (appointment.notes) {
+                  <span class="notes-icon" tabindex="0" [attr.aria-label]="'Notes: ' + appointment.notes">
+                    📝
+                    <span class="notes-tooltip">{{ appointment.notes }}</span>
+                  </span>
+                }
+              </td>
+              <td class="actions-col">
+                @if (appointment.status === 'Scheduled') {
+                  <a
+                    class="start-consultation-link"
+                    [routerLink]="['/consultations/new']"
+                    [queryParams]="{ patientId: appointment.patientId, appointmentId: appointment.id }"
+                  >
+                    Start Consultation
+                  </a>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

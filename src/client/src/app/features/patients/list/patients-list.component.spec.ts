@@ -71,6 +71,20 @@ describe('PatientsListComponent', () => {
     expect(editLink.getAttribute('href')).toBe('/patients/11111111-1111-1111-1111-111111111111/edit');
   });
 
+  it('patient name links to /patients/{id} (detail view)', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    const patients = [makePatient('11111111-1111-1111-1111-111111111111', 'Amy Baker')];
+    spyOn(patientService, 'list').and.returnValue(of(pagedResult(patients, 1)));
+
+    const fixture = TestBed.createComponent(PatientsListComponent);
+    fixture.detectChanges();
+
+    const nameLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.patient-name-link');
+    expect(nameLink.getAttribute('href')).toBe('/patients/11111111-1111-1111-1111-111111111111');
+    expect(nameLink.textContent?.trim()).toBe('Amy Baker');
+  });
+
   it('renders empty state with an Add Patient shortcut when there are zero patients', () => {
     setup();
     const patientService = TestBed.inject(PatientService);

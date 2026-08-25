@@ -1,0 +1,155 @@
+.page {
+  padding: 1.5rem;
+}
+
+.card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.patient-context {
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.vital-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  border: none;
+  padding: 0;
+  margin: 0 0 1rem;
+
+  legend {
+    width: 8rem;
+    font-weight: 600;
+    padding: 0;
+  }
+
+  input[type='number'],
+  input[type='text'] {
+    flex: 1;
+    padding: 0.4rem;
+  }
+
+  &.invalid input[type='number'],
+  &.invalid input[type='text'] {
+    border: 1px solid #b91c1c;
+  }
+
+  .field-error {
+    flex-basis: 100%;
+    color: #b91c1c;
+    font-size: 0.8rem;
+    margin-left: 8.75rem;
+  }
+}
+
+.not-recorded-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.field {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.4rem;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.medications-section {
+  border: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+
+  legend {
+    font-weight: 600;
+    padding: 0;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.medication-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr) auto;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+
+  input[type='text'] {
+    padding: 0.4rem;
+  }
+
+  &.invalid input[type='text'] {
+    border: 1px solid #b91c1c;
+  }
+
+  .field-error {
+    grid-column: 1 / -1;
+    color: #b91c1c;
+    font-size: 0.8rem;
+  }
+}
+
+.remove-row {
+  white-space: nowrap;
+}
+
+.add-row {
+  margin-top: 0.25rem;
+}
+
+.print-link {
+  background: none;
+  border: 1px solid #0d4429;
+  color: #0d4429;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.banner {
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.banner-error {
+  background: #fdecea;
+  color: #611a15;
+}
+
+.banner-success {
+  background: #eafaf0;
+  color: #0d4429;
+}
+
+.back-link {
+  color: #555;
+}

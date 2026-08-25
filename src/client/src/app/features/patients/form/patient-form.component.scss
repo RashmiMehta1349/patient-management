@@ -8,45 +8,66 @@
 
 .card {
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  padding: 2rem;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  box-sizing: border-box;
 
   h1 {
-    font-size: 1.25rem;
-    margin: 0 0 1rem;
+    font-size: 1.35rem;
+    margin: 0 0 1.5rem;
     color: #0b5fff;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
   }
 
   label {
     font-size: 0.85rem;
-    margin-top: 0.75rem;
+    font-weight: 600;
+    color: #334155;
   }
 
   input,
   select {
-    padding: 0.6rem 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem 0.9rem;
     border: 1px solid #cbd2d9;
     border-radius: 4px;
     font-size: 1rem;
+
+    &:focus {
+      outline: none;
+      border-color: #0b5fff;
+      box-shadow: 0 0 0 3px rgba(11, 95, 255, 0.15);
+    }
   }
 
   .field-error {
     color: #b91c1c;
     font-size: 0.8rem;
-    margin-top: 0.25rem;
   }
 
   .actions {
-    margin-top: 1.5rem;
+    margin-top: 0.75rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
   }
 
   button {

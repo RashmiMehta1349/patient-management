@@ -53,5 +53,39 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/patients/detail/patient-detail.component').then((m) => m.PatientDetailComponent)
   },
+  {
+    path: 'appointments',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/appointments/list/appointments-list.component').then((m) => m.AppointmentsListComponent)
+  },
+  {
+    path: 'appointments/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/appointments/form/appointment-form.component').then((m) => m.AppointmentFormComponent)
+  },
+  // Ordering matters: 'appointments/new' (above) must be declared before the parameterized
+  // 'appointments/:id/edit' route below, mirroring the 'patients/new' precedent.
+  {
+    path: 'appointments/:id/edit',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/appointments/form/appointment-form.component').then((m) => m.AppointmentFormComponent)
+  },
+  {
+    path: 'consultations/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/consultations/form/consultation-form.component').then((m) => m.ConsultationFormComponent)
+  },
+  // Ordering matters: 'consultations/new' (above) must be declared before the parameterized
+  // 'consultations/:id/edit' route below, mirroring the 'patients/new'/'appointments/new' precedent.
+  {
+    path: 'consultations/:id/edit',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/consultations/form/consultation-form.component').then((m) => m.ConsultationFormComponent)
+  },
   { path: '**', redirectTo: 'dashboard' }
 ];

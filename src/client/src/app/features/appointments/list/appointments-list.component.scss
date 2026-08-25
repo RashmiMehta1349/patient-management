@@ -1,0 +1,150 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.grid-card {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  padding: 2rem;
+}
+
+.grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  h1 {
+    font-size: 1.25rem;
+    margin: 0;
+    color: #0b5fff;
+  }
+}
+
+.add-appointment-button {
+  padding: 0.6rem 1rem;
+  background: #0b5fff;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  button {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #cbd2d9;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+}
+
+.date-picker {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd2d9;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.appointments-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: left;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+  }
+
+  .notes-col {
+    width: 2.5rem;
+    text-align: center;
+    overflow: visible;
+  }
+}
+
+.notes-icon {
+  position: relative;
+  display: inline-block;
+  cursor: default;
+  outline: none;
+
+  .notes-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 0.4rem);
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: 240px;
+    background: #1e293b;
+    color: #fff;
+    text-align: left;
+    padding: 0.5rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    white-space: normal;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    transition: opacity 0.1s ease-in;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1e293b;
+    }
+  }
+
+  &:hover .notes-tooltip,
+  &:focus .notes-tooltip,
+  &:focus-visible .notes-tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+.status-select {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #cbd2d9;
+  border-radius: 4px;
+}
+
+.field-error {
+  color: #b91c1c;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 0;
+
+  .add-appointment-link {
+    color: #0b5fff;
+  }
+}
+
+.banner-error {
+  color: #b91c1c;
+  margin-bottom: 0.75rem;
+}
