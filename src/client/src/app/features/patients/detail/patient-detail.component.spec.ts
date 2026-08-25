@@ -248,4 +248,182 @@ describe('PatientDetailComponent', () => {
     const emptyState = fixture.nativeElement.querySelector('.no-consultations');
     expect(emptyState).toBeTruthy();
   });
+
+  it('the dead "History (coming soon)" placeholder no longer appears anywhere (AC8)', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('History (coming soon)');
+    expect(fixture.nativeElement.querySelector('.placeholder-nav')).toBeFalsy();
+  });
+
+  it('Consultations row shows a Complaints line when present (AC5)', () => {
+    TestBed.configureTestingModule({
+      imports: [PatientDetailComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } }
+        }
+      ]
+    });
+    httpMock = TestBed.inject(HttpTestingController);
+    const patientService = TestBed.inject(PatientService);
+    const appointmentService = TestBed.inject(AppointmentService);
+    const visitService = TestBed.inject(VisitService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    spyOn(appointmentService, 'listByPatientId').and.returnValue(of([]));
+    spyOn(visitService, 'listByPatientId').and.returnValue(
+      of([
+        {
+          id: 'v1',
+          patientId: testPatient.id,
+          patientName: testPatient.fullName,
+          appointmentId: null,
+          visitDate: new Date('2026-08-25T10:00:00Z').toISOString(),
+          temperatureValue: 98.6,
+          temperatureNotRecorded: false,
+          bloodPressureValue: '120/80',
+          bloodPressureNotRecorded: false,
+          pulseValue: 72,
+          pulseNotRecorded: false,
+          complaints: 'Cough and fever',
+          diagnosis: 'Bronchitis',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          medications: []
+        }
+      ])
+    );
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    fixture.detectChanges();
+
+    const complaintsEl = fixture.nativeElement.querySelector('.visit-complaints');
+    expect(complaintsEl).toBeTruthy();
+    expect(complaintsEl.textContent).toContain('Cough and fever');
+  });
+
+  it('Consultations row links to the read-only visit detail route, not the edit form', () => {
+    TestBed.configureTestingModule({
+      imports: [PatientDetailComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } }
+        }
+      ]
+    });
+    httpMock = TestBed.inject(HttpTestingController);
+    const patientService = TestBed.inject(PatientService);
+    const appointmentService = TestBed.inject(AppointmentService);
+    const visitService = TestBed.inject(VisitService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    spyOn(appointmentService, 'listByPatientId').and.returnValue(of([]));
+    spyOn(visitService, 'listByPatientId').and.returnValue(
+      of([
+        {
+          id: 'v1',
+          patientId: testPatient.id,
+          patientName: testPatient.fullName,
+          appointmentId: null,
+          visitDate: new Date('2026-08-25T10:00:00Z').toISOString(),
+          temperatureValue: null,
+          temperatureNotRecorded: true,
+          bloodPressureValue: null,
+          bloodPressureNotRecorded: true,
+          pulseValue: null,
+          pulseNotRecorded: true,
+          complaints: null,
+          diagnosis: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          medications: []
+        }
+      ])
+    );
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    fixture.detectChanges();
+
+    const rowLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.consultations-list li a');
+    expect(rowLink.getAttribute('href')).toBe('/visits/v1');
+
+    const editLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.consultations-list li a.edit-visit-link');
+    expect(editLink).toBeTruthy();
+    expect(editLink.getAttribute('href')).toBe('/consultations/v1/edit');
+  });
+
+  it('applying a date filter re-fetches visits with fromDate/toDate forwarded to the service', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const visitService = TestBed.inject(VisitService);
+    const listSpy = visitService.listByPatientId as jasmine.Spy;
+    listSpy.and.returnValue(of([]));
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.fromDate = '2026-08-01';
+    component.toDate = '2026-08-31';
+    component.onFilterChange();
+
+    expect(listSpy).toHaveBeenCalledWith(testPatient.id, '2026-08-01', '2026-08-31');
+  });
+
+  it('clearing the filter restores the full list', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const visitService = TestBed.inject(VisitService);
+    const listSpy = visitService.listByPatientId as jasmine.Spy;
+    listSpy.and.returnValue(of([]));
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.fromDate = '2026-08-01';
+    component.toDate = '2026-08-31';
+    component.clearFilter();
+
+    expect(component.fromDate).toBe('');
+    expect(component.toDate).toBe('');
+    expect(listSpy).toHaveBeenCalledWith(testPatient.id, undefined, undefined);
+  });
+
+  it('filtered-empty state shows the distinct "No visits found in the selected date range" message', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const visitService = TestBed.inject(VisitService);
+    const listSpy = visitService.listByPatientId as jasmine.Spy;
+    listSpy.and.returnValue(of([]));
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.fromDate = '2026-08-01';
+    component.toDate = '2026-08-31';
+    component.onFilterChange();
+    fixture.detectChanges();
+
+    const filteredEmpty = fixture.nativeElement.querySelector('.no-consultations-filtered');
+    expect(filteredEmpty).toBeTruthy();
+    expect(filteredEmpty.textContent).toContain('No visits found in the selected date range');
+    expect(fixture.nativeElement.querySelector('.no-consultations')).toBeFalsy();
+  });
 });

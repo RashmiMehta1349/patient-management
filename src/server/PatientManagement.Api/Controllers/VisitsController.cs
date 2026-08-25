@@ -54,16 +54,26 @@ public class VisitsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
 
+    /// <summary>
+    /// Module 6 (Patient History): fromDate/toDate are optional, inclusive, date-only filters on
+    /// VisitDate. ASP.NET Core model binding rejects an unparseable date string before this action
+    /// even runs (DateTime? binding failure -> automatic 400 via [ApiController]).
+    /// </summary>
     [HttpGet]
-    public async Task<ActionResult> GetAll([FromQuery] Guid? patientId, CancellationToken cancellationToken)
+    public async Task<ActionResult> GetAll([FromQuery] Guid? patientId, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, CancellationToken cancellationToken)
     {
         if (!patientId.HasValue)
         {
             return BadRequest(new { message = "patientId is required." });
         }
 
-        var visits = await _getVisitsByPatientIdHandler.HandleAsync(patientId.Value, cancellationToken);
-        return Ok(visits);
+        var result = await _getVisitsByPatientIdHandler.HandleAsync(patientId.Value, fromDate, toDate, cancellationToken);
+        if (!result.Succeeded)
+        {
+            return BadRequest(new { message = result.Error });
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpGet("{id:guid}")]

@@ -14,8 +14,10 @@ public interface IVisitRepository
 
     Task UpdateAsync(Visit visit, CancellationToken cancellationToken = default);
 
-    /// <summary>All visits for a given patient, most-recent-first (patient-scoped Consultations list).</summary>
-    Task<IReadOnlyList<Visit>> GetByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default);
+    /// <summary>All visits for a given patient, most-recent-first (patient-scoped Consultations list).
+    /// Optional fromDate/toDate (inclusive) narrow the result to visits whose VisitDate falls within
+    /// the range (Module 6 — Patient History date-range filter). Both null returns the full history.</summary>
+    Task<IReadOnlyList<Visit>> GetByPatientIdAsync(Guid patientId, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
 
     /// <summary>Stages a full replace-on-save of a visit's medication set (delete existing, insert
     /// submitted) within the current DbContext unit of work — does not call SaveChanges itself, so

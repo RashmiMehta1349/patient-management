@@ -27,6 +27,10 @@ public class VisitConfiguration : IEntityTypeConfiguration<Visit>
 
         builder.Property(v => v.VisitDate).IsRequired();
 
+        // Module 6 (Patient History): supports the patient-scoped, date-range-filtered visit
+        // query efficiently as visit volume grows (BRD 2-5 second retrieval target).
+        builder.HasIndex(v => new { v.PatientId, v.VisitDate });
+
         builder.Property(v => v.TemperatureValue).HasColumnType("decimal(4,1)");
         builder.Property(v => v.TemperatureNotRecorded).IsRequired();
 

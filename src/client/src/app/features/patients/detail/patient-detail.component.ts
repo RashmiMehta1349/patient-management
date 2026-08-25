@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AppointmentService } from '../../../core/appointments/appointment.service';
 import { Appointment } from '../../../core/appointments/appointments.models';
@@ -13,13 +14,15 @@ import { PrescriptionService } from '../../../core/prescriptions/prescription.se
  * Read-only Patient Profile view (Increment 2), extended in Increment 3 to wire the previously
  * disabled "Appointments" placeholder to a real patient-scoped appointment list
  * (approved plan §7/§9 task 24, AC10), and in Module 4 to wire the "Consultations" placeholder to
- * a real patient-scoped visit list (approved plan §7, AC8). History remains a placeholder (Module 6).
+ * a real patient-scoped visit list (approved plan §7, AC8). Module 6 (Patient History) extends this
+ * same Consultations section in place with a date-range filter and a Complaints line, and removes
+ * the dead "History (coming soon)" placeholder — history is not a separate destination (plan §5/§8).
  * No delete action anywhere on this screen per the approved plan (§9a.7, AC6).
  */
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './patient-detail.component.html',
   styleUrl: './patient-detail.component.scss'
 })
@@ -44,6 +47,12 @@ export class PatientDetailComponent implements OnInit {
   visitsLoading = true;
   visitsError = false;
 
+  /** Module 6 (Patient History) — date-range filter state (native `<input type="date">` values,
+   * 'yyyy-MM-dd' or empty string). Filtering is server-side (§5 of the plan): changing either value
+   * re-fetches from the extended GET /api/visits endpoint rather than filtering client-side. */
+  fromDate = '';
+  toDate = '';
+
   printingVisitId: string | null = null;
 
   ngOnInit(): void {
@@ -63,7 +72,7 @@ export class PatientDetailComponent implements OnInit {
     this.visitsLoading = true;
     this.visitsError = false;
 
-    this.visitService.listByPatientId(patientId).subscribe({
+    this.visitService.listByPatientId(patientId, this.fromDate || undefined, this.toDate || undefined).subscribe({
       next: (visits) => {
         this.visitsLoading = false;
         this.visits = visits;
@@ -73,6 +82,25 @@ export class PatientDetailComponent implements OnInit {
         this.visitsError = true;
       }
     });
+  }
+
+  /** True while either From or To is set — distinguishes the "no visits in range" empty state
+   * from the "patient has no consultations at all" empty state. */
+  get isFiltered(): boolean {
+    return !!(this.fromDate || this.toDate);
+  }
+
+  /** Re-fetches the visit list from the server whenever the From/To filter changes (Module 6). */
+  onFilterChange(): void {
+    if (this.id) {
+      this.loadVisits(this.id);
+    }
+  }
+
+  clearFilter(): void {
+    this.fromDate = '';
+    this.toDate = '';
+    this.onFilterChange();
   }
 
   private loadAppointments(patientId: string): void {

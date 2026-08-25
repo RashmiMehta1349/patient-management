@@ -277,6 +277,90 @@ public class VisitsEndpointsTests : IDisposable
     }
 
     [Fact]
+    public async Task GetByPatientId_WithDateRange_ReturnsOnlyVisitsWithinRange()
+    {
+        var client = await AuthenticatedClientAsync();
+        var patientId = await CreatePatientAsync(client);
+
+        // Create three visits; each is timestamped "now" at creation (no way to backdate via the
+        // API), so this test filters a range that includes "now" and asserts the created visit is
+        // returned, plus a range that excludes it returns empty — this exercises the real filter
+        // predicate without needing DB-level seeding of historical dates.
+        var createResponse = await client.PostAsJsonAsync("/api/visits", new
+        {
+            patientId,
+            temperatureNotRecorded = true,
+            bloodPressureNotRecorded = true,
+            pulseNotRecorded = true
+        });
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+
+        var today = DateTime.UtcNow.Date;
+        var inRangeResponse = await client.GetAsync($"/api/visits?patientId={patientId}&fromDate={today:yyyy-MM-dd}&toDate={today:yyyy-MM-dd}");
+        Assert.Equal(HttpStatusCode.OK, inRangeResponse.StatusCode);
+        var inRangeBody = await inRangeResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(inRangeBody.EnumerateArray());
+
+        var pastDate = today.AddYears(-1);
+        var outOfRangeResponse = await client.GetAsync($"/api/visits?patientId={patientId}&fromDate={pastDate:yyyy-MM-dd}&toDate={pastDate:yyyy-MM-dd}");
+        Assert.Equal(HttpStatusCode.OK, outOfRangeResponse.StatusCode);
+        var outOfRangeBody = await outOfRangeResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Empty(outOfRangeBody.EnumerateArray());
+    }
+
+    [Fact]
+    public async Task GetByPatientId_NoDateParams_ReturnsIdenticalToPreModule6Behavior()
+    {
+        var client = await AuthenticatedClientAsync();
+        var patientId = await CreatePatientAsync(client);
+        await client.PostAsJsonAsync("/api/visits", new
+        {
+            patientId,
+            temperatureNotRecorded = true,
+            bloodPressureNotRecorded = true,
+            pulseNotRecorded = true
+        });
+
+        var response = await client.GetAsync($"/api/visits?patientId={patientId}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(body.EnumerateArray());
+    }
+
+    [Fact]
+    public async Task GetByPatientId_FromDateAfterToDate_ReturnsBadRequest()
+    {
+        var client = await AuthenticatedClientAsync();
+        var patientId = await CreatePatientAsync(client);
+
+        var response = await client.GetAsync($"/api/visits?patientId={patientId}&fromDate=2026-08-20&toDate=2026-08-01");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByPatientId_MalformedDateQueryString_ReturnsBadRequest()
+    {
+        var client = await AuthenticatedClientAsync();
+        var patientId = await CreatePatientAsync(client);
+
+        var response = await client.GetAsync($"/api/visits?patientId={patientId}&fromDate=not-a-date");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetByPatientId_WithDateRange_WithoutToken_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/visits?patientId={Guid.NewGuid()}&fromDate=2026-08-01&toDate=2026-08-31");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task UpdateVisit_ForUnknownId_ReturnsNotFound()
     {
         var client = await AuthenticatedClientAsync();

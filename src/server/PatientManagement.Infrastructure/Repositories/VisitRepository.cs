@@ -37,12 +37,24 @@ public class VisitRepository : IVisitRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Visit>> GetByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Visit>> GetByPatientIdAsync(Guid patientId, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Visits
+        var query = _dbContext.Visits
             .AsNoTracking()
             .Include(v => v.Medications.OrderBy(m => m.SortOrder))
-            .Where(v => v.PatientId == patientId)
+            .Where(v => v.PatientId == patientId);
+
+        if (fromDate.HasValue)
+        {
+            query = query.Where(v => v.VisitDate >= fromDate.Value);
+        }
+
+        if (toDate.HasValue)
+        {
+            query = query.Where(v => v.VisitDate <= toDate.Value);
+        }
+
+        return await query
             .OrderByDescending(v => v.VisitDate)
             .ToListAsync(cancellationToken);
     }

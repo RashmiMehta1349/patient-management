@@ -1,0 +1,79 @@
+<div class="page">
+  <div class="card">
+    <h1>Visit Detail</h1>
+
+    @if (loading) {
+      <p role="status">Loading visit…</p>
+    } @else if (notFound) {
+      <div class="banner banner-error" role="alert">Visit not found.</div>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else if (error) {
+      <div class="banner banner-error" role="alert">Could not load visit. Please try again.</div>
+      <button type="button" (click)="retry()">Retry</button>
+      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+    } @else if (visit) {
+      <p class="patient-context">Patient: <strong>{{ visit.patientName }}</strong></p>
+      <p class="visit-date">{{ visit.visitDate | date: 'medium' }}</p>
+
+      <dl class="vitals">
+        <dt>Temperature</dt>
+        <dd>{{ visit.temperatureNotRecorded ? 'Not recorded' : visit.temperatureValue }}</dd>
+        <dt>Blood Pressure</dt>
+        <dd>{{ visit.bloodPressureNotRecorded ? 'Not recorded' : visit.bloodPressureValue }}</dd>
+        <dt>Pulse</dt>
+        <dd>{{ visit.pulseNotRecorded ? 'Not recorded' : visit.pulseValue }}</dd>
+      </dl>
+
+      <section class="text-section">
+        <h2>Complaints</h2>
+        <p>{{ visit.complaints || 'None recorded' }}</p>
+      </section>
+
+      <section class="text-section">
+        <h2>Diagnosis</h2>
+        <p>{{ visit.diagnosis || 'None recorded' }}</p>
+      </section>
+
+      <section class="medications-section">
+        <h2>Medications</h2>
+        @if (visit.medications.length === 0) {
+          <p class="no-medications">No medications prescribed.</p>
+        } @else {
+          <table class="medications-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Dosage</th>
+                <th>Frequency</th>
+                <th>Duration</th>
+                <th>Instructions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (medication of visit.medications; track medication.name) {
+                <tr>
+                  <td>{{ medication.name }}</td>
+                  <td>{{ medication.dosage }}</td>
+                  <td>{{ medication.frequency }}</td>
+                  <td>{{ medication.duration }}</td>
+                  <td>{{ medication.instructions }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
+
+      <div class="actions">
+        <button type="button" class="print-link" (click)="printPrescription()" [disabled]="printing">
+          {{ printing ? 'Preparing…' : 'Print Prescription' }}
+        </button>
+        <a class="edit-link" [routerLink]="['/consultations', visit.id, 'edit']">Edit</a>
+        <a class="back-link" [routerLink]="backLink()">Back</a>
+      </div>
+      @if (printError) {
+        <div class="banner banner-error" role="alert">Could not generate prescription PDF. Please try again.</div>
+      }
+    }
+  </div>
+</div>

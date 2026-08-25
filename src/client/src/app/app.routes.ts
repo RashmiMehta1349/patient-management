@@ -87,5 +87,15 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/consultations/form/consultation-form.component').then((m) => m.ConsultationFormComponent)
   },
+  // Module 6 (Patient History) — dedicated read-only visit detail route (plan §8, Open Question 1
+  // resolved: new component, not the edit form in a view-only mode). This view has no write controls
+  // of its own; it links out to the separate 'consultations/:id/edit' route (unchanged) as the
+  // sanctioned edit entry point (plan §10 task 15).
+  {
+    path: 'visits/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/patient-history/visit-detail/visit-detail.component').then((m) => m.VisitDetailComponent)
+  },
   { path: '**', redirectTo: 'dashboard' }
 ];
