@@ -1,0 +1,77 @@
+.search-widget {
+  position: relative;
+  width: 280px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #cbd2d9;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.dropdown-section-label {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  color: #52606d;
+  text-transform: uppercase;
+}
+
+.dropdown-item {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &.highlighted,
+  &:hover {
+    background: #f0f4ff;
+  }
+}
+
+.item-name {
+  font-weight: 500;
+  flex: 1;
+}
+
+.item-phone,
+.item-age {
+  color: #52606d;
+  font-size: 0.85rem;
+}
+
+.dropdown-empty,
+.dropdown-loading {
+  padding: 0.75rem;
+  color: #52606d;
+  font-size: 0.85rem;
+}
+
+.dropdown-view-all {
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+  color: #0b5fff;
+  cursor: pointer;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

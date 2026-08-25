@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { InactivityTimerService } from '../auth/inactivity-timer.service';
+import { SearchWidgetComponent } from '../shared/search-widget/search-widget.component';
 
 /**
  * Persistent header navigation shown on every authenticated screen (Increment 3 revision,
@@ -16,7 +17,7 @@ import { InactivityTimerService } from '../auth/inactivity-timer.service';
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, SearchWidgetComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss'
 })

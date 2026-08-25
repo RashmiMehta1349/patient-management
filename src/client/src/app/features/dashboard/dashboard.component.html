@@ -4,4 +4,22 @@
   @if (currentUser) {
     <p class="user-email">{{ currentUser.email }}</p>
   }
+
+  <section class="recent-patients-section">
+    <h2>Recently Viewed Patients</h2>
+    @if (recentPatients.length === 0) {
+      <p class="empty-state">No recently viewed patients yet.</p>
+    } @else {
+      <ul class="recent-patients-list">
+        @for (patient of recentPatients; track patient.id) {
+          <li class="recent-patient-item">
+            <a [routerLink]="['/patients', patient.id]" class="recent-patient-link">
+              <span class="recent-patient-name">{{ patient.fullName }}</span>
+              <span class="recent-patient-phone">{{ patient.phoneNumber }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
 </main>

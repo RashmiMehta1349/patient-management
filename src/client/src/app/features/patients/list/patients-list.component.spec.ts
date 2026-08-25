@@ -1,8 +1,8 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { of, Subject } from 'rxjs';
 import { PatientsListComponent } from './patients-list.component';
 import { PatientService } from '../../../core/patients/patient.service';
 import { PagedResult, Patient } from '../../../core/patients/patients.models';
@@ -26,10 +26,21 @@ describe('PatientsListComponent', () => {
     pageSize
   });
 
-  function setup() {
+  function setup(queryParam?: string) {
     TestBed.configureTestingModule({
       imports: [PatientsListComponent],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { queryParamMap: convertToParamMap(queryParam ? { query: queryParam } : {}) },
+            queryParamMap: of(convertToParamMap(queryParam ? { query: queryParam } : {}))
+          }
+        }
+      ]
     });
   }
 
@@ -130,6 +141,81 @@ describe('PatientsListComponent', () => {
 
     expect(listSpy).toHaveBeenCalledWith(jasmine.objectContaining({ query: undefined, page: 1 }));
   }));
+
+  describe('deep-linked query param (Module 7 §8/§10 task 5)', () => {
+    it('pre-populates the search box and fetches with the query when a `query` route param is present', () => {
+      setup('Jane');
+      const patientService = TestBed.inject(PatientService);
+      const listSpy = spyOn(patientService, 'list').and.returnValue(of(pagedResult([], 0)));
+
+      const fixture = TestBed.createComponent(PatientsListComponent);
+      const component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.searchTerm).toBe('Jane');
+      expect(listSpy).toHaveBeenCalledWith(jasmine.objectContaining({ query: 'Jane', page: 1 }));
+    });
+
+    it('behaves identically to today (browse-all) when no `query` param is present', () => {
+      setup();
+      const patientService = TestBed.inject(PatientService);
+      const listSpy = spyOn(patientService, 'list').and.returnValue(of(pagedResult([], 0)));
+
+      const fixture = TestBed.createComponent(PatientsListComponent);
+      const component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      expect(component.searchTerm).toBe('');
+      expect(listSpy).toHaveBeenCalledWith(jasmine.objectContaining({ query: undefined, page: 1 }));
+    });
+  });
+
+  describe('successive query-param navigations to the same route instance (Module 7 code review fix)', () => {
+    it('re-fetches with the second search term when the query param changes while the component instance persists', () => {
+      const queryParamMap$ = new Subject<ReturnType<typeof convertToParamMap>>();
+      TestBed.configureTestingModule({
+        imports: [PatientsListComponent],
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideRouter([]),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: { queryParamMap: convertToParamMap({ query: 'foo' }) },
+              queryParamMap: queryParamMap$.asObservable()
+            }
+          }
+        ]
+      });
+
+      const patientService = TestBed.inject(PatientService);
+      const listSpy = spyOn(patientService, 'list').and.returnValue(of(pagedResult([], 0)));
+
+      const fixture = TestBed.createComponent(PatientsListComponent);
+      const component = fixture.componentInstance;
+      fixture.detectChanges();
+      queryParamMap$.next(convertToParamMap({ query: 'foo' }));
+      fixture.detectChanges();
+
+      expect(component.searchTerm).toBe('foo');
+      expect(listSpy).toHaveBeenCalledWith(jasmine.objectContaining({ query: 'foo', page: 1 }));
+
+      const barResults = [makePatient('9', 'Bar Result')];
+      listSpy.and.returnValue(of(pagedResult(barResults, 1)));
+
+      // Doctor runs a second global search and clicks "View all N results" for a different term
+      // while this same PatientsListComponent instance stays alive (same route, query-only change).
+      queryParamMap$.next(convertToParamMap({ query: 'bar' }));
+      fixture.detectChanges();
+
+      expect(component.searchTerm).toBe('bar');
+      expect(listSpy).toHaveBeenCalledWith(jasmine.objectContaining({ query: 'bar', page: 1 }));
+      const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+      expect(rows.length).toBe(1);
+      expect(rows[0].textContent).toContain('Bar Result');
+    });
+  });
 
   describe('pagination', () => {
     it('Next button calls list() with page incremented and renders the new page items', () => {

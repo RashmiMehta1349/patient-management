@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PatientService } from '../../../core/patients/patient.service';
 import { Patient } from '../../../core/patients/patients.models';
@@ -23,6 +23,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 })
 export class PatientsListComponent implements OnInit {
   private readonly patientService = inject(PatientService);
+  private readonly route = inject(ActivatedRoute);
   private readonly searchTermChanged = new Subject<string>();
 
   patients: Patient[] = [];
@@ -48,7 +49,19 @@ export class PatientsListComponent implements OnInit {
       this.fetch();
     });
 
-    this.fetch();
+    // Module 7 (Search & Navigation) — supports the global search widget's "View all N results"
+    // hand-off (§8/§10 task 5): pre-populates the search box from an optional `query` route
+    // param. Behaves identically to today when absent (regression-safe).
+    //
+    // Subscribed rather than read once from the snapshot: a second "View all" hand-off while this
+    // component instance is still alive (same route, only the query param changes) does not
+    // re-run ngOnInit, so reading the snapshot once would leave the grid showing the first
+    // search's stale results.
+    this.route.queryParamMap.subscribe((params) => {
+      this.searchTerm = params.get('query') || '';
+      this.page = 1;
+      this.fetch();
+    });
   }
 
   onSearchTermChange(value: string): void {

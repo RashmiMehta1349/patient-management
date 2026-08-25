@@ -3,12 +3,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 import { PatientDetailComponent } from './patient-detail.component';
 import { AppointmentService } from '../../../core/appointments/appointment.service';
 import { PatientService } from '../../../core/patients/patient.service';
 import { Patient } from '../../../core/patients/patients.models';
 import { VisitService } from '../../../core/visits/visit.service';
+import { RecentPatientsService } from '../../../core/patients/recent-patients.service';
 
 describe('PatientDetailComponent', () => {
   let httpMock: HttpTestingController;
@@ -33,7 +34,10 @@ describe('PatientDetailComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: routeId }) } }
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: routeId }) },
+            paramMap: of(convertToParamMap({ id: routeId }))
+          }
         }
       ]
     });
@@ -96,7 +100,10 @@ describe('PatientDetailComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } }
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
+            paramMap: of(convertToParamMap({ id: testPatient.id }))
+          }
         }
       ]
     });
@@ -142,7 +149,10 @@ describe('PatientDetailComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } }
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
+            paramMap: of(convertToParamMap({ id: testPatient.id }))
+          }
         }
       ]
     });
@@ -193,7 +203,10 @@ describe('PatientDetailComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } }
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
+            paramMap: of(convertToParamMap({ id: testPatient.id }))
+          }
         }
       ]
     });
@@ -270,7 +283,10 @@ describe('PatientDetailComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } }
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
+            paramMap: of(convertToParamMap({ id: testPatient.id }))
+          }
         }
       ]
     });
@@ -320,7 +336,10 @@ describe('PatientDetailComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } }
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
+            paramMap: of(convertToParamMap({ id: testPatient.id }))
+          }
         }
       ]
     });
@@ -425,5 +444,148 @@ describe('PatientDetailComponent', () => {
     expect(filteredEmpty).toBeTruthy();
     expect(filteredEmpty.textContent).toContain('No visits found in the selected date range');
     expect(fixture.nativeElement.querySelector('.no-consultations')).toBeFalsy();
+  });
+
+  it('records exactly one RecentPatientsService.record() call with the correct patient data on successful load', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const recentPatientsService = TestBed.inject(RecentPatientsService);
+    const recordSpy = spyOn(recentPatientsService, 'record');
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    fixture.detectChanges();
+
+    expect(recordSpy).toHaveBeenCalledTimes(1);
+    expect(recordSpy).toHaveBeenCalledWith({
+      id: testPatient.id,
+      fullName: testPatient.fullName,
+      phoneNumber: testPatient.phoneNumber
+    });
+  });
+
+  it('a failed load (404) does not record anything as recently viewed', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(throwError(() => ({ status: 404 })));
+    const recentPatientsService = TestBed.inject(RecentPatientsService);
+    const recordSpy = spyOn(recentPatientsService, 'record');
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    fixture.detectChanges();
+
+    expect(recordSpy).not.toHaveBeenCalled();
+  });
+
+  it('re-loads patient, appointments and visits (and records recently-viewed) when the route id changes without recreating the component (Module 7 global search widget hand-off)', () => {
+    const patientB: Patient = {
+      id: '22222222-2222-2222-2222-222222222222',
+      fullName: 'John Smith',
+      dateOfBirth: '1980-02-10',
+      age: 46,
+      gender: 'Male',
+      phoneNumber: '555-987-6543',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const paramMap$ = new Subject<ReturnType<typeof convertToParamMap>>();
+
+    TestBed.configureTestingModule({
+      imports: [PatientDetailComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
+            paramMap: paramMap$.asObservable()
+          }
+        }
+      ]
+    });
+    httpMock = TestBed.inject(HttpTestingController);
+
+    const patientService = TestBed.inject(PatientService);
+    const appointmentService = TestBed.inject(AppointmentService);
+    const visitService = TestBed.inject(VisitService);
+    const recentPatientsService = TestBed.inject(RecentPatientsService);
+    const recordSpy = spyOn(recentPatientsService, 'record');
+
+    const getByIdSpy = spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const appointmentsSpy = spyOn(appointmentService, 'listByPatientId').and.returnValue(of([]));
+    const visitsSpy = spyOn(visitService, 'listByPatientId').and.returnValue(of([]));
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    paramMap$.next(convertToParamMap({ id: testPatient.id }));
+    fixture.detectChanges();
+
+    expect(component.patient).toEqual(testPatient);
+    expect(recordSpy).toHaveBeenCalledWith(
+      jasmine.objectContaining({ id: testPatient.id })
+    );
+
+    // Simulate the doctor selecting Patient B from the global search widget while this
+    // component instance is reused (same route, id-only change).
+    getByIdSpy.and.returnValue(of(patientB));
+    appointmentsSpy.and.returnValue(
+      of([
+        {
+          id: 'appt-b',
+          patientId: patientB.id,
+          patientName: patientB.fullName,
+          appointmentDate: '2026-08-27',
+          appointmentTime: '10:00',
+          status: 'Scheduled',
+          notes: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          hasOverlapWarning: false,
+          conflictingAppointments: []
+        }
+      ])
+    );
+    visitsSpy.and.returnValue(
+      of([
+        {
+          id: 'visit-b',
+          patientId: patientB.id,
+          patientName: patientB.fullName,
+          appointmentId: null,
+          visitDate: new Date('2026-08-26T10:00:00Z').toISOString(),
+          temperatureValue: null,
+          temperatureNotRecorded: true,
+          bloodPressureValue: null,
+          bloodPressureNotRecorded: true,
+          pulseValue: null,
+          pulseNotRecorded: true,
+          complaints: null,
+          diagnosis: 'Flu',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          medications: []
+        }
+      ])
+    );
+
+    paramMap$.next(convertToParamMap({ id: patientB.id }));
+    fixture.detectChanges();
+
+    expect(component.id).toBe(patientB.id);
+    expect(component.patient).toEqual(patientB);
+    expect(component.appointments.length).toBe(1);
+    expect(component.appointments[0].patientId).toBe(patientB.id);
+    expect(component.visits.length).toBe(1);
+    expect(component.visits[0].patientId).toBe(patientB.id);
+    expect(recordSpy).toHaveBeenCalledWith(
+      jasmine.objectContaining({ id: patientB.id, fullName: patientB.fullName })
+    );
+    expect(getByIdSpy).toHaveBeenCalledWith(patientB.id);
+    expect(appointmentsSpy).toHaveBeenCalledWith(patientB.id);
+    expect(visitsSpy).toHaveBeenCalledWith(patientB.id, undefined, undefined);
   });
 });

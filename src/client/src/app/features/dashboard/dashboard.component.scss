@@ -45,3 +45,35 @@
   text-decoration: none;
   font-size: 0.9rem;
 }
+
+.recent-patients-section {
+  margin-top: 2rem;
+  max-width: 480px;
+}
+
+.recent-patients-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recent-patient-item {
+  border: 1px solid #e4e7eb;
+  border-radius: 4px;
+}
+
+.recent-patient-link {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0.9rem;
+  text-decoration: none;
+  color: #1f2933;
+}
+
+.recent-patient-phone {
+  color: #52606d;
+  font-size: 0.85rem;
+}

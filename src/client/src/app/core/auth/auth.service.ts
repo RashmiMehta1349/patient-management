@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { RecentPatientsService } from '../patients/recent-patients.service';
 import {
   CurrentUser,
   ForgotPasswordRequest,
@@ -26,7 +27,8 @@ export class AuthService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly recentPatientsService: RecentPatientsService
   ) {}
 
   login(request: LoginRequest): Observable<LoginResponse> {
@@ -61,6 +63,9 @@ export class AuthService {
 
     this.clearToken();
     this.isAuthenticated.set(false);
+    // Recently-viewed data is unencrypted localStorage (Module 7 §12) — cleared on logout so it
+    // does not persist across a session boundary on a shared/public machine.
+    this.recentPatientsService.clear();
 
     if (navigateToLogin) {
       this.router.navigate(['/login'], message ? { queryParams: { message } } : undefined);

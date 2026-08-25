@@ -42,7 +42,11 @@
           @for (appointment of appointments; track appointment.id) {
             <tr>
               <td>{{ appointment.appointmentTime }}</td>
-              <td>{{ appointment.patientName }}</td>
+              <td>
+                <a class="patient-name-link" [routerLink]="['/patients', appointment.patientId]">{{
+                  appointment.patientName
+                }}</a>
+              </td>
               <td>
                 <select
                   class="status-select"

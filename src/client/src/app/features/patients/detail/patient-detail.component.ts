@@ -9,6 +9,7 @@ import { Patient } from '../../../core/patients/patients.models';
 import { VisitService } from '../../../core/visits/visit.service';
 import { Visit } from '../../../core/visits/visits.models';
 import { PrescriptionService } from '../../../core/prescriptions/prescription.service';
+import { RecentPatientsService } from '../../../core/patients/recent-patients.service';
 
 /**
  * Read-only Patient Profile view (Increment 2), extended in Increment 3 to wire the previously
@@ -32,6 +33,7 @@ export class PatientDetailComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
   private readonly visitService = inject(VisitService);
   private readonly prescriptionService = inject(PrescriptionService);
+  private readonly recentPatientsService = inject(RecentPatientsService);
 
   id: string | null = null;
   loading = true;
@@ -56,16 +58,27 @@ export class PatientDetailComponent implements OnInit {
   printingVisitId: string | null = null;
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id');
-    if (!this.id) {
-      this.notFound = true;
-      this.loading = false;
-      return;
-    }
+    // Angular reuses this component instance across patients when navigating between
+    // /patients/:id routes (e.g. via the Module 7 global search widget), so `id` must be read
+    // reactively from paramMap rather than once from the route snapshot — otherwise the screen
+    // keeps showing the previously loaded patient's data.
+    this.route.paramMap.subscribe((params) => {
+      this.id = params.get('id');
+      if (!this.id) {
+        this.notFound = true;
+        this.loading = false;
+        return;
+      }
 
-    this.load(this.id);
-    this.loadAppointments(this.id);
-    this.loadVisits(this.id);
+      // Reset per-patient state (Module 6 date filter) so a stale filter from the previous
+      // patient doesn't silently apply to the newly selected one.
+      this.fromDate = '';
+      this.toDate = '';
+
+      this.load(this.id);
+      this.loadAppointments(this.id);
+      this.loadVisits(this.id);
+    });
   }
 
   private loadVisits(patientId: string): void {
@@ -128,6 +141,13 @@ export class PatientDetailComponent implements OnInit {
       next: (patient) => {
         this.loading = false;
         this.patient = patient;
+        // Module 7 (Search & Navigation) — single recording point for "recently viewed" (§5):
+        // recorded here regardless of how the doctor arrived at this profile.
+        this.recentPatientsService.record({
+          id: patient.id,
+          fullName: patient.fullName,
+          phoneNumber: patient.phoneNumber
+        });
       },
       error: (err) => {
         this.loading = false;

@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideRouter, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
+import { RecentPatientsService } from '../patients/recent-patients.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -50,6 +51,18 @@ describe('AuthService', () => {
     expect(service.getToken()).toBeNull();
     expect(service.isAuthenticated()).toBeFalse();
     expect(navigateSpy).toHaveBeenCalledWith(['/login'], undefined);
+  });
+
+  it('logout() clears recently-viewed patients (Module 7 §12 mitigation)', () => {
+    localStorage.setItem('pma_auth_token', 'existing-token');
+    const recentPatientsService = TestBed.inject(RecentPatientsService);
+    recentPatientsService.record({ id: '1', fullName: 'Amy Baker', phoneNumber: '555-000-0001' });
+    expect(recentPatientsService.list().length).toBe(1);
+
+    service.logout();
+    httpMock.expectOne(`${environment.apiBaseUrl}/auth/logout`).flush({});
+
+    expect(recentPatientsService.list()).toEqual([]);
   });
 
   it('logout() with a message passes it as a query param', () => {

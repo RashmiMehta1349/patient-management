@@ -58,6 +58,20 @@ describe('AppointmentsListComponent', () => {
     expect(emptyState.querySelector('.add-appointment-link')).toBeTruthy();
   });
 
+  it('patient name links to /patients/{patientId} (Module 7 cross-navigation gap closure)', () => {
+    setup();
+    const appointmentService = TestBed.inject(AppointmentService);
+    spyOn(appointmentService, 'listByDate').and.returnValue(of([makeAppointment('1', '08:00', 'Amy Baker')]));
+
+    const fixture = TestBed.createComponent(AppointmentsListComponent);
+    fixture.detectChanges();
+
+    const nameLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.patient-name-link');
+    expect(nameLink).toBeTruthy();
+    expect(nameLink.getAttribute('href')).toBe('/patients/p1');
+    expect(nameLink.textContent?.trim()).toBe('Amy Baker');
+  });
+
   it('date navigation re-fetches with the shifted date', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);

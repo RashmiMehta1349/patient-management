@@ -1,0 +1,55 @@
+<div class="search-widget">
+  <input
+    type="search"
+    class="search-input"
+    placeholder="Search patients by name or phone…"
+    [ngModel]="searchTerm"
+    (ngModelChange)="onInputChange($event)"
+    (focus)="onFocus()"
+    (keydown)="onKeydown($event)"
+    aria-label="Search patients"
+  />
+
+  @if (isOpen) {
+    <div class="search-dropdown" role="listbox">
+      @if (showRecent) {
+        @if (recentPatients.length === 0) {
+          <div class="dropdown-empty">No recently viewed patients yet.</div>
+        } @else {
+          <div class="dropdown-section-label">Recently Viewed</div>
+          @for (patient of recentPatients; track patient.id; let i = $index) {
+            <div
+              class="dropdown-item"
+              [class.highlighted]="i === highlightedIndex"
+              role="option"
+              (click)="select(patient)"
+            >
+              <span class="item-name">{{ patient.fullName }}</span>
+              <span class="item-phone">{{ patient.phoneNumber }}</span>
+            </div>
+          }
+        }
+      } @else if (loading) {
+        <div class="dropdown-loading">Searching…</div>
+      } @else if (searched && results.length === 0) {
+        <div class="dropdown-empty">No patients found</div>
+      } @else {
+        @for (patient of results; track patient.id; let i = $index) {
+          <div
+            class="dropdown-item"
+            [class.highlighted]="i === highlightedIndex"
+            role="option"
+            (click)="select(patient)"
+          >
+            <span class="item-name">{{ patient.fullName }}</span>
+            <span class="item-phone">{{ patient.phoneNumber }}</span>
+            <span class="item-age">{{ patient.age }}y</span>
+          </div>
+        }
+        @if (showViewAll) {
+          <div class="dropdown-view-all" (click)="viewAllResults()">View all {{ totalCount }} results</div>
+        }
+      }
+    </div>
+  }
+</div>
