@@ -3,7 +3,7 @@
 }
 
 .card {
-  max-width: 640px;
+  max-width: 860px;
   margin: 0 auto;
   background: #fff;
   border-radius: 8px;
@@ -92,13 +92,18 @@
 
 .medication-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr) auto;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  grid-template-columns: 1.1fr 0.8fr 0.9fr 0.8fr 1.6fr auto;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
   align-items: center;
 
   input[type='text'] {
-    padding: 0.4rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid #cbd2d9;
+    border-radius: 4px;
+    font-size: 0.9rem;
   }
 
   &.invalid input[type='text'] {
@@ -109,6 +114,37 @@
     grid-column: 1 / -1;
     color: #b91c1c;
     font-size: 0.8rem;
+  }
+}
+
+.medication-row-header {
+  margin-bottom: 0.4rem;
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+@media (max-width: 720px) {
+  .medication-row:not(.medication-row-header) {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+  }
+
+  .medication-row-header {
+    display: none;
+  }
+
+  .remove-row {
+    justify-self: start;
   }
 }
 
