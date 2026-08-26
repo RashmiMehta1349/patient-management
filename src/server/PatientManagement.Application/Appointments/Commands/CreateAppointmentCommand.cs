@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -13,9 +14,10 @@ using PatientManagement.Domain.Entities;
 namespace PatientManagement.Application.Appointments.Commands;
 
 /// <summary>
-/// Validates and persists a new Appointment. Overlap detection is computed server-side and
-/// annotated on the success response as a non-blocking warning (approved plan §4) — the save
-/// always succeeds when validation passes and the patient exists.
+/// Validates and persists a new Appointment. Overlap detection is computed server-side against
+/// the same slot-window/exclusion rules as before (AppointmentOptions.SlotMinutes, Cancelled/
+/// NoShow excluded) — but now blocks the save: a conflicting slot fails with a 400 rather than
+/// saving with a warning (product decision superseding the original BRD R4 "warn, don't block").
 /// </summary>
 public class CreateAppointmentCommandHandler
 {
@@ -38,7 +40,9 @@ public class CreateAppointmentCommandHandler
 
     public async Task<Result<AppointmentDto>> HandleAsync(CreateAppointmentRequestDto request, CancellationToken cancellationToken = default)
     {
-        var errors = AppointmentValidation.Validate(request.PatientId, request.AppointmentDate, request.AppointmentTime, out var date, out var time);
+        var errors = AppointmentValidation.Validate(
+            request.PatientId, request.AppointmentDate, request.AppointmentTime, out var date, out var time,
+            DateOnly.FromDateTime(_dateTimeProvider.UtcNow));
         if (errors.Count > 0)
         {
             return Result<AppointmentDto>.Failure(string.Join(" ", errors));
@@ -48,6 +52,12 @@ public class CreateAppointmentCommandHandler
         if (patient is null)
         {
             return Result<AppointmentDto>.Failure("Patient not found.");
+        }
+
+        var overlaps = await _appointmentRepository.GetOverlappingAsync(date, time, _options.SlotMinutes, excludeAppointmentId: null, cancellationToken);
+        if (overlaps.Count > 0)
+        {
+            return Result<AppointmentDto>.Failure(await AppointmentOverlap.BuildErrorMessageAsync(overlaps, _patientRepository, cancellationToken));
         }
 
         var now = _dateTimeProvider.UtcNow;
@@ -64,9 +74,7 @@ public class CreateAppointmentCommandHandler
 
         await _appointmentRepository.AddAsync(appointment, cancellationToken);
 
-        var overlaps = await _appointmentRepository.GetOverlappingAsync(date, time, _options.SlotMinutes, appointment.Id, cancellationToken);
-
-        var dto = await AppointmentMapper.ToDtoAsync(appointment, patient.FullName, overlaps, _patientRepository, cancellationToken);
+        var dto = await AppointmentMapper.ToDtoAsync(appointment, patient.FullName, new List<Appointment>(), _patientRepository, cancellationToken);
 
         return Result<AppointmentDto>.Success(dto);
     }

@@ -19,14 +19,6 @@
           <p>Appointment for <strong>{{ savedAppointment.patientName }}</strong> scheduled for
             {{ savedAppointment.appointmentDate }} at {{ savedAppointment.appointmentTime }}.</p>
         </div>
-        @if (savedAppointment.hasOverlapWarning) {
-          <div class="banner banner-warning" role="alert">
-            This overlaps with an existing appointment
-            @for (conflict of savedAppointment.conflictingAppointments; track conflict.id) {
-              for {{ conflict.patientName }} at {{ conflict.appointmentTime }}.
-            }
-          </div>
-        }
         <button type="button" (click)="scheduleAnother()">Schedule another appointment</button>
         <a class="back-link" routerLink="/appointments">Back to appointments</a>
       } @else {
@@ -73,7 +65,7 @@
 
           <div class="field">
             <label for="appointmentDate">Date</label>
-            <input id="appointmentDate" type="date" formControlName="appointmentDate" />
+            <input id="appointmentDate" type="date" formControlName="appointmentDate" [attr.min]="minDate" />
             @if (form.controls.appointmentDate.invalid && form.controls.appointmentDate.touched) {
               <div class="field-error">Date is required.</div>
             }

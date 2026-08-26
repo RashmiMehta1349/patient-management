@@ -41,6 +41,10 @@ export class AppointmentFormComponent implements OnInit {
     notes: ['']
   });
 
+  /** Local (not UTC) today's date, 'yyyy-MM-dd' — bound as the date input's `min` so past dates
+   * can't be picked in the UI. The server re-validates this regardless (AppointmentValidation). */
+  readonly minDate = toLocalIsoDate(new Date());
+
   id: string | null = null;
   isEditMode = false;
   loading = false;
@@ -189,4 +193,13 @@ export class AppointmentFormComponent implements OnInit {
     }
     this.patientTouched = false;
   }
+}
+
+/** Local date parts (not toISOString(), which converts to UTC and can shift the calendar date
+ * depending on the browser's timezone offset) — mirrors AppointmentsListComponent's toIsoDate. */
+function toLocalIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }

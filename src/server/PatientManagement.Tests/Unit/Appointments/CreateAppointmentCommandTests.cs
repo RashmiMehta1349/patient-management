@@ -96,6 +96,19 @@ public class CreateAppointmentCommandTests
     }
 
     [Fact]
+    public async Task PastDate_ReturnsFailure()
+    {
+        var handler = CreateHandler();
+        var request = ValidRequest();
+        request.AppointmentDate = "2026-08-24"; // FixedUtcNow is 2026-08-25
+
+        var result = await handler.HandleAsync(request);
+
+        Assert.False(result.Succeeded);
+        _appointmentRepository.Verify(r => r.AddAsync(It.IsAny<Appointment>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task UnknownPatientId_ReturnsFailure()
     {
         _patientRepository
@@ -112,7 +125,7 @@ public class CreateAppointmentCommandTests
     }
 
     [Fact]
-    public async Task OverlapDetected_StillSucceedsButFlagsWarning()
+    public async Task OverlapDetected_BlocksSaveAndReturnsFailure()
     {
         var conflicting = new Appointment { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = ExistingPatientId, AppointmentTime = new TimeOnly(9, 15), Status = AppointmentStatuses.Scheduled };
         _appointmentRepository
@@ -123,9 +136,9 @@ public class CreateAppointmentCommandTests
 
         var result = await handler.HandleAsync(ValidRequest());
 
-        Assert.True(result.Succeeded);
-        Assert.True(result.Value!.HasOverlapWarning);
-        Assert.Single(result.Value.ConflictingAppointments);
+        Assert.False(result.Succeeded);
+        Assert.False(result.IsNotFound);
+        _appointmentRepository.Verify(r => r.AddAsync(It.IsAny<Appointment>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

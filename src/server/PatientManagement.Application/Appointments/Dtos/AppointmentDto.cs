@@ -27,8 +27,11 @@ public class AppointmentDto
 
     public DateTime UpdatedAt { get; set; }
 
-    /// <summary>True when this appointment's slot overlaps another active appointment on the
-    /// same day — advisory only, never blocks the save (approved plan §3.4/§4).</summary>
+    /// <summary>Always false for Create/Update responses now that overlaps are blocked before
+    /// save rather than warned-and-saved (see CreateAppointmentCommandHandler/
+    /// UpdateAppointmentCommandHandler). Retained on the DTO for backward compatibility with
+    /// list/get-by-id reads, which never compute it either (see
+    /// AppointmentMapper.ToDtoWithoutOverlapCheck).</summary>
     public bool HasOverlapWarning { get; set; }
 
     public List<ConflictingAppointmentDto> ConflictingAppointments { get; set; } = new();
