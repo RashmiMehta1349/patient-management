@@ -6,7 +6,8 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PatientService } from '../../../core/patients/patient.service';
 import { Patient } from '../../../core/patients/patients.models';
 
-const PAGE_SIZE = 25;
+const DEFAULT_PAGE_SIZE = 10;
+export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 const SEARCH_DEBOUNCE_MS = 300;
 
 /**
@@ -33,7 +34,8 @@ export class PatientsListComponent implements OnInit {
   searchTerm = '';
   page = 1;
   totalCount = 0;
-  readonly pageSize = PAGE_SIZE;
+  pageSize = DEFAULT_PAGE_SIZE;
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.totalCount / this.pageSize));
@@ -67,6 +69,12 @@ export class PatientsListComponent implements OnInit {
   onSearchTermChange(value: string): void {
     this.searchTerm = value;
     this.searchTermChanged.next(value);
+  }
+
+  onPageSizeChange(value: number): void {
+    this.pageSize = value;
+    this.page = 1;
+    this.fetch();
   }
 
   previousPage(): void {
