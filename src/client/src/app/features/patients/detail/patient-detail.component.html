@@ -30,6 +30,25 @@
         <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
       </div>
 
+      <section class="export-section" aria-label="Export patient data">
+        <h2>Export</h2>
+        <label class="include-history-toggle">
+          <input type="checkbox" [(ngModel)]="includeHistoryInExport" name="includeHistoryInExport" />
+          Include visit history
+        </label>
+        <div class="export-actions">
+          <button type="button" class="export-csv-btn" (click)="exportPatientCsv()" [disabled]="exportingPatient">
+            {{ exportingPatient ? 'Preparing…' : 'Export CSV' }}
+          </button>
+          <button type="button" class="export-pdf-btn" (click)="exportPatientPdf()" [disabled]="exportingPatient">
+            {{ exportingPatient ? 'Preparing…' : 'Export PDF' }}
+          </button>
+        </div>
+        @if (exportError) {
+          <div class="banner banner-error" role="alert">Could not export this patient. Please try again.</div>
+        }
+      </section>
+
       <section class="appointments-section">
         <div class="appointments-header">
           <h2>Appointments</h2>
@@ -88,6 +107,9 @@
               <li>
                 <a [routerLink]="['/visits', visit.id]">
                   <span class="visit-date">{{ visit.visitDate | date: 'medium' }}</span>
+                  @if (visit.appointmentId === null) {
+                    <span class="walk-in-badge">Walk-in</span>
+                  }
                   <span class="visit-vitals">
                     Temp: {{ visit.temperatureNotRecorded ? 'Not recorded' : visit.temperatureValue }}
                     · BP: {{ visit.bloodPressureNotRecorded ? 'Not recorded' : visit.bloodPressureValue }}

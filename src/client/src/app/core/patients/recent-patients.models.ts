@@ -4,7 +4,7 @@
  * records only" scoping applied by extension to this feature.
  */
 export interface RecentPatient {
-  id: string;
+  id: number;
   fullName: string;
   phoneNumber: string;
   /** ISO 8601 timestamp of when this patient was last recorded as viewed. */

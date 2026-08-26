@@ -40,9 +40,9 @@ public class GetAppointmentsByDateQueryHandler
             .ToList();
     }
 
-    internal async Task<Dictionary<Guid, string>> ResolvePatientNamesAsync(IEnumerable<Guid> patientIds, CancellationToken cancellationToken)
+    internal async Task<Dictionary<long, string>> ResolvePatientNamesAsync(IEnumerable<long> patientIds, CancellationToken cancellationToken)
     {
-        var result = new Dictionary<Guid, string>();
+        var result = new Dictionary<long, string>();
         foreach (var patientId in patientIds.Distinct())
         {
             var patient = await _patientRepository.GetByIdAsync(patientId, cancellationToken);

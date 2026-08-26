@@ -30,7 +30,7 @@ public class UpdateAppointmentStatusCommandHandler
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Result<AppointmentDto>> HandleAsync(Guid id, UpdateAppointmentStatusRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<Result<AppointmentDto>> HandleAsync(long id, UpdateAppointmentStatusRequestDto request, CancellationToken cancellationToken = default)
     {
         var appointment = await _appointmentRepository.GetByIdAsync(id, cancellationToken);
         if (appointment is null)

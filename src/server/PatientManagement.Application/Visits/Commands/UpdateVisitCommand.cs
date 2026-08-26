@@ -31,7 +31,7 @@ public class UpdateVisitCommandHandler
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Result<VisitDto>> HandleAsync(Guid id, UpdateVisitRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<Result<VisitDto>> HandleAsync(long id, UpdateVisitRequestDto request, CancellationToken cancellationToken = default)
     {
         var visit = await _visitRepository.GetByIdAsync(id, cancellationToken);
         if (visit is null)

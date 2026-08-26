@@ -8,7 +8,7 @@ import { PatientService } from '../../../core/patients/patient.service';
 import { PagedResult, Patient } from '../../../core/patients/patients.models';
 
 describe('PatientsListComponent', () => {
-  const makePatient = (id: string, fullName: string): Patient => ({
+  const makePatient = (id: number, fullName: string): Patient => ({
     id,
     fullName,
     dateOfBirth: '1990-05-15',
@@ -47,7 +47,7 @@ describe('PatientsListComponent', () => {
   it('renders a grid row per patient from a mocked list() response', () => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    const patients = [makePatient('1', 'Amy Baker'), makePatient('2', 'Zack Adams')];
+    const patients = [makePatient(1, 'Amy Baker'), makePatient(2, 'Zack Adams')];
     spyOn(patientService, 'list').and.returnValue(of(pagedResult(patients, 2)));
 
     const fixture = TestBed.createComponent(PatientsListComponent);
@@ -72,27 +72,27 @@ describe('PatientsListComponent', () => {
   it('edit icon routes to /patients/{id}/edit', () => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    const patients = [makePatient('11111111-1111-1111-1111-111111111111', 'Amy Baker')];
+    const patients = [makePatient(1, 'Amy Baker')];
     spyOn(patientService, 'list').and.returnValue(of(pagedResult(patients, 1)));
 
     const fixture = TestBed.createComponent(PatientsListComponent);
     fixture.detectChanges();
 
     const editLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.edit-icon');
-    expect(editLink.getAttribute('href')).toBe('/patients/11111111-1111-1111-1111-111111111111/edit');
+    expect(editLink.getAttribute('href')).toBe('/patients/1/edit');
   });
 
   it('patient name links to /patients/{id} (detail view)', () => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    const patients = [makePatient('11111111-1111-1111-1111-111111111111', 'Amy Baker')];
+    const patients = [makePatient(1, 'Amy Baker')];
     spyOn(patientService, 'list').and.returnValue(of(pagedResult(patients, 1)));
 
     const fixture = TestBed.createComponent(PatientsListComponent);
     fixture.detectChanges();
 
     const nameLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.patient-name-link');
-    expect(nameLink.getAttribute('href')).toBe('/patients/11111111-1111-1111-1111-111111111111');
+    expect(nameLink.getAttribute('href')).toBe('/patients/1');
     expect(nameLink.textContent?.trim()).toBe('Amy Baker');
   });
 
@@ -201,7 +201,7 @@ describe('PatientsListComponent', () => {
       expect(component.searchTerm).toBe('foo');
       expect(listSpy).toHaveBeenCalledWith(jasmine.objectContaining({ query: 'foo', page: 1 }));
 
-      const barResults = [makePatient('9', 'Bar Result')];
+      const barResults = [makePatient(9, 'Bar Result')];
       listSpy.and.returnValue(of(pagedResult(barResults, 1)));
 
       // Doctor runs a second global search and clicks "View all N results" for a different term
@@ -221,8 +221,8 @@ describe('PatientsListComponent', () => {
     it('Next button calls list() with page incremented and renders the new page items', () => {
       setup();
       const patientService = TestBed.inject(PatientService);
-      const page1 = [makePatient('1', 'Patient A')];
-      const page2 = [makePatient('2', 'Patient B')];
+      const page1 = [makePatient(1, 'Patient A')];
+      const page2 = [makePatient(2, 'Patient B')];
       const listSpy = spyOn(patientService, 'list').and.returnValue(of(pagedResult(page1, 30, 1, 25)));
 
       const fixture = TestBed.createComponent(PatientsListComponent);
@@ -241,7 +241,7 @@ describe('PatientsListComponent', () => {
     it('Previous is disabled on page 1', () => {
       setup();
       const patientService = TestBed.inject(PatientService);
-      spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'A')], 30, 1, 25)));
+      spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'A')], 30, 1, 25)));
 
       const fixture = TestBed.createComponent(PatientsListComponent);
       fixture.detectChanges();
@@ -253,7 +253,7 @@ describe('PatientsListComponent', () => {
     it('Next is disabled on the last page', () => {
       setup();
       const patientService = TestBed.inject(PatientService);
-      spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'A')], 25, 1, 25)));
+      spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'A')], 25, 1, 25)));
 
       const fixture = TestBed.createComponent(PatientsListComponent);
       fixture.detectChanges();
@@ -265,7 +265,7 @@ describe('PatientsListComponent', () => {
     it('Page X of Y label reflects page and computed total pages', () => {
       setup();
       const patientService = TestBed.inject(PatientService);
-      spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'A')], 51, 2, 25)));
+      spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'A')], 51, 2, 25)));
 
       const fixture = TestBed.createComponent(PatientsListComponent);
       fixture.detectChanges();

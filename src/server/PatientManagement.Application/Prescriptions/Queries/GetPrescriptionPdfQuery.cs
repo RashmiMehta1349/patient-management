@@ -30,7 +30,7 @@ public class GetPrescriptionPdfQueryHandler
         _pdfGenerator = pdfGenerator;
     }
 
-    public async Task<byte[]?> HandleAsync(Guid visitId, CancellationToken cancellationToken = default)
+    public async Task<byte[]?> HandleAsync(long visitId, CancellationToken cancellationToken = default)
     {
         var visit = await _visitRepository.GetByIdAsync(visitId, cancellationToken);
         if (visit is null)

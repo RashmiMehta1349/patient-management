@@ -22,7 +22,7 @@ public class GetAppointmentsByPatientIdQueryHandler
         _patientRepository = patientRepository;
     }
 
-    public async Task<IReadOnlyList<AppointmentDto>> HandleAsync(Guid patientId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AppointmentDto>> HandleAsync(long patientId, CancellationToken cancellationToken = default)
     {
         var appointments = await _appointmentRepository.GetByPatientIdAsync(patientId, cancellationToken);
         if (appointments.Count == 0)

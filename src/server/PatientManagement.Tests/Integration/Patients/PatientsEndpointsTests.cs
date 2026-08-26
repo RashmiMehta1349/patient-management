@@ -29,7 +29,7 @@ public class PatientsEndpointsTests : IDisposable
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync($"/api/patients/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"/api/patients/{Random.Shared.NextInt64(1, long.MaxValue)}");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -60,7 +60,7 @@ public class PatientsEndpointsTests : IDisposable
         var token = await LoginAndGetTokenAsync(client);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var response = await client.GetAsync($"/api/patients/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"/api/patients/{Random.Shared.NextInt64(1, long.MaxValue)}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -70,7 +70,7 @@ public class PatientsEndpointsTests : IDisposable
     {
         var client = _factory.CreateClient();
 
-        var response = await client.PutAsJsonAsync($"/api/patients/{Guid.NewGuid()}", ValidPayload());
+        var response = await client.PutAsJsonAsync($"/api/patients/{Random.Shared.NextInt64(1, long.MaxValue)}", ValidPayload());
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -132,7 +132,7 @@ public class PatientsEndpointsTests : IDisposable
         var token = await LoginAndGetTokenAsync(client);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        var response = await client.PutAsJsonAsync($"/api/patients/{Guid.NewGuid()}", ValidPayload());
+        var response = await client.PutAsJsonAsync($"/api/patients/{Random.Shared.NextInt64(1, long.MaxValue)}", ValidPayload());
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -175,7 +175,7 @@ public class PatientsEndpointsTests : IDisposable
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
-        var id = Guid.Parse(body.GetProperty("id").GetString()!);
+        var id = long.Parse(body.GetProperty("id").GetString()!);
         Assert.Equal("Jane Doe", body.GetProperty("fullName").GetString());
 
         using var scope = _factory.Services.CreateScope();

@@ -41,6 +41,17 @@
     margin: 0;
   }
 
+  .walk-in-badge {
+    margin-left: 0.5rem;
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #92400e;
+    background: #fef3c7;
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+  }
+
   .visit-date {
     font-size: 0.85rem;
     color: #6b7280;
@@ -113,7 +124,9 @@
     border-radius: 4px;
   }
 
-  .print-link {
+  .print-link,
+  .export-csv-btn,
+  .export-pdf-btn {
     padding: 0.5rem 1rem;
     background: #0b5fff;
     color: #fff;
@@ -128,7 +141,7 @@
     }
   }
 
-  button:not(.print-link) {
+  button:not(.print-link):not(.export-csv-btn):not(.export-pdf-btn) {
     padding: 0.5rem 1rem;
     background: #0b5fff;
     color: #fff;

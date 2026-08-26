@@ -23,15 +23,15 @@ export class AppointmentService {
     return this.http.post<Appointment>(`${this.apiBaseUrl}/appointments`, request);
   }
 
-  getById(id: string): Observable<Appointment> {
+  getById(id: string | number): Observable<Appointment> {
     return this.http.get<Appointment>(`${this.apiBaseUrl}/appointments/${id}`);
   }
 
-  update(id: string, request: UpdateAppointmentRequest): Observable<Appointment> {
+  update(id: string | number, request: UpdateAppointmentRequest): Observable<Appointment> {
     return this.http.put<Appointment>(`${this.apiBaseUrl}/appointments/${id}`, request);
   }
 
-  updateStatus(id: string, status: UpdateAppointmentStatusRequest['status']): Observable<Appointment> {
+  updateStatus(id: string | number, status: UpdateAppointmentStatusRequest['status']): Observable<Appointment> {
     return this.http.patch<Appointment>(`${this.apiBaseUrl}/appointments/${id}/status`, { status });
   }
 
@@ -40,7 +40,7 @@ export class AppointmentService {
     return this.http.get<Appointment[]>(`${this.apiBaseUrl}/appointments`, { params });
   }
 
-  listByPatientId(patientId: string): Observable<Appointment[]> {
+  listByPatientId(patientId: string | number): Observable<Appointment[]> {
     const params = new HttpParams().set('patientId', patientId);
     return this.http.get<Appointment[]>(`${this.apiBaseUrl}/appointments`, { params });
   }

@@ -71,7 +71,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<CurrentUserDto>> Me(CancellationToken cancellationToken)
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+        if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
         {
             return Unauthorized();
         }

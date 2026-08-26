@@ -9,7 +9,7 @@ import { RecentPatientsService } from '../../patients/recent-patients.service';
 import { PagedResult, Patient } from '../../patients/patients.models';
 
 describe('SearchWidgetComponent', () => {
-  const makePatient = (id: string, fullName: string): Patient => ({
+  const makePatient = (id: number, fullName: string): Patient => ({
     id,
     fullName,
     dateOfBirth: '1990-05-15',
@@ -38,7 +38,7 @@ describe('SearchWidgetComponent', () => {
     setup();
     const patientService = TestBed.inject(PatientService);
     spyOn(patientService, 'list').and.returnValue(
-      of(pagedResult([makePatient('1', 'Amy Baker')], 1))
+      of(pagedResult([makePatient(1, 'Amy Baker')], 1))
     );
 
     const fixture = TestBed.createComponent(SearchWidgetComponent);
@@ -74,10 +74,10 @@ describe('SearchWidgetComponent', () => {
   it('clearing the input reverts to Recently Viewed default content', fakeAsync(() => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'Amy Baker')], 1)));
+    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'Amy Baker')], 1)));
     const recentPatientsService = TestBed.inject(RecentPatientsService);
     spyOn(recentPatientsService, 'list').and.returnValue([
-      { id: '2', fullName: 'Zack Adams', phoneNumber: '555-000-0002', viewedAt: new Date().toISOString() }
+      { id: 2, fullName: 'Zack Adams', phoneNumber: '555-000-0002', viewedAt: new Date().toISOString() }
     ]);
 
     const fixture = TestBed.createComponent(SearchWidgetComponent);
@@ -96,7 +96,7 @@ describe('SearchWidgetComponent', () => {
   it('"View all N results" appears only when totalCount exceeds the dropdown size and links to /patients?query=', fakeAsync(() => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'Amy Baker')], 10)));
+    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'Amy Baker')], 10)));
     const router = TestBed.inject(Router);
     const navigateSpy = spyOn(router, 'navigate');
 
@@ -118,7 +118,7 @@ describe('SearchWidgetComponent', () => {
   it('does not show "View all" when totalCount is within the dropdown size', fakeAsync(() => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'Amy Baker')], 1)));
+    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'Amy Baker')], 1)));
 
     const fixture = TestBed.createComponent(SearchWidgetComponent);
     const component = fixture.componentInstance;
@@ -134,7 +134,7 @@ describe('SearchWidgetComponent', () => {
   it('selecting a result navigates to /patients/:id', fakeAsync(() => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'Amy Baker')], 1)));
+    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'Amy Baker')], 1)));
     const router = TestBed.inject(Router);
     const navigateSpy = spyOn(router, 'navigate');
 
@@ -156,7 +156,7 @@ describe('SearchWidgetComponent', () => {
     setup();
     const patientService = TestBed.inject(PatientService);
     spyOn(patientService, 'list').and.returnValue(
-      of(pagedResult([makePatient('1', 'Amy Baker'), makePatient('2', 'Zack Adams')], 2))
+      of(pagedResult([makePatient(1, 'Amy Baker'), makePatient(2, 'Zack Adams')], 2))
     );
     const router = TestBed.inject(Router);
     const navigateSpy = spyOn(router, 'navigate');
@@ -179,7 +179,7 @@ describe('SearchWidgetComponent', () => {
   it('Escape closes the dropdown', fakeAsync(() => {
     setup();
     const patientService = TestBed.inject(PatientService);
-    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient('1', 'Amy Baker')], 1)));
+    spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'Amy Baker')], 1)));
 
     const fixture = TestBed.createComponent(SearchWidgetComponent);
     const component = fixture.componentInstance;

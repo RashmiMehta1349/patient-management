@@ -10,9 +10,9 @@ namespace PatientManagement.Domain.Entities;
 /// </summary>
 public class Appointment
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
-    public Guid PatientId { get; set; }
+    public long PatientId { get; set; }
 
     public DateOnly AppointmentDate { get; set; }
 

@@ -4,7 +4,7 @@ namespace PatientManagement.Application.Appointments.Dtos;
 
 public class CreateAppointmentRequestDto
 {
-    public Guid PatientId { get; set; }
+    public long PatientId { get; set; }
 
     /// <summary>ISO 8601 date string (yyyy-MM-dd), e.g. from an HTML date input.</summary>
     public string AppointmentDate { get; set; } = string.Empty;

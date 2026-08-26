@@ -4,6 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { VisitService } from '../../../core/visits/visit.service';
 import { Visit } from '../../../core/visits/visits.models';
 import { PrescriptionService } from '../../../core/prescriptions/prescription.service';
+import { DataExportService } from '../../../core/data-export/data-export.service';
+import { triggerDownload } from '../../../core/shared/download/trigger-download';
 
 /**
  * Module 6 (Patient History) — read-only Visit Detail view (Increment 2, plan §5/§8, Open Question 1
@@ -12,6 +14,11 @@ import { PrescriptionService } from '../../../core/prescriptions/prescription.se
  * submit action, no path back to a write operation (R8/AC2/AC6). "Print Prescription" reuses the
  * same PrescriptionService flow as the Consultations list and the Consultation form's own print
  * action; "Back" returns to the patient's Consultations/History list.
+ *
+ * Module 8 (Data Export) — adds "Export CSV"/"Export PDF" actions alongside the existing actions
+ * (plan §8, §10 task 16): downloads this single visit's export file (including Complaints, which
+ * the prescription PDF above deliberately omits) via DataExportService + the shared
+ * triggerDownload helper, distinct from "Print Prescription"'s open-in-new-tab behavior.
  */
 @Component({
   selector: 'app-visit-detail',
@@ -24,6 +31,7 @@ export class VisitDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly visitService = inject(VisitService);
   private readonly prescriptionService = inject(PrescriptionService);
+  private readonly dataExportService = inject(DataExportService);
 
   id: string | null = null;
   loading = true;
@@ -33,6 +41,9 @@ export class VisitDetailComponent implements OnInit {
 
   printing = false;
   printError = false;
+
+  exporting = false;
+  exportError = false;
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id');
@@ -72,7 +83,7 @@ export class VisitDetailComponent implements OnInit {
     }
   }
 
-  backLink(): string[] {
+  backLink(): (string | number)[] {
     return this.visit ? ['/patients', this.visit.patientId] : ['/dashboard'];
   }
 
@@ -102,6 +113,48 @@ export class VisitDetailComponent implements OnInit {
       error: () => {
         this.printing = false;
         this.printError = true;
+      }
+    });
+  }
+
+  /** Read-only action (R7) — downloads this visit's export file as an attachment (Module 8).
+   * Distinct from "Print Prescription": always saves to disk rather than opening in a tab. */
+  exportVisitCsv(): void {
+    if (this.exporting || !this.visit) {
+      return;
+    }
+    this.exporting = true;
+    this.exportError = false;
+    const visitId = this.visit.id;
+
+    this.dataExportService.exportVisitCsv(visitId).subscribe({
+      next: (blob) => {
+        this.exporting = false;
+        triggerDownload(blob, `visit-${visitId}-export.csv`);
+      },
+      error: () => {
+        this.exporting = false;
+        this.exportError = true;
+      }
+    });
+  }
+
+  exportVisitPdf(): void {
+    if (this.exporting || !this.visit) {
+      return;
+    }
+    this.exporting = true;
+    this.exportError = false;
+    const visitId = this.visit.id;
+
+    this.dataExportService.exportVisitPdf(visitId).subscribe({
+      next: (blob) => {
+        this.exporting = false;
+        triggerDownload(blob, `visit-${visitId}-export.pdf`);
+      },
+      error: () => {
+        this.exporting = false;
+        this.exportError = true;
       }
     });
   }

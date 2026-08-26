@@ -18,8 +18,8 @@ public class GetVisitByIdQueryHandlerTests
     [Fact]
     public async Task Found_ReturnsDto()
     {
-        var patientId = Guid.NewGuid();
-        var visit = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = DateTime.UtcNow, TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
+        var visit = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = DateTime.UtcNow, TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
         _visitRepository.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
         _patientRepository
             .Setup(r => r.GetByIdAsync(patientId, It.IsAny<CancellationToken>()))
@@ -36,11 +36,11 @@ public class GetVisitByIdQueryHandlerTests
     [Fact]
     public async Task NotFound_ReturnsNull()
     {
-        _visitRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
+        _visitRepository.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
 
         var handler = new GetVisitByIdQueryHandler(_visitRepository.Object, _patientRepository.Object);
 
-        var result = await handler.HandleAsync(Guid.NewGuid());
+        var result = await handler.HandleAsync(Random.Shared.NextInt64(1, long.MaxValue));
 
         Assert.Null(result);
     }

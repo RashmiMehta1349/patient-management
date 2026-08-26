@@ -15,7 +15,7 @@ export class PrescriptionService {
 
   constructor(private readonly http: HttpClient) {}
 
-  getPrescriptionPdf(visitId: string): Observable<Blob> {
+  getPrescriptionPdf(visitId: string | number): Observable<Blob> {
     return this.http.get(`${this.apiBaseUrl}/visits/${visitId}/prescription/pdf`, { responseType: 'blob' });
   }
 }

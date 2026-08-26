@@ -22,10 +22,10 @@ public class GetAppointmentsByPatientIdQueryHandlerTests
     [Fact]
     public async Task ReturnsOnlyThatPatientsAppointments()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var appointments = new List<Appointment>
         {
-            new() { Id = Guid.NewGuid(), PatientId = patientId, AppointmentDate = new DateOnly(2026, 8, 26), AppointmentTime = new TimeOnly(9, 0), Status = AppointmentStatuses.Scheduled }
+            new() { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, AppointmentDate = new DateOnly(2026, 8, 26), AppointmentTime = new TimeOnly(9, 0), Status = AppointmentStatuses.Scheduled }
         };
         _appointmentRepository.Setup(r => r.GetByPatientIdAsync(patientId, It.IsAny<CancellationToken>())).ReturnsAsync(appointments);
         _patientRepository.Setup(r => r.GetByIdAsync(patientId, It.IsAny<CancellationToken>()))
@@ -40,7 +40,7 @@ public class GetAppointmentsByPatientIdQueryHandlerTests
     [Fact]
     public async Task NoAppointments_ReturnsEmptyArray()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         _appointmentRepository.Setup(r => r.GetByPatientIdAsync(patientId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Appointment>());
 
         var result = await CreateHandler().HandleAsync(patientId);

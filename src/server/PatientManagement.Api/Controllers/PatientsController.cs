@@ -67,8 +67,8 @@ public class PatientsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<PatientDto>> GetById(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<PatientDto>> GetById(long id, CancellationToken cancellationToken)
     {
         var patient = await _getPatientByIdHandler.HandleAsync(id, cancellationToken);
         if (patient is null)
@@ -79,8 +79,8 @@ public class PatientsController : ControllerBase
         return Ok(patient);
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult<PatientDto>> Update(Guid id, [FromBody] UpdatePatientRequestDto request, CancellationToken cancellationToken)
+    [HttpPut("{id:long}")]
+    public async Task<ActionResult<PatientDto>> Update(long id, [FromBody] UpdatePatientRequestDto request, CancellationToken cancellationToken)
     {
         var result = await _updatePatientHandler.HandleAsync(id, request, cancellationToken);
         if (result.IsNotFound)

@@ -104,8 +104,14 @@ export class ConsultationFormComponent implements OnInit {
   printing = false;
   printError = false;
 
-  patient: Patient | { id: string; fullName: string } | null = null;
-  appointmentId: string | null = null;
+  patient: Patient | { id: number; fullName: string } | null = null;
+  appointmentId: number | null = null;
+
+  /** True once the patient/appointment context has resolved and no appointment is linked —
+   * i.e. this consultation was started directly (walk-in), not from a scheduled appointment. */
+  get isWalkIn(): boolean {
+    return this.patient !== null && this.appointmentId === null;
+  }
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id');
@@ -150,7 +156,8 @@ export class ConsultationFormComponent implements OnInit {
     }
 
     const patientId = this.route.snapshot.queryParamMap.get('patientId');
-    this.appointmentId = this.route.snapshot.queryParamMap.get('appointmentId');
+    const appointmentIdParam = this.route.snapshot.queryParamMap.get('appointmentId');
+    this.appointmentId = appointmentIdParam !== null ? Number(appointmentIdParam) : null;
 
     if (!patientId) {
       this.loadError = true;
@@ -285,13 +292,13 @@ export class ConsultationFormComponent implements OnInit {
       });
   }
 
-  backLink(): string[] {
+  backLink(): (string | number)[] {
     return this.patient ? ['/patients', this.patient.id] : ['/dashboard'];
   }
 
   /** Fetches the server-generated prescription PDF and opens it in a new tab (falls back to
    * triggering a download if pop-ups are blocked) — read-only action, no data written. */
-  printPrescription(visitId: string): void {
+  printPrescription(visitId: number): void {
     if (this.printing) {
       return;
     }

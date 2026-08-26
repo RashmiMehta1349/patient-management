@@ -27,7 +27,7 @@ public class PrescriptionPdfEndpointTests : IDisposable
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync($"/api/visits/{Guid.NewGuid()}/prescription/pdf");
+        var response = await client.GetAsync($"/api/visits/{Random.Shared.NextInt64(1, long.MaxValue)}/prescription/pdf");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -37,7 +37,7 @@ public class PrescriptionPdfEndpointTests : IDisposable
     {
         var client = await AuthenticatedClientAsync();
 
-        var response = await client.GetAsync($"/api/visits/{Guid.NewGuid()}/prescription/pdf");
+        var response = await client.GetAsync($"/api/visits/{Random.Shared.NextInt64(1, long.MaxValue)}/prescription/pdf");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -110,7 +110,7 @@ public class PrescriptionPdfEndpointTests : IDisposable
         return client;
     }
 
-    private static async Task<Guid> CreatePatientAsync(HttpClient client, string fullName)
+    private static async Task<long> CreatePatientAsync(HttpClient client, string fullName)
     {
         var response = await client.PostAsJsonAsync("/api/patients", new
         {
@@ -120,7 +120,7 @@ public class PrescriptionPdfEndpointTests : IDisposable
             phoneNumber = "555-123-4567"
         });
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
-        return Guid.Parse(body.GetProperty("id").GetString()!);
+        return long.Parse(body.GetProperty("id").GetString()!);
     }
 
     private static async Task<string> LoginAndGetTokenAsync(HttpClient client)

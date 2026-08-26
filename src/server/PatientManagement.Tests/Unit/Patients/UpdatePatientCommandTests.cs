@@ -26,7 +26,7 @@ public class UpdatePatientCommandTests
 
     private UpdatePatientCommandHandler CreateHandler() => new(_patientRepository.Object, _dateTimeProvider.Object);
 
-    private static Patient ExistingPatient(Guid id) => new()
+    private static Patient ExistingPatient(long id) => new()
     {
         Id = id,
         FullName = "Jane Doe",
@@ -48,7 +48,7 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task ValidChanges_UpdatesAndReturnsSuccess()
     {
-        var id = Guid.NewGuid();
+        var id = Random.Shared.NextInt64(1, long.MaxValue);
         var patient = ExistingPatient(id);
         _patientRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(patient);
 
@@ -67,7 +67,7 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task MissingName_ReturnsFailure()
     {
-        var id = Guid.NewGuid();
+        var id = Random.Shared.NextInt64(1, long.MaxValue);
         _patientRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingPatient(id));
         var request = ValidRequest();
         request.FullName = "";
@@ -82,7 +82,7 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task MissingDateOfBirth_ReturnsFailure()
     {
-        var id = Guid.NewGuid();
+        var id = Random.Shared.NextInt64(1, long.MaxValue);
         _patientRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingPatient(id));
         var request = ValidRequest();
         request.DateOfBirth = "";
@@ -96,7 +96,7 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task MissingGender_ReturnsFailure()
     {
-        var id = Guid.NewGuid();
+        var id = Random.Shared.NextInt64(1, long.MaxValue);
         _patientRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingPatient(id));
         var request = ValidRequest();
         request.Gender = "";
@@ -110,7 +110,7 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task MissingPhoneNumber_ReturnsFailure()
     {
-        var id = Guid.NewGuid();
+        var id = Random.Shared.NextInt64(1, long.MaxValue);
         _patientRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingPatient(id));
         var request = ValidRequest();
         request.PhoneNumber = "";
@@ -124,7 +124,7 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task DateOfBirthInTheFuture_ReturnsFailure()
     {
-        var id = Guid.NewGuid();
+        var id = Random.Shared.NextInt64(1, long.MaxValue);
         _patientRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingPatient(id));
         var request = ValidRequest();
         request.DateOfBirth = "2030-01-01";
@@ -138,7 +138,7 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task InvalidGenderValue_ReturnsFailure()
     {
-        var id = Guid.NewGuid();
+        var id = Random.Shared.NextInt64(1, long.MaxValue);
         _patientRepository.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingPatient(id));
         var request = ValidRequest();
         request.Gender = "Unknown";
@@ -152,9 +152,9 @@ public class UpdatePatientCommandTests
     [Fact]
     public async Task NonExistentId_ReturnsNotFoundResult()
     {
-        _patientRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Patient?)null);
+        _patientRepository.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync((Patient?)null);
 
-        var result = await CreateHandler().HandleAsync(Guid.NewGuid(), ValidRequest());
+        var result = await CreateHandler().HandleAsync(Random.Shared.NextInt64(1, long.MaxValue), ValidRequest());
 
         Assert.False(result.Succeeded);
         Assert.True(result.IsNotFound);

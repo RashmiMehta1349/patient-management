@@ -22,7 +22,7 @@ public class GetAppointmentByIdQueryHandler
         _patientRepository = patientRepository;
     }
 
-    public async Task<AppointmentDto?> HandleAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<AppointmentDto?> HandleAsync(long id, CancellationToken cancellationToken = default)
     {
         var appointment = await _appointmentRepository.GetByIdAsync(id, cancellationToken);
         if (appointment is null)

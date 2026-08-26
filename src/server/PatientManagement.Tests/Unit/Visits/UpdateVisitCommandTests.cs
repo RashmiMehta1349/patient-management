@@ -32,8 +32,8 @@ public class UpdateVisitCommandTests
     [Fact]
     public async Task ValidEdit_PersistsChanges()
     {
-        var patientId = Guid.NewGuid();
-        var visit = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
+        var visit = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
         _visitRepository.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
         _patientRepository
             .Setup(r => r.GetByIdAsync(patientId, It.IsAny<CancellationToken>()))
@@ -66,10 +66,10 @@ public class UpdateVisitCommandTests
     [Fact]
     public async Task UnknownId_ReturnsNotFound()
     {
-        _visitRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
+        _visitRepository.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
         var handler = CreateHandler();
 
-        var result = await handler.HandleAsync(Guid.NewGuid(), new UpdateVisitRequestDto { TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true });
+        var result = await handler.HandleAsync(Random.Shared.NextInt64(1, long.MaxValue), new UpdateVisitRequestDto { TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true });
 
         Assert.False(result.Succeeded);
         Assert.True(result.IsNotFound);
@@ -78,8 +78,8 @@ public class UpdateVisitCommandTests
     [Fact]
     public async Task ConflictingVitalPayload_NormalizesRatherThanFails()
     {
-        var patientId = Guid.NewGuid();
-        var visit = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20) };
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
+        var visit = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20) };
         _visitRepository.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
         _patientRepository
             .Setup(r => r.GetByIdAsync(patientId, It.IsAny<CancellationToken>()))
@@ -104,10 +104,10 @@ public class UpdateVisitCommandTests
     [Fact]
     public async Task ReplacesFullMedicationSet_RemovingOmittedRowsAndAddingNewRows()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var visit = new Visit
         {
-            Id = Guid.NewGuid(),
+            Id = Random.Shared.NextInt64(1, long.MaxValue),
             PatientId = patientId,
             VisitDate = new DateTime(2026, 8, 20),
             TemperatureNotRecorded = true,
@@ -115,7 +115,7 @@ public class UpdateVisitCommandTests
             PulseNotRecorded = true,
             Medications = new List<Medication>
             {
-                new() { Id = Guid.NewGuid(), Name = "OldMed", Dosage = "1", Frequency = "1", Duration = "1", Instructions = "1", SortOrder = 0 }
+                new() { Id = Random.Shared.NextInt64(1, long.MaxValue), Name = "OldMed", Dosage = "1", Frequency = "1", Duration = "1", Instructions = "1", SortOrder = 0 }
             }
         };
         _visitRepository.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
@@ -148,10 +148,10 @@ public class UpdateVisitCommandTests
     [Fact]
     public async Task RemovingAllMedications_PersistsEmptySet()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var visit = new Visit
         {
-            Id = Guid.NewGuid(),
+            Id = Random.Shared.NextInt64(1, long.MaxValue),
             PatientId = patientId,
             VisitDate = new DateTime(2026, 8, 20),
             TemperatureNotRecorded = true,
@@ -159,7 +159,7 @@ public class UpdateVisitCommandTests
             PulseNotRecorded = true,
             Medications = new List<Medication>
             {
-                new() { Id = Guid.NewGuid(), Name = "OldMed", Dosage = "1", Frequency = "1", Duration = "1", Instructions = "1", SortOrder = 0 }
+                new() { Id = Random.Shared.NextInt64(1, long.MaxValue), Name = "OldMed", Dosage = "1", Frequency = "1", Duration = "1", Instructions = "1", SortOrder = 0 }
             }
         };
         _visitRepository.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
@@ -185,8 +185,8 @@ public class UpdateVisitCommandTests
     [Fact]
     public async Task TouchedRowMissingSomeFields_Fails()
     {
-        var patientId = Guid.NewGuid();
-        var visit = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20) };
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
+        var visit = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20) };
         _visitRepository.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
 
         var handler = CreateHandler();
@@ -204,6 +204,6 @@ public class UpdateVisitCommandTests
         var result = await handler.HandleAsync(visit.Id, request);
 
         Assert.False(result.Succeeded);
-        _visitRepository.Verify(r => r.ReplaceMedicationsAsync(It.IsAny<Guid>(), It.IsAny<IReadOnlyList<Medication>>(), It.IsAny<CancellationToken>()), Times.Never);
+        _visitRepository.Verify(r => r.ReplaceMedicationsAsync(It.IsAny<long>(), It.IsAny<IReadOnlyList<Medication>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

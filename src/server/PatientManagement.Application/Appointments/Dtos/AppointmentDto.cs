@@ -5,9 +5,9 @@ namespace PatientManagement.Application.Appointments.Dtos;
 
 public class AppointmentDto
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
-    public Guid PatientId { get; set; }
+    public long PatientId { get; set; }
 
     /// <summary>Hydrated from Patient.FullName for display — not persisted on Appointment
     /// (approved plan §11, no denormalized PII duplication beyond this read-time join).</summary>
@@ -36,7 +36,7 @@ public class AppointmentDto
 
 public class ConflictingAppointmentDto
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
     public string PatientName { get; set; } = string.Empty;
 

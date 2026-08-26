@@ -16,7 +16,7 @@ export class RecentPatientsService {
    * Upserts a patient at the front of the list. If the patient is already present, it is moved
    * to the front (its `viewedAt` refreshed) rather than duplicated. Trims beyond MAX_RECENT.
    */
-  record(patient: { id: string; fullName: string; phoneNumber: string }): void {
+  record(patient: { id: number; fullName: string; phoneNumber: string }): void {
     const existing = this.list().filter((entry) => entry.id !== patient.id);
     const updated: RecentPatient = {
       id: patient.id,
@@ -64,7 +64,7 @@ function isRecentPatient(value: unknown): value is RecentPatient {
   }
   const candidate = value as Record<string, unknown>;
   return (
-    typeof candidate['id'] === 'string' &&
+    typeof candidate['id'] === 'number' &&
     typeof candidate['fullName'] === 'string' &&
     typeof candidate['phoneNumber'] === 'string' &&
     typeof candidate['viewedAt'] === 'string'

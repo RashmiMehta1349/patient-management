@@ -46,6 +46,43 @@
   font-size: 0.9rem;
 }
 
+.walk-in-section {
+  margin-top: 1.5rem;
+  max-width: 480px;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e4e7eb;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.walk-in-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: #52606d;
+}
+
+.walk-in-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.walk-in-button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid #cbd2d9;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  color: #1f2933;
+  background: #fff;
+}
+
+.walk-in-button-primary {
+  background: #0b5fff;
+  border-color: #0b5fff;
+  color: #fff;
+}
+
 .recent-patients-section {
   margin-top: 2rem;
   max-width: 480px;

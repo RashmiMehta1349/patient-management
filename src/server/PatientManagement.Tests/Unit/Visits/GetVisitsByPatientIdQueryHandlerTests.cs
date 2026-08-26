@@ -19,9 +19,9 @@ public class GetVisitsByPatientIdQueryHandlerTests
     [Fact]
     public async Task ReturnsOnlyRequestedPatientsVisits_MostRecentFirst()
     {
-        var patientId = Guid.NewGuid();
-        var newer = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = new DateTime(2026, 8, 25), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
-        var older = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
+        var newer = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = new DateTime(2026, 8, 25), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
+        var older = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = new DateTime(2026, 8, 20), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
 
         _visitRepository
             .Setup(r => r.GetByPatientIdAsync(patientId, null, null, It.IsAny<CancellationToken>()))
@@ -43,7 +43,7 @@ public class GetVisitsByPatientIdQueryHandlerTests
     [Fact]
     public async Task EmptyPatient_ReturnsEmptyArray()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         _visitRepository
             .Setup(r => r.GetByPatientIdAsync(patientId, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Visit>());
@@ -59,8 +59,8 @@ public class GetVisitsByPatientIdQueryHandlerTests
     [Fact]
     public async Task BothDatesSupplied_ReturnsOnlyVisitsWithinInclusiveRange()
     {
-        var patientId = Guid.NewGuid();
-        var inRange = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = new DateTime(2026, 8, 10), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
+        var inRange = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = new DateTime(2026, 8, 10), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
 
         var from = new DateTime(2026, 8, 1);
         var to = new DateTime(2026, 8, 20);
@@ -85,7 +85,7 @@ public class GetVisitsByPatientIdQueryHandlerTests
     [Fact]
     public async Task OnlyFromDateSupplied_PassesStartOfDayAndNullTo()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var from = new DateTime(2026, 8, 1, 13, 0, 0);
 
         _visitRepository
@@ -103,7 +103,7 @@ public class GetVisitsByPatientIdQueryHandlerTests
     [Fact]
     public async Task OnlyToDateSupplied_PassesEndOfDayAndNullFrom()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var to = new DateTime(2026, 8, 20);
         var expectedTo = to.Date.AddDays(1).AddTicks(-1);
 
@@ -122,7 +122,7 @@ public class GetVisitsByPatientIdQueryHandlerTests
     [Fact]
     public async Task RangeWithNoMatchingVisits_ReturnsEmptyArrayNotError()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var from = new DateTime(2026, 1, 1);
         var to = new DateTime(2026, 1, 31);
 
@@ -141,7 +141,7 @@ public class GetVisitsByPatientIdQueryHandlerTests
     [Fact]
     public async Task FromDateAfterToDate_ReturnsValidationFailure()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var from = new DateTime(2026, 8, 20);
         var to = new DateTime(2026, 8, 1);
 
@@ -151,16 +151,16 @@ public class GetVisitsByPatientIdQueryHandlerTests
 
         Assert.False(result.Succeeded);
         Assert.False(result.IsNotFound);
-        _visitRepository.Verify(r => r.GetByPatientIdAsync(It.IsAny<Guid>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
+        _visitRepository.Verify(r => r.GetByPatientIdAsync(It.IsAny<long>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task SingleDayRange_FromEqualsTo_ReturnsOnlyVisitsOnThatExactDate()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var day = new DateTime(2026, 8, 10);
         var expectedTo = day.Date.AddDays(1).AddTicks(-1);
-        var onThatDay = new Visit { Id = Guid.NewGuid(), PatientId = patientId, VisitDate = new DateTime(2026, 8, 10, 9, 30, 0), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
+        var onThatDay = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, VisitDate = new DateTime(2026, 8, 10, 9, 30, 0), TemperatureNotRecorded = true, BloodPressureNotRecorded = true, PulseNotRecorded = true };
 
         _visitRepository
             .Setup(r => r.GetByPatientIdAsync(patientId, day.Date, expectedTo, It.IsAny<CancellationToken>()))

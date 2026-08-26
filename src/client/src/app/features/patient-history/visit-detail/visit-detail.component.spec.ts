@@ -7,11 +7,12 @@ import { VisitDetailComponent } from './visit-detail.component';
 import { VisitService } from '../../../core/visits/visit.service';
 import { Visit } from '../../../core/visits/visits.models';
 import { PrescriptionService } from '../../../core/prescriptions/prescription.service';
+import { DataExportService } from '../../../core/data-export/data-export.service';
 
 describe('VisitDetailComponent', () => {
   const baseVisit: Visit = {
-    id: 'v1',
-    patientId: 'p1',
+    id: 201,
+    patientId: 1,
     patientName: 'Jane Doe',
     appointmentId: null,
     visitDate: new Date('2026-08-10T10:00:00Z').toISOString(),
@@ -127,7 +128,7 @@ describe('VisitDetailComponent', () => {
     fixture.detectChanges();
 
     const backLink: HTMLAnchorElement = fixture.nativeElement.querySelector('a.back-link');
-    expect(backLink.getAttribute('href')).toBe('/patients/p1');
+    expect(backLink.getAttribute('href')).toBe('/patients/1');
   });
 
   it('"Edit" link routes to the Module 4 edit form for this visit', () => {
@@ -159,6 +160,60 @@ describe('VisitDetailComponent', () => {
     const printButton: HTMLButtonElement = fixture.nativeElement.querySelector('.print-link');
     printButton.click();
 
-    expect(printSpy).toHaveBeenCalledWith('v1');
+    expect(printSpy).toHaveBeenCalledWith(201);
+  });
+
+  it('"Export CSV" invokes DataExportService.exportVisitCsv and triggers a download', () => {
+    setup();
+    const visitService = TestBed.inject(VisitService);
+    spyOn(visitService, 'getById').and.returnValue(of(baseVisit));
+    const dataExportService = TestBed.inject(DataExportService);
+    const exportSpy = spyOn(dataExportService, 'exportVisitCsv').and.returnValue(of(new Blob(['csv'])));
+    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:mock');
+    spyOn(window.URL, 'revokeObjectURL');
+
+    const fixture = TestBed.createComponent(VisitDetailComponent);
+    fixture.detectChanges();
+
+    const exportButton: HTMLButtonElement = fixture.nativeElement.querySelector('.export-csv-btn');
+    exportButton.click();
+
+    expect(exportSpy).toHaveBeenCalledWith(201);
+  });
+
+  it('"Export PDF" invokes DataExportService.exportVisitPdf and triggers a download', () => {
+    setup();
+    const visitService = TestBed.inject(VisitService);
+    spyOn(visitService, 'getById').and.returnValue(of(baseVisit));
+    const dataExportService = TestBed.inject(DataExportService);
+    const exportSpy = spyOn(dataExportService, 'exportVisitPdf').and.returnValue(of(new Blob(['%PDF'])));
+    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:mock');
+    spyOn(window.URL, 'revokeObjectURL');
+
+    const fixture = TestBed.createComponent(VisitDetailComponent);
+    fixture.detectChanges();
+
+    const exportButton: HTMLButtonElement = fixture.nativeElement.querySelector('.export-pdf-btn');
+    exportButton.click();
+
+    expect(exportSpy).toHaveBeenCalledWith(201);
+  });
+
+  it('renders an error banner when export fails, without an unhandled exception', () => {
+    setup();
+    const visitService = TestBed.inject(VisitService);
+    spyOn(visitService, 'getById').and.returnValue(of(baseVisit));
+    const dataExportService = TestBed.inject(DataExportService);
+    spyOn(dataExportService, 'exportVisitCsv').and.returnValue(throwError(() => ({ status: 500 })));
+
+    const fixture = TestBed.createComponent(VisitDetailComponent);
+    fixture.detectChanges();
+
+    const exportButton: HTMLButtonElement = fixture.nativeElement.querySelector('.export-csv-btn');
+    exportButton.click();
+    fixture.detectChanges();
+
+    const banner = fixture.nativeElement.querySelectorAll('.banner-error');
+    expect(Array.from(banner).some((b: any) => b.textContent.includes('Could not export'))).toBeTrue();
   });
 });

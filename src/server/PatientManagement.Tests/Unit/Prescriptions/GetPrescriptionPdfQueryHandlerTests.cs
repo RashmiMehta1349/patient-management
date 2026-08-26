@@ -24,10 +24,10 @@ public class GetPrescriptionPdfQueryHandlerTests
     [Fact]
     public async Task UnknownVisit_ReturnsNull()
     {
-        _visitRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
+        _visitRepository.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync((Visit?)null);
         var handler = CreateHandler();
 
-        var result = await handler.HandleAsync(Guid.NewGuid());
+        var result = await handler.HandleAsync(Random.Shared.NextInt64(1, long.MaxValue));
 
         Assert.Null(result);
         _pdfGenerator.Verify(g => g.Generate(It.IsAny<PrescriptionDocumentDto>()), Times.Never);
@@ -36,10 +36,10 @@ public class GetPrescriptionPdfQueryHandlerTests
     [Fact]
     public async Task KnownVisit_ComposesDocumentAndReturnsGeneratedBytes()
     {
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var visit = new Visit
         {
-            Id = Guid.NewGuid(),
+            Id = Random.Shared.NextInt64(1, long.MaxValue),
             PatientId = patientId,
             VisitDate = new DateTime(2026, 8, 25),
             Diagnosis = "Flu",
@@ -65,9 +65,9 @@ public class GetPrescriptionPdfQueryHandlerTests
     [Fact]
     public async Task MissingPatientForVisit_ReturnsNull()
     {
-        var visit = new Visit { Id = Guid.NewGuid(), PatientId = Guid.NewGuid(), VisitDate = DateTime.UtcNow };
+        var visit = new Visit { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = Random.Shared.NextInt64(1, long.MaxValue), VisitDate = DateTime.UtcNow };
         _visitRepository.Setup(r => r.GetByIdAsync(visit.Id, It.IsAny<CancellationToken>())).ReturnsAsync(visit);
-        _patientRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Patient?)null);
+        _patientRepository.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync((Patient?)null);
 
         var handler = CreateHandler();
         var result = await handler.HandleAsync(visit.Id);

@@ -11,11 +11,11 @@ namespace PatientManagement.Domain.Entities;
 /// </summary>
 public class Visit
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
-    public Guid PatientId { get; set; }
+    public long PatientId { get; set; }
 
-    public Guid? AppointmentId { get; set; }
+    public long? AppointmentId { get; set; }
 
     public DateTime VisitDate { get; set; }
 

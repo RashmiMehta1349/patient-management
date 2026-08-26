@@ -22,8 +22,8 @@ public class CreateVisitCommandTests
     private readonly Mock<IDateTimeProvider> _dateTimeProvider = new();
 
     private static readonly DateTime FixedUtcNow = new(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc);
-    private static readonly Guid ExistingPatientId = Guid.NewGuid();
-    private static readonly Guid OtherPatientId = Guid.NewGuid();
+    private static readonly long ExistingPatientId = Random.Shared.NextInt64(1, long.MaxValue);
+    private static readonly long OtherPatientId = Random.Shared.NextInt64(1, long.MaxValue);
 
     public CreateVisitCommandTests()
     {
@@ -99,11 +99,11 @@ public class CreateVisitCommandTests
     public async Task MissingPatient_ReturnsNotFound()
     {
         _patientRepository
-            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Patient?)null);
         var handler = CreateHandler();
         var request = ValidRequest();
-        request.PatientId = Guid.NewGuid();
+        request.PatientId = Random.Shared.NextInt64(1, long.MaxValue);
 
         var result = await handler.HandleAsync(request);
 
@@ -116,11 +116,11 @@ public class CreateVisitCommandTests
     public async Task UnknownAppointmentId_ReturnsNotFound()
     {
         _appointmentRepository
-            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Appointment?)null);
         var handler = CreateHandler();
         var request = ValidRequest();
-        request.AppointmentId = Guid.NewGuid();
+        request.AppointmentId = Random.Shared.NextInt64(1, long.MaxValue);
 
         var result = await handler.HandleAsync(request);
 
@@ -131,7 +131,7 @@ public class CreateVisitCommandTests
     [Fact]
     public async Task MismatchedAppointmentPatient_ReturnsFailure()
     {
-        var appointmentId = Guid.NewGuid();
+        var appointmentId = Random.Shared.NextInt64(1, long.MaxValue);
         _appointmentRepository
             .Setup(r => r.GetByIdAsync(appointmentId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Appointment { Id = appointmentId, PatientId = OtherPatientId, Status = "Scheduled" });

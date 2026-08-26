@@ -20,7 +20,7 @@ public class UserRepository : IUserRepository
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
         _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
-    public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public Task<User?> GetByIdAsync(long id, CancellationToken cancellationToken = default) =>
         _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
 
     public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)

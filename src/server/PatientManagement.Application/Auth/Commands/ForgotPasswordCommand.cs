@@ -55,7 +55,6 @@ public class ForgotPasswordCommandHandler
 
                 var resetToken = new PasswordResetToken
                 {
-                    Id = Guid.NewGuid(),
                     UserId = user.Id,
                     TokenHash = tokenHash,
                     ExpiresAt = _dateTimeProvider.UtcNow.AddMinutes(_options.ResetTokenLifetimeMinutes),

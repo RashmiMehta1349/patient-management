@@ -29,7 +29,7 @@ export class AppointmentsListComponent implements OnInit {
 
   /** Tracks in-flight status updates per row id, so a failure surfaces inline without losing
    * the row (rather than a global error banner replacing the whole list). */
-  statusUpdateErrorId: string | null = null;
+  statusUpdateErrorId: number | null = null;
 
   get isEmpty(): boolean {
     return !this.loading && !this.error && this.appointments.length === 0;

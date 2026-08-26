@@ -15,18 +15,18 @@ export class VisitService {
     return this.http.post<Visit>(`${this.apiBaseUrl}/visits`, request);
   }
 
-  getById(id: string): Observable<Visit> {
+  getById(id: string | number): Observable<Visit> {
     return this.http.get<Visit>(`${this.apiBaseUrl}/visits/${id}`);
   }
 
-  update(id: string, request: UpdateVisitRequest): Observable<Visit> {
+  update(id: string | number, request: UpdateVisitRequest): Observable<Visit> {
     return this.http.put<Visit>(`${this.apiBaseUrl}/visits/${id}`, request);
   }
 
   /** Module 6 (Patient History): fromDate/toDate (ISO date strings, e.g. 'yyyy-MM-dd') are optional
    * and forwarded as query params for server-side date-range filtering; omitted returns the full,
    * unfiltered patient history exactly as before. */
-  listByPatientId(patientId: string, fromDate?: string, toDate?: string): Observable<Visit[]> {
+  listByPatientId(patientId: string | number, fromDate?: string, toDate?: string): Observable<Visit[]> {
     let params = new HttpParams().set('patientId', patientId);
     if (fromDate) {
       params = params.set('fromDate', fromDate);

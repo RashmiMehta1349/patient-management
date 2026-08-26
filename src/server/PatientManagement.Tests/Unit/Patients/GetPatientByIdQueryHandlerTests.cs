@@ -29,7 +29,7 @@ public class GetPatientByIdQueryHandlerTests
     {
         var patient = new Patient
         {
-            Id = Guid.NewGuid(),
+            Id = Random.Shared.NextInt64(1, long.MaxValue),
             FullName = "Jane Doe",
             DateOfBirth = new DateOnly(1990, 5, 15),
             Gender = "Female",
@@ -50,10 +50,10 @@ public class GetPatientByIdQueryHandlerTests
     [Fact]
     public async Task NonExistentId_ReturnsNull()
     {
-        _patientRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Patient?)null);
+        _patientRepository.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync((Patient?)null);
 
         var handler = CreateHandler();
-        var result = await handler.HandleAsync(Guid.NewGuid());
+        var result = await handler.HandleAsync(Random.Shared.NextInt64(1, long.MaxValue));
 
         Assert.Null(result);
     }

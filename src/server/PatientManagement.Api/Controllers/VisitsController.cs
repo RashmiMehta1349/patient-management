@@ -60,7 +60,7 @@ public class VisitsController : ControllerBase
     /// even runs (DateTime? binding failure -> automatic 400 via [ApiController]).
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult> GetAll([FromQuery] Guid? patientId, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, CancellationToken cancellationToken)
+    public async Task<ActionResult> GetAll([FromQuery] long? patientId, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, CancellationToken cancellationToken)
     {
         if (!patientId.HasValue)
         {
@@ -76,8 +76,8 @@ public class VisitsController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<VisitDto>> GetById(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<VisitDto>> GetById(long id, CancellationToken cancellationToken)
     {
         var visit = await _getVisitByIdHandler.HandleAsync(id, cancellationToken);
         if (visit is null)
@@ -88,8 +88,8 @@ public class VisitsController : ControllerBase
         return Ok(visit);
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult<VisitDto>> Update(Guid id, [FromBody] UpdateVisitRequestDto request, CancellationToken cancellationToken)
+    [HttpPut("{id:long}")]
+    public async Task<ActionResult<VisitDto>> Update(long id, [FromBody] UpdateVisitRequestDto request, CancellationToken cancellationToken)
     {
         var result = await _updateVisitHandler.HandleAsync(id, request, cancellationToken);
         if (result.IsNotFound)
@@ -110,8 +110,8 @@ public class VisitsController : ControllerBase
     /// plan's original browser-native window.print() recommendation). Read-only: composes the
     /// visit + its patient into a PDF; writes nothing (R7).
     /// </summary>
-    [HttpGet("{id:guid}/prescription/pdf")]
-    public async Task<ActionResult> GetPrescriptionPdf(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{id:long}/prescription/pdf")]
+    public async Task<ActionResult> GetPrescriptionPdf(long id, CancellationToken cancellationToken)
     {
         var pdfBytes = await _getPrescriptionPdfHandler.HandleAsync(id, cancellationToken);
         if (pdfBytes is null)

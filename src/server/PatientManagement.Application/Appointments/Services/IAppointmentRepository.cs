@@ -8,7 +8,7 @@ namespace PatientManagement.Application.Appointments.Services;
 
 public interface IAppointmentRepository
 {
-    Task<Appointment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Appointment?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
 
     Task AddAsync(Appointment appointment, CancellationToken cancellationToken = default);
 
@@ -18,7 +18,7 @@ public interface IAppointmentRepository
     Task<IReadOnlyList<Appointment>> GetByDateAsync(DateOnly date, CancellationToken cancellationToken = default);
 
     /// <summary>All appointments for a given patient, ordered by date/time (Increment 3).</summary>
-    Task<IReadOnlyList<Appointment>> GetByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Appointment>> GetByPatientIdAsync(long patientId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Appointments on the same date whose start time is within slotMinutes of the given time,
@@ -29,6 +29,6 @@ public interface IAppointmentRepository
         DateOnly date,
         TimeOnly time,
         int slotMinutes,
-        Guid? excludeAppointmentId = null,
+        long? excludeAppointmentId = null,
         CancellationToken cancellationToken = default);
 }

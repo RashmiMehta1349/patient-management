@@ -37,11 +37,11 @@ public class ResetPasswordCommandTests
     [Fact]
     public async Task ValidUnexpiredUnconsumedToken_UpdatesPasswordAndRegeneratesSecurityStamp()
     {
-        var userId = Guid.NewGuid();
+        var userId = Random.Shared.NextInt64(1, long.MaxValue);
         var user = new User { Id = userId, Email = "doc@example.com", PasswordHash = "old-hash", SecurityStamp = "old-stamp" };
         var resetToken = new PasswordResetToken
         {
-            Id = Guid.NewGuid(),
+            Id = Random.Shared.NextInt64(1, long.MaxValue),
             UserId = userId,
             TokenHash = "hash-of-raw-token",
             ExpiresAt = Now.AddMinutes(10),
@@ -68,8 +68,8 @@ public class ResetPasswordCommandTests
     {
         var resetToken = new PasswordResetToken
         {
-            Id = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
+            Id = Random.Shared.NextInt64(1, long.MaxValue),
+            UserId = Random.Shared.NextInt64(1, long.MaxValue),
             TokenHash = "hash-of-raw-token",
             ExpiresAt = Now.AddMinutes(-1),
             ConsumedAt = null
@@ -88,8 +88,8 @@ public class ResetPasswordCommandTests
     {
         var resetToken = new PasswordResetToken
         {
-            Id = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
+            Id = Random.Shared.NextInt64(1, long.MaxValue),
+            UserId = Random.Shared.NextInt64(1, long.MaxValue),
             TokenHash = "hash-of-raw-token",
             ExpiresAt = Now.AddMinutes(10),
             ConsumedAt = Now.AddMinutes(-5)

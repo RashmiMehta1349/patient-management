@@ -24,9 +24,11 @@ namespace PatientManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("PatientManagement.Domain.Entities.Appointment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateOnly>("AppointmentDate")
                         .HasColumnType("date");
@@ -41,8 +43,8 @@ namespace PatientManagement.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -63,9 +65,11 @@ namespace PatientManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("PatientManagement.Domain.Entities.Medication", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -97,8 +101,8 @@ namespace PatientManagement.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("VisitId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("VisitId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -109,9 +113,11 @@ namespace PatientManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("PatientManagement.Domain.Entities.PasswordResetToken", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime?>("ConsumedAt")
                         .HasColumnType("datetime2");
@@ -127,8 +133,8 @@ namespace PatientManagement.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -141,9 +147,11 @@ namespace PatientManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("PatientManagement.Domain.Entities.Patient", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -180,9 +188,11 @@ namespace PatientManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("PatientManagement.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -220,12 +230,14 @@ namespace PatientManagement.Infrastructure.Migrations
 
             modelBuilder.Entity("PatientManagement.Domain.Entities.Visit", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid?>("AppointmentId")
-                        .HasColumnType("uniqueidentifier");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AppointmentId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("BloodPressureNotRecorded")
                         .HasColumnType("bit");
@@ -245,8 +257,8 @@ namespace PatientManagement.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("PatientId")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("PulseNotRecorded")
                         .HasColumnType("bit");

@@ -10,12 +10,13 @@ import { PatientService } from '../../../core/patients/patient.service';
 import { Patient } from '../../../core/patients/patients.models';
 import { VisitService } from '../../../core/visits/visit.service';
 import { RecentPatientsService } from '../../../core/patients/recent-patients.service';
+import { DataExportService } from '../../../core/data-export/data-export.service';
 
 describe('PatientDetailComponent', () => {
   let httpMock: HttpTestingController;
 
   const testPatient: Patient = {
-    id: '11111111-1111-1111-1111-111111111111',
+    id: 1,
     fullName: 'Jane Doe',
     dateOfBirth: '1990-05-15',
     age: 36,
@@ -25,7 +26,7 @@ describe('PatientDetailComponent', () => {
     updatedAt: new Date().toISOString()
   };
 
-  function setup(routeId = testPatient.id) {
+  function setup(routeId: string = String(testPatient.id)) {
     TestBed.configureTestingModule({
       imports: [PatientDetailComponent],
       providers: [
@@ -101,8 +102,8 @@ describe('PatientDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
-            paramMap: of(convertToParamMap({ id: testPatient.id }))
+            snapshot: { paramMap: convertToParamMap({ id: String(testPatient.id) }) },
+            paramMap: of(convertToParamMap({ id: String(testPatient.id) }))
           }
         }
       ]
@@ -116,7 +117,7 @@ describe('PatientDetailComponent', () => {
     spyOn(appointmentService, 'listByPatientId').and.returnValue(
       of([
         {
-          id: 'a1',
+          id: 101,
           patientId: testPatient.id,
           patientName: testPatient.fullName,
           appointmentDate: '2026-08-26',
@@ -150,8 +151,8 @@ describe('PatientDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
-            paramMap: of(convertToParamMap({ id: testPatient.id }))
+            snapshot: { paramMap: convertToParamMap({ id: String(testPatient.id) }) },
+            paramMap: of(convertToParamMap({ id: String(testPatient.id) }))
           }
         }
       ]
@@ -165,7 +166,7 @@ describe('PatientDetailComponent', () => {
     spyOn(visitService, 'listByPatientId').and.returnValue(
       of([
         {
-          id: 'v1',
+          id: 201,
           patientId: testPatient.id,
           patientName: testPatient.fullName,
           appointmentId: null,
@@ -204,8 +205,8 @@ describe('PatientDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
-            paramMap: of(convertToParamMap({ id: testPatient.id }))
+            snapshot: { paramMap: convertToParamMap({ id: String(testPatient.id) }) },
+            paramMap: of(convertToParamMap({ id: String(testPatient.id) }))
           }
         }
       ]
@@ -219,7 +220,7 @@ describe('PatientDetailComponent', () => {
     spyOn(visitService, 'listByPatientId').and.returnValue(
       of([
         {
-          id: 'v1',
+          id: 201,
           patientId: testPatient.id,
           patientName: testPatient.fullName,
           appointmentId: null,
@@ -284,8 +285,8 @@ describe('PatientDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
-            paramMap: of(convertToParamMap({ id: testPatient.id }))
+            snapshot: { paramMap: convertToParamMap({ id: String(testPatient.id) }) },
+            paramMap: of(convertToParamMap({ id: String(testPatient.id) }))
           }
         }
       ]
@@ -299,7 +300,7 @@ describe('PatientDetailComponent', () => {
     spyOn(visitService, 'listByPatientId').and.returnValue(
       of([
         {
-          id: 'v1',
+          id: 201,
           patientId: testPatient.id,
           patientName: testPatient.fullName,
           appointmentId: null,
@@ -337,8 +338,8 @@ describe('PatientDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
-            paramMap: of(convertToParamMap({ id: testPatient.id }))
+            snapshot: { paramMap: convertToParamMap({ id: String(testPatient.id) }) },
+            paramMap: of(convertToParamMap({ id: String(testPatient.id) }))
           }
         }
       ]
@@ -352,7 +353,7 @@ describe('PatientDetailComponent', () => {
     spyOn(visitService, 'listByPatientId').and.returnValue(
       of([
         {
-          id: 'v1',
+          id: 201,
           patientId: testPatient.id,
           patientName: testPatient.fullName,
           appointmentId: null,
@@ -376,11 +377,11 @@ describe('PatientDetailComponent', () => {
     fixture.detectChanges();
 
     const rowLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.consultations-list li a');
-    expect(rowLink.getAttribute('href')).toBe('/visits/v1');
+    expect(rowLink.getAttribute('href')).toBe('/visits/201');
 
     const editLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.consultations-list li a.edit-visit-link');
     expect(editLink).toBeTruthy();
-    expect(editLink.getAttribute('href')).toBe('/consultations/v1/edit');
+    expect(editLink.getAttribute('href')).toBe('/consultations/201/edit');
   });
 
   it('applying a date filter re-fetches visits with fromDate/toDate forwarded to the service', () => {
@@ -479,7 +480,7 @@ describe('PatientDetailComponent', () => {
 
   it('re-loads patient, appointments and visits (and records recently-viewed) when the route id changes without recreating the component (Module 7 global search widget hand-off)', () => {
     const patientB: Patient = {
-      id: '22222222-2222-2222-2222-222222222222',
+      id: 2,
       fullName: 'John Smith',
       dateOfBirth: '1980-02-10',
       age: 46,
@@ -500,7 +501,7 @@ describe('PatientDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) },
+            snapshot: { paramMap: convertToParamMap({ id: String(testPatient.id) }) },
             paramMap: paramMap$.asObservable()
           }
         }
@@ -521,7 +522,7 @@ describe('PatientDetailComponent', () => {
     const fixture = TestBed.createComponent(PatientDetailComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
-    paramMap$.next(convertToParamMap({ id: testPatient.id }));
+    paramMap$.next(convertToParamMap({ id: String(testPatient.id) }));
     fixture.detectChanges();
 
     expect(component.patient).toEqual(testPatient);
@@ -535,7 +536,7 @@ describe('PatientDetailComponent', () => {
     appointmentsSpy.and.returnValue(
       of([
         {
-          id: 'appt-b',
+          id: 102,
           patientId: patientB.id,
           patientName: patientB.fullName,
           appointmentDate: '2026-08-27',
@@ -552,7 +553,7 @@ describe('PatientDetailComponent', () => {
     visitsSpy.and.returnValue(
       of([
         {
-          id: 'visit-b',
+          id: 202,
           patientId: patientB.id,
           patientName: patientB.fullName,
           appointmentId: null,
@@ -572,10 +573,10 @@ describe('PatientDetailComponent', () => {
       ])
     );
 
-    paramMap$.next(convertToParamMap({ id: patientB.id }));
+    paramMap$.next(convertToParamMap({ id: String(patientB.id) }));
     fixture.detectChanges();
 
-    expect(component.id).toBe(patientB.id);
+    expect(component.id).toBe(String(patientB.id));
     expect(component.patient).toEqual(patientB);
     expect(component.appointments.length).toBe(1);
     expect(component.appointments[0].patientId).toBe(patientB.id);
@@ -587,5 +588,61 @@ describe('PatientDetailComponent', () => {
     expect(getByIdSpy).toHaveBeenCalledWith(patientB.id);
     expect(appointmentsSpy).toHaveBeenCalledWith(patientB.id);
     expect(visitsSpy).toHaveBeenCalledWith(patientB.id, undefined, undefined);
+  });
+
+  it('"Export CSV" calls DataExportService with includeHistory=false by default', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const dataExportService = TestBed.inject(DataExportService);
+    const exportSpy = spyOn(dataExportService, 'exportPatientCsv').and.returnValue(of(new Blob(['csv'])));
+    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:mock');
+    spyOn(window.URL, 'revokeObjectURL');
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    fixture.detectChanges();
+
+    const exportButton: HTMLButtonElement = fixture.nativeElement.querySelector('.export-csv-btn');
+    exportButton.click();
+
+    expect(exportSpy).toHaveBeenCalledWith(testPatient.id, false);
+  });
+
+  it('"Export PDF" forwards includeHistory=true when the checkbox is checked', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const dataExportService = TestBed.inject(DataExportService);
+    const exportSpy = spyOn(dataExportService, 'exportPatientPdf').and.returnValue(of(new Blob(['%PDF'])));
+    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:mock');
+    spyOn(window.URL, 'revokeObjectURL');
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.includeHistoryInExport = true;
+    const exportButton: HTMLButtonElement = fixture.nativeElement.querySelector('.export-pdf-btn');
+    exportButton.click();
+
+    expect(exportSpy).toHaveBeenCalledWith(testPatient.id, true);
+  });
+
+  it('renders an error banner when patient export fails', () => {
+    setup();
+    const patientService = TestBed.inject(PatientService);
+    spyOn(patientService, 'getById').and.returnValue(of(testPatient));
+    const dataExportService = TestBed.inject(DataExportService);
+    spyOn(dataExportService, 'exportPatientCsv').and.returnValue(throwError(() => ({ status: 500 })));
+
+    const fixture = TestBed.createComponent(PatientDetailComponent);
+    fixture.detectChanges();
+
+    const exportButton: HTMLButtonElement = fixture.nativeElement.querySelector('.export-csv-btn');
+    exportButton.click();
+    fixture.detectChanges();
+
+    const banners: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('.banner-error'));
+    expect(banners.some((b) => b.textContent?.includes('Could not export'))).toBeTrue();
   });
 });

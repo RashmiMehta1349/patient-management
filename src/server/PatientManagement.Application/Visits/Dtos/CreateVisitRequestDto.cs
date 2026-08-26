@@ -5,9 +5,9 @@ namespace PatientManagement.Application.Visits.Dtos;
 
 public class CreateVisitRequestDto
 {
-    public Guid PatientId { get; set; }
+    public long PatientId { get; set; }
 
-    public Guid? AppointmentId { get; set; }
+    public long? AppointmentId { get; set; }
 
     public decimal? TemperatureValue { get; set; }
 

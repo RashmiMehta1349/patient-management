@@ -53,7 +53,6 @@ public class CreateAppointmentCommandHandler
         var now = _dateTimeProvider.UtcNow;
         var appointment = new Appointment
         {
-            Id = Guid.NewGuid(),
             PatientId = request.PatientId,
             AppointmentDate = date,
             AppointmentTime = time,

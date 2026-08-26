@@ -8,7 +8,7 @@ namespace PatientManagement.Domain.Entities;
 /// </summary>
 public class User
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>Login identifier.</summary>
     public string Email { get; set; } = string.Empty;

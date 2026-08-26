@@ -11,7 +11,7 @@ import { Patient } from '../../../core/patients/patients.models';
 
 describe('AppointmentFormComponent', () => {
   const testPatient: Patient = {
-    id: 'p1',
+    id: 1,
     fullName: 'Jane Doe',
     dateOfBirth: '1990-05-15',
     age: 36,
@@ -22,8 +22,8 @@ describe('AppointmentFormComponent', () => {
   };
 
   const savedAppointment: Appointment = {
-    id: 'a1',
-    patientId: 'p1',
+    id: 101,
+    patientId: 1,
     patientName: 'Jane Doe',
     appointmentDate: '2026-08-26',
     appointmentTime: '09:00',
@@ -75,7 +75,7 @@ describe('AppointmentFormComponent', () => {
       of({
         ...savedAppointment,
         hasOverlapWarning: true,
-        conflictingAppointments: [{ id: 'a2', patientName: 'John Roe', appointmentTime: '09:15' }]
+        conflictingAppointments: [{ id: 102, patientName: 'John Roe', appointmentTime: '09:15' }]
       })
     );
 
@@ -133,7 +133,7 @@ describe('AppointmentFormComponent', () => {
   });
 
   it('patientId query param pre-selects and locks the patient (from Patient Detail entry point)', () => {
-    setup({}, { patientId: 'p1' });
+    setup({}, { patientId: '1' });
     const patientService = TestBed.inject(PatientService);
     spyOn(patientService, 'getById').and.returnValue(of(testPatient));
 
@@ -142,6 +142,6 @@ describe('AppointmentFormComponent', () => {
     const component = fixture.componentInstance;
 
     expect(component.patientLocked).toBeTrue();
-    expect(component.selectedPatient?.id).toBe('p1');
+    expect(component.selectedPatient?.id).toBe(1);
   });
 });

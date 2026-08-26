@@ -29,7 +29,12 @@
       <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
 
       @if (patient) {
-        <p class="patient-context">Patient: <strong>{{ patient.fullName }}</strong></p>
+        <p class="patient-context">
+          Patient: <strong>{{ patient.fullName }}</strong>
+          @if (isWalkIn) {
+            <span class="walk-in-badge">Walk-in</span>
+          }
+        </p>
       }
 
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>

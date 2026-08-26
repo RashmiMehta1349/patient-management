@@ -20,7 +20,7 @@ public class GetVisitByIdQueryHandler
         _patientRepository = patientRepository;
     }
 
-    public async Task<VisitDto?> HandleAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<VisitDto?> HandleAsync(long id, CancellationToken cancellationToken = default)
     {
         var visit = await _visitRepository.GetByIdAsync(id, cancellationToken);
         if (visit is null)

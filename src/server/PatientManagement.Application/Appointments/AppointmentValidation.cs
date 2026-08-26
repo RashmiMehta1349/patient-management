@@ -10,13 +10,13 @@ namespace PatientManagement.Application.Appointments;
 /// </summary>
 public static class AppointmentValidation
 {
-    public static List<string> Validate(Guid patientId, string appointmentDate, string appointmentTime, out DateOnly date, out TimeOnly time)
+    public static List<string> Validate(long patientId, string appointmentDate, string appointmentTime, out DateOnly date, out TimeOnly time)
     {
         var errors = new List<string>();
         date = default;
         time = default;
 
-        if (patientId == Guid.Empty)
+        if (patientId == 0L)
         {
             errors.Add("Patient is required.");
         }

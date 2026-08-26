@@ -28,7 +28,7 @@ public class VisitsEndpointsTests : IDisposable
 
         var response = await client.PostAsJsonAsync("/api/visits", new
         {
-            patientId = Guid.NewGuid(),
+            patientId = Random.Shared.NextInt64(1, long.MaxValue),
             temperatureNotRecorded = true,
             bloodPressureNotRecorded = true,
             pulseNotRecorded = true
@@ -96,7 +96,7 @@ public class VisitsEndpointsTests : IDisposable
 
         var response = await client.PostAsJsonAsync("/api/visits", new
         {
-            patientId = Guid.NewGuid(),
+            patientId = Random.Shared.NextInt64(1, long.MaxValue),
             temperatureNotRecorded = true,
             bloodPressureNotRecorded = true,
             pulseNotRecorded = true
@@ -114,7 +114,7 @@ public class VisitsEndpointsTests : IDisposable
         var response = await client.PostAsJsonAsync("/api/visits", new
         {
             patientId,
-            appointmentId = Guid.NewGuid(),
+            appointmentId = Random.Shared.NextInt64(1, long.MaxValue),
             temperatureNotRecorded = true,
             bloodPressureNotRecorded = true,
             pulseNotRecorded = true
@@ -128,7 +128,7 @@ public class VisitsEndpointsTests : IDisposable
     {
         var client = await AuthenticatedClientAsync();
 
-        var response = await client.GetAsync($"/api/visits/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"/api/visits/{Random.Shared.NextInt64(1, long.MaxValue)}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -355,7 +355,7 @@ public class VisitsEndpointsTests : IDisposable
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync($"/api/visits?patientId={Guid.NewGuid()}&fromDate=2026-08-01&toDate=2026-08-31");
+        var response = await client.GetAsync($"/api/visits?patientId={Random.Shared.NextInt64(1, long.MaxValue)}&fromDate=2026-08-01&toDate=2026-08-31");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -365,7 +365,7 @@ public class VisitsEndpointsTests : IDisposable
     {
         var client = await AuthenticatedClientAsync();
 
-        var response = await client.PutAsJsonAsync($"/api/visits/{Guid.NewGuid()}", new
+        var response = await client.PutAsJsonAsync($"/api/visits/{Random.Shared.NextInt64(1, long.MaxValue)}", new
         {
             temperatureNotRecorded = true,
             bloodPressureNotRecorded = true,
@@ -383,7 +383,7 @@ public class VisitsEndpointsTests : IDisposable
         return client;
     }
 
-    private static async Task<Guid> CreatePatientAsync(HttpClient client, string fullName = "Jane Doe")
+    private static async Task<long> CreatePatientAsync(HttpClient client, string fullName = "Jane Doe")
     {
         var response = await client.PostAsJsonAsync("/api/patients", new
         {
@@ -393,14 +393,14 @@ public class VisitsEndpointsTests : IDisposable
             phoneNumber = "555-123-4567"
         });
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
-        return Guid.Parse(body.GetProperty("id").GetString()!);
+        return long.Parse(body.GetProperty("id").GetString()!);
     }
 
-    private static async Task<Guid> CreateAppointmentAsync(HttpClient client, Guid patientId)
+    private static async Task<long> CreateAppointmentAsync(HttpClient client, long patientId)
     {
         var response = await client.PostAsJsonAsync("/api/appointments", new { patientId, appointmentDate = "2026-08-26", appointmentTime = "09:00" });
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
-        return Guid.Parse(body.GetProperty("id").GetString()!);
+        return long.Parse(body.GetProperty("id").GetString()!);
     }
 
     private static async Task<string> LoginAndGetTokenAsync(HttpClient client)

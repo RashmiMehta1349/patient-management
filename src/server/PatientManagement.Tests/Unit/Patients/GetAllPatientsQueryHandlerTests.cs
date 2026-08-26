@@ -28,7 +28,7 @@ public class GetAllPatientsQueryHandlerTests
 
     private static Patient MakePatient(string name) => new()
     {
-        Id = Guid.NewGuid(),
+        Id = Random.Shared.NextInt64(1, long.MaxValue),
         FullName = name,
         DateOfBirth = new DateOnly(1990, 1, 1),
         Gender = "Female",

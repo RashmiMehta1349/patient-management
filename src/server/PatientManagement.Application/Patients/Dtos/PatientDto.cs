@@ -4,7 +4,7 @@ namespace PatientManagement.Application.Patients.Dtos;
 
 public class PatientDto
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
     public string FullName { get; set; } = string.Empty;
 

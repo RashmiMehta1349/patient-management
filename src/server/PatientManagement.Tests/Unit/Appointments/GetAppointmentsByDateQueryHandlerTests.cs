@@ -23,11 +23,11 @@ public class GetAppointmentsByDateQueryHandlerTests
     public async Task ReturnsAppointmentsInTimeOrderWithPatientNames()
     {
         var date = new DateOnly(2026, 8, 26);
-        var patientId = Guid.NewGuid();
+        var patientId = Random.Shared.NextInt64(1, long.MaxValue);
         var appointments = new List<Appointment>
         {
-            new() { Id = Guid.NewGuid(), PatientId = patientId, AppointmentDate = date, AppointmentTime = new TimeOnly(9, 0), Status = AppointmentStatuses.Scheduled },
-            new() { Id = Guid.NewGuid(), PatientId = patientId, AppointmentDate = date, AppointmentTime = new TimeOnly(10, 30), Status = AppointmentStatuses.Scheduled }
+            new() { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, AppointmentDate = date, AppointmentTime = new TimeOnly(9, 0), Status = AppointmentStatuses.Scheduled },
+            new() { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = patientId, AppointmentDate = date, AppointmentTime = new TimeOnly(10, 30), Status = AppointmentStatuses.Scheduled }
         };
         _appointmentRepository.Setup(r => r.GetByDateAsync(date, It.IsAny<CancellationToken>())).ReturnsAsync(appointments);
         _patientRepository.Setup(r => r.GetByIdAsync(patientId, It.IsAny<CancellationToken>()))

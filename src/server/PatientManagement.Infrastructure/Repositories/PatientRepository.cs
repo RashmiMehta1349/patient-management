@@ -19,7 +19,7 @@ public class PatientRepository : IPatientRepository
         _dbContext = dbContext;
     }
 
-    public Task<Patient?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public Task<Patient?> GetByIdAsync(long id, CancellationToken cancellationToken = default) =>
         _dbContext.Patients.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
 
     public async Task AddAsync(Patient patient, CancellationToken cancellationToken = default)

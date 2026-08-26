@@ -12,7 +12,7 @@ import { PrescriptionService } from '../../../core/prescriptions/prescription.se
 
 describe('ConsultationFormComponent', () => {
   const testPatient: Patient = {
-    id: 'p1',
+    id: 1,
     fullName: 'Jane Doe',
     dateOfBirth: '1990-05-15',
     age: 36,
@@ -23,8 +23,8 @@ describe('ConsultationFormComponent', () => {
   };
 
   const savedVisit: Visit = {
-    id: 'v1',
-    patientId: 'p1',
+    id: 201,
+    patientId: 1,
     patientName: 'Jane Doe',
     appointmentId: null,
     visitDate: new Date().toISOString(),
@@ -188,7 +188,7 @@ describe('ConsultationFormComponent', () => {
   });
 
   it('reads and pre-fills both patientId and appointmentId from route/query context', () => {
-    setup({}, { patientId: 'p1', appointmentId: 'a1' });
+    setup({}, { patientId: '1', appointmentId: '301' });
     const patientService = TestBed.inject(PatientService);
     spyOn(patientService, 'getById').and.returnValue(of(testPatient));
     const visitService = TestBed.inject(VisitService);
@@ -198,14 +198,14 @@ describe('ConsultationFormComponent', () => {
     fixture.detectChanges();
     const component = fixture.componentInstance;
 
-    expect(component.appointmentId).toBe('a1');
+    expect(component.appointmentId).toBe(301);
 
     component.form.controls.temperatureNotRecorded.setValue(true);
     component.form.controls.bloodPressureNotRecorded.setValue(true);
     component.form.controls.pulseNotRecorded.setValue(true);
     component.submit();
 
-    expect(createSpy).toHaveBeenCalledWith(jasmine.objectContaining({ patientId: 'p1', appointmentId: 'a1' }));
+    expect(createSpy).toHaveBeenCalledWith(jasmine.objectContaining({ patientId: 1, appointmentId: 301 }));
   });
 
   it('edit-mode pre-populates the form from getById and submits via update()', () => {
@@ -340,9 +340,9 @@ describe('ConsultationFormComponent', () => {
     fixture.detectChanges();
     const component = fixture.componentInstance;
 
-    component.printPrescription('v1');
+    component.printPrescription(201);
 
-    expect(pdfSpy).toHaveBeenCalledWith('v1');
+    expect(pdfSpy).toHaveBeenCalledWith(201);
     expect(component.printing).toBeFalse();
     expect(component.printError).toBeFalse();
   });

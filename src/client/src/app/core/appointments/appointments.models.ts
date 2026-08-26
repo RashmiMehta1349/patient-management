@@ -4,7 +4,7 @@ export type AppointmentStatus = 'Scheduled' | 'Completed' | 'Cancelled' | 'NoSho
 export const APPOINTMENT_STATUSES: AppointmentStatus[] = ['Scheduled', 'Completed', 'Cancelled', 'NoShow'];
 
 export interface CreateAppointmentRequest {
-  patientId: string;
+  patientId: number;
   /** ISO 8601 date string (yyyy-MM-dd). */
   appointmentDate: string;
   /** 24-hour "HH:mm" string. */
@@ -24,14 +24,14 @@ export interface UpdateAppointmentStatusRequest {
 }
 
 export interface ConflictingAppointment {
-  id: string;
+  id: number;
   patientName: string;
   appointmentTime: string;
 }
 
 export interface Appointment {
-  id: string;
-  patientId: string;
+  id: number;
+  patientId: number;
   /** Hydrated server-side for display — not a client-side join. */
   patientName: string;
   appointmentDate: string;

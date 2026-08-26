@@ -12,7 +12,12 @@
       <button type="button" (click)="retry()">Retry</button>
       <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
     } @else if (visit) {
-      <p class="patient-context">Patient: <strong>{{ visit.patientName }}</strong></p>
+      <p class="patient-context">
+        Patient: <strong>{{ visit.patientName }}</strong>
+        @if (visit.appointmentId === null) {
+          <span class="walk-in-badge">Walk-in</span>
+        }
+      </p>
       <p class="visit-date">{{ visit.visitDate | date: 'medium' }}</p>
 
       <dl class="vitals">
@@ -68,11 +73,20 @@
         <button type="button" class="print-link" (click)="printPrescription()" [disabled]="printing">
           {{ printing ? 'Preparing…' : 'Print Prescription' }}
         </button>
+        <button type="button" class="export-csv-btn" (click)="exportVisitCsv()" [disabled]="exporting">
+          {{ exporting ? 'Preparing…' : 'Export CSV' }}
+        </button>
+        <button type="button" class="export-pdf-btn" (click)="exportVisitPdf()" [disabled]="exporting">
+          {{ exporting ? 'Preparing…' : 'Export PDF' }}
+        </button>
         <a class="edit-link" [routerLink]="['/consultations', visit.id, 'edit']">Edit</a>
         <a class="back-link" [routerLink]="backLink()">Back</a>
       </div>
       @if (printError) {
         <div class="banner banner-error" role="alert">Could not generate prescription PDF. Please try again.</div>
+      }
+      @if (exportError) {
+        <div class="banner banner-error" role="alert">Could not export this visit. Please try again.</div>
       }
     }
   </div>

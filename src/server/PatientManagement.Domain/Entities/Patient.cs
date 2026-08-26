@@ -8,7 +8,7 @@ namespace PatientManagement.Domain.Entities;
 /// </summary>
 public class Patient
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>Required. Indexed for name-based search (Increment 3).</summary>
     public string FullName { get; set; } = string.Empty;

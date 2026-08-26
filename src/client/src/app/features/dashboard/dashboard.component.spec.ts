@@ -15,7 +15,7 @@ describe('DashboardComponent', () => {
     });
     const authService = TestBed.inject(AuthService);
     spyOn(authService, 'me').and.returnValue(
-      of({ id: '1', email: 'doc@example.com', lastLoginAt: new Date().toISOString() })
+      of({ id: 1, email: 'doc@example.com', lastLoginAt: new Date().toISOString() })
     );
   }
 
@@ -34,8 +34,8 @@ describe('DashboardComponent', () => {
     setup();
     const recentPatientsService = TestBed.inject(RecentPatientsService);
     spyOn(recentPatientsService, 'list').and.returnValue([
-      { id: '2', fullName: 'Zack Adams', phoneNumber: '555-000-0002', viewedAt: new Date().toISOString() },
-      { id: '1', fullName: 'Amy Baker', phoneNumber: '555-000-0001', viewedAt: new Date().toISOString() }
+      { id: 2, fullName: 'Zack Adams', phoneNumber: '555-000-0002', viewedAt: new Date().toISOString() },
+      { id: 1, fullName: 'Amy Baker', phoneNumber: '555-000-0001', viewedAt: new Date().toISOString() }
     ]);
 
     const fixture = TestBed.createComponent(DashboardComponent);

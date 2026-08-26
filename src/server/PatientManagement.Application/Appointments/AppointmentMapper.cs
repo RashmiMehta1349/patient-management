@@ -16,7 +16,7 @@ namespace PatientManagement.Application.Appointments;
 /// </summary>
 public static class AppointmentMapper
 {
-    public static AppointmentDto ToDto(Appointment appointment, string patientName, IReadOnlyList<Appointment> overlaps, IReadOnlyDictionary<System.Guid, string> patientNamesByPatientId)
+    public static AppointmentDto ToDto(Appointment appointment, string patientName, IReadOnlyList<Appointment> overlaps, IReadOnlyDictionary<long, string> patientNamesByPatientId)
     {
         return new AppointmentDto
         {
@@ -48,7 +48,7 @@ public static class AppointmentMapper
         IPatientRepository patientRepository,
         CancellationToken cancellationToken)
     {
-        var namesByPatientId = new Dictionary<System.Guid, string>();
+        var namesByPatientId = new Dictionary<long, string>();
         foreach (var overlap in overlaps)
         {
             if (namesByPatientId.ContainsKey(overlap.PatientId))
@@ -67,6 +67,6 @@ public static class AppointmentMapper
     /// overlap flag is not applicable/computed.</summary>
     public static AppointmentDto ToDtoWithoutOverlapCheck(Appointment appointment, string patientName)
     {
-        return ToDto(appointment, patientName, new List<Appointment>(), new Dictionary<System.Guid, string>());
+        return ToDto(appointment, patientName, new List<Appointment>(), new Dictionary<long, string>());
     }
 }

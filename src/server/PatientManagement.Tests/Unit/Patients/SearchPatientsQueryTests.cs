@@ -28,7 +28,7 @@ public class SearchPatientsQueryTests
 
     private static Patient MakePatient(string name, string phone = "555-000-0000") => new()
     {
-        Id = Guid.NewGuid(),
+        Id = Random.Shared.NextInt64(1, long.MaxValue),
         FullName = name,
         DateOfBirth = new DateOnly(1990, 1, 1),
         Gender = "Female",

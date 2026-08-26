@@ -20,7 +20,7 @@ public class AppointmentRepository : IAppointmentRepository
         _dbContext = dbContext;
     }
 
-    public Task<Appointment?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public Task<Appointment?> GetByIdAsync(long id, CancellationToken cancellationToken = default) =>
         _dbContext.Appointments.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
 
     public async Task AddAsync(Appointment appointment, CancellationToken cancellationToken = default)
@@ -45,7 +45,7 @@ public class AppointmentRepository : IAppointmentRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Appointment>> GetByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Appointment>> GetByPatientIdAsync(long patientId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Appointments
             .AsNoTracking()
@@ -58,7 +58,7 @@ public class AppointmentRepository : IAppointmentRepository
         DateOnly date,
         TimeOnly time,
         int slotMinutes,
-        Guid? excludeAppointmentId = null,
+        long? excludeAppointmentId = null,
         CancellationToken cancellationToken = default)
     {
         var windowStart = time.AddMinutes(-slotMinutes);

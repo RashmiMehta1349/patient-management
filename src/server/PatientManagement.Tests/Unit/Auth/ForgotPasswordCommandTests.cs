@@ -40,7 +40,7 @@ public class ForgotPasswordCommandTests
     [Fact]
     public async Task MatchingEmail_GeneratesTokenAndSendsEmail()
     {
-        var user = new User { Id = Guid.NewGuid(), Email = "doc@example.com" };
+        var user = new User { Id = Random.Shared.NextInt64(1, long.MaxValue), Email = "doc@example.com" };
         _userRepository.Setup(r => r.GetByEmailAsync("doc@example.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
         var handler = CreateHandler();

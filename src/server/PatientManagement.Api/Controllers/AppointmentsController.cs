@@ -57,7 +57,7 @@ public class AppointmentsController : ControllerBase
     /// `query` presence (approved plan §6).
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult> GetAll([FromQuery] string? date, [FromQuery] Guid? patientId, CancellationToken cancellationToken)
+    public async Task<ActionResult> GetAll([FromQuery] string? date, [FromQuery] long? patientId, CancellationToken cancellationToken)
     {
         if (patientId.HasValue)
         {
@@ -74,8 +74,8 @@ public class AppointmentsController : ControllerBase
         return Ok(byDate);
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<AppointmentDto>> GetById(Guid id, CancellationToken cancellationToken)
+    [HttpGet("{id:long}")]
+    public async Task<ActionResult<AppointmentDto>> GetById(long id, CancellationToken cancellationToken)
     {
         var appointment = await _getAppointmentByIdHandler.HandleAsync(id, cancellationToken);
         if (appointment is null)
@@ -86,8 +86,8 @@ public class AppointmentsController : ControllerBase
         return Ok(appointment);
     }
 
-    [HttpPatch("{id:guid}/status")]
-    public async Task<ActionResult<AppointmentDto>> UpdateStatus(Guid id, [FromBody] UpdateAppointmentStatusRequestDto request, CancellationToken cancellationToken)
+    [HttpPatch("{id:long}/status")]
+    public async Task<ActionResult<AppointmentDto>> UpdateStatus(long id, [FromBody] UpdateAppointmentStatusRequestDto request, CancellationToken cancellationToken)
     {
         var result = await _updateAppointmentStatusHandler.HandleAsync(id, request, cancellationToken);
         if (result.IsNotFound)
@@ -103,8 +103,8 @@ public class AppointmentsController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult<AppointmentDto>> Update(Guid id, [FromBody] UpdateAppointmentRequestDto request, CancellationToken cancellationToken)
+    [HttpPut("{id:long}")]
+    public async Task<ActionResult<AppointmentDto>> Update(long id, [FromBody] UpdateAppointmentRequestDto request, CancellationToken cancellationToken)
     {
         var result = await _updateAppointmentHandler.HandleAsync(id, request, cancellationToken);
         if (result.IsNotFound)

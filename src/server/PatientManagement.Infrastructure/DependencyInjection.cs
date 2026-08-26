@@ -8,6 +8,8 @@ using PatientManagement.Application.Appointments.Services;
 using PatientManagement.Application.Auth;
 using PatientManagement.Application.Auth.Commands;
 using PatientManagement.Application.Auth.Services;
+using PatientManagement.Application.DataExport.Queries;
+using PatientManagement.Application.DataExport.Services;
 using PatientManagement.Application.Patients.Commands;
 using PatientManagement.Application.Patients.Queries;
 using PatientManagement.Application.Patients.Services;
@@ -54,6 +56,9 @@ public static class DependencyInjection
         services.AddSingleton<IResetTokenGenerator, ResetTokenGenerator>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddSingleton<IPrescriptionPdfGenerator, QuestPdfPrescriptionGenerator>();
+        services.AddSingleton<IVisitExportPdfGenerator, QuestPdfVisitExportGenerator>();
+        services.AddSingleton<IPatientExportPdfGenerator, QuestPdfPatientExportGenerator>();
+        services.AddSingleton<ICsvWriter, CsvExportWriter>();
 
         services.AddScoped<LoginCommandHandler>();
         services.AddScoped<ForgotPasswordCommandHandler>();
@@ -74,6 +79,8 @@ public static class DependencyInjection
         services.AddScoped<GetVisitByIdQueryHandler>();
         services.AddScoped<GetVisitsByPatientIdQueryHandler>();
         services.AddScoped<GetPrescriptionPdfQueryHandler>();
+        services.AddScoped<GetVisitExportQueryHandler>();
+        services.AddScoped<GetPatientExportQueryHandler>();
 
         return services;
     }

@@ -5,6 +5,15 @@
     <p class="user-email">{{ currentUser.email }}</p>
   }
 
+  <section class="walk-in-section">
+    <h2>Walk-in Patient</h2>
+    <p class="walk-in-hint">Patient arrived without an appointment? Find them or register them, then start the consultation directly.</p>
+    <div class="walk-in-actions">
+      <a routerLink="/patients" class="walk-in-button walk-in-button-primary">Find Patient</a>
+      <a routerLink="/patients/new" class="walk-in-button">+ Register New Patient</a>
+    </div>
+  </section>
+
   <section class="recent-patients-section">
     <h2>Recently Viewed Patients</h2>
     @if (recentPatients.length === 0) {

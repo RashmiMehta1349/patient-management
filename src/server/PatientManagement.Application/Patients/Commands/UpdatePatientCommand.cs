@@ -24,7 +24,7 @@ public class UpdatePatientCommandHandler
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Result<PatientDto>> HandleAsync(Guid id, UpdatePatientRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<Result<PatientDto>> HandleAsync(long id, UpdatePatientRequestDto request, CancellationToken cancellationToken = default)
     {
         var patient = await _patientRepository.GetByIdAsync(id, cancellationToken);
         if (patient is null)

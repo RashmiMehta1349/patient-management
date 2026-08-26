@@ -23,7 +23,7 @@ export interface PagedResult<T> {
 }
 
 export interface Patient {
-  id: string;
+  id: number;
   fullName: string;
   dateOfBirth: string;
   /** Computed server-side on read from dateOfBirth — never sent on create. */

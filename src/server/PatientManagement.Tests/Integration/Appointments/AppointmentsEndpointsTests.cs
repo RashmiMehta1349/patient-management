@@ -26,7 +26,7 @@ public class AppointmentsEndpointsTests : IDisposable
     {
         var client = _factory.CreateClient();
 
-        var response = await client.PostAsJsonAsync("/api/appointments", new { patientId = Guid.NewGuid(), appointmentDate = "2026-08-26", appointmentTime = "09:00" });
+        var response = await client.PostAsJsonAsync("/api/appointments", new { patientId = Random.Shared.NextInt64(1, long.MaxValue), appointmentDate = "2026-08-26", appointmentTime = "09:00" });
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -63,7 +63,7 @@ public class AppointmentsEndpointsTests : IDisposable
     {
         var client = await AuthenticatedClientAsync();
 
-        var response = await client.PostAsJsonAsync("/api/appointments", new { patientId = Guid.NewGuid(), appointmentDate = "2026-08-26", appointmentTime = "09:00" });
+        var response = await client.PostAsJsonAsync("/api/appointments", new { patientId = Random.Shared.NextInt64(1, long.MaxValue), appointmentDate = "2026-08-26", appointmentTime = "09:00" });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -106,7 +106,7 @@ public class AppointmentsEndpointsTests : IDisposable
     {
         var client = _factory.CreateClient();
 
-        var response = await client.PatchAsync($"/api/appointments/{Guid.NewGuid()}/status",
+        var response = await client.PatchAsync($"/api/appointments/{Random.Shared.NextInt64(1, long.MaxValue)}/status",
             JsonContent.Create(new { status = "Completed" }));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -148,7 +148,7 @@ public class AppointmentsEndpointsTests : IDisposable
     {
         var client = await AuthenticatedClientAsync();
 
-        var response = await client.PatchAsync($"/api/appointments/{Guid.NewGuid()}/status", JsonContent.Create(new { status = "Completed" }));
+        var response = await client.PatchAsync($"/api/appointments/{Random.Shared.NextInt64(1, long.MaxValue)}/status", JsonContent.Create(new { status = "Completed" }));
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -197,7 +197,7 @@ public class AppointmentsEndpointsTests : IDisposable
         return client;
     }
 
-    private static async Task<Guid> CreatePatientAsync(HttpClient client, string fullName = "Jane Doe")
+    private static async Task<long> CreatePatientAsync(HttpClient client, string fullName = "Jane Doe")
     {
         var response = await client.PostAsJsonAsync("/api/patients", new
         {
@@ -207,7 +207,7 @@ public class AppointmentsEndpointsTests : IDisposable
             phoneNumber = "555-123-4567"
         });
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
-        return Guid.Parse(body.GetProperty("id").GetString()!);
+        return long.Parse(body.GetProperty("id").GetString()!);
     }
 
     private static async Task<string> LoginAndGetTokenAsync(HttpClient client)

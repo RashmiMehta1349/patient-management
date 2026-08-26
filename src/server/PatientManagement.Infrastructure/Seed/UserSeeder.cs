@@ -45,7 +45,6 @@ public static class UserSeeder
 
         var user = new User
         {
-            Id = Guid.NewGuid(),
             Email = email.Trim(),
             PasswordHash = passwordHasher.HashPassword(password),
             SecurityStamp = Guid.NewGuid().ToString("N"),

@@ -19,11 +19,11 @@ export class PatientService {
     return this.http.post<Patient>(`${this.apiBaseUrl}/patients`, request);
   }
 
-  getById(id: string): Observable<Patient> {
+  getById(id: string | number): Observable<Patient> {
     return this.http.get<Patient>(`${this.apiBaseUrl}/patients/${id}`);
   }
 
-  update(id: string, request: UpdatePatientRequest): Observable<Patient> {
+  update(id: string | number, request: UpdatePatientRequest): Observable<Patient> {
     return this.http.put<Patient>(`${this.apiBaseUrl}/patients/${id}`, request);
   }
 

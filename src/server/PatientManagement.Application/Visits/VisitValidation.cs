@@ -159,7 +159,6 @@ public static class VisitValidation
 
             normalized.Add(new Medication
             {
-                Id = Guid.NewGuid(),
                 Name = name,
                 Dosage = dosage,
                 Frequency = frequency,

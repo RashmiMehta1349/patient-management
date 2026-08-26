@@ -4,7 +4,7 @@ import { RecentPatientsService } from './recent-patients.service';
 describe('RecentPatientsService', () => {
   const STORAGE_KEY = 'pma_recent_patients';
 
-  const makePatient = (id: string, fullName = 'Patient ' + id) => ({
+  const makePatient = (id: number, fullName = 'Patient ' + id) => ({
     id,
     fullName,
     phoneNumber: '555-000-' + id
@@ -17,43 +17,43 @@ describe('RecentPatientsService', () => {
 
   it('recording a new patient adds it to the front of the list', () => {
     const service = TestBed.inject(RecentPatientsService);
-    service.record(makePatient('1'));
-    service.record(makePatient('2'));
+    service.record(makePatient(1));
+    service.record(makePatient(2));
 
     const list = service.list();
     expect(list.length).toBe(2);
-    expect(list[0].id).toBe('2');
-    expect(list[1].id).toBe('1');
+    expect(list[0].id).toBe(2);
+    expect(list[1].id).toBe(1);
   });
 
   it('recording a patient already in the list moves it to the front without duplicating', () => {
     const service = TestBed.inject(RecentPatientsService);
-    service.record(makePatient('1'));
-    service.record(makePatient('2'));
-    service.record(makePatient('3'));
-    service.record(makePatient('1'));
+    service.record(makePatient(1));
+    service.record(makePatient(2));
+    service.record(makePatient(3));
+    service.record(makePatient(1));
 
     const list = service.list();
     expect(list.length).toBe(3);
-    expect(list[0].id).toBe('1');
-    expect(list.map((p) => p.id).sort()).toEqual(['1', '2', '3']);
+    expect(list[0].id).toBe(1);
+    expect(list.map((p) => p.id).sort()).toEqual([1, 2, 3]);
   });
 
   it('recording beyond the cap (5) evicts the oldest entry', () => {
     const service = TestBed.inject(RecentPatientsService);
     for (let i = 1; i <= 6; i++) {
-      service.record(makePatient(String(i)));
+      service.record(makePatient(i));
     }
 
     const list = service.list();
     expect(list.length).toBe(5);
-    expect(list.map((p) => p.id)).toEqual(['6', '5', '4', '3', '2']);
-    expect(list.find((p) => p.id === '1')).toBeUndefined();
+    expect(list.map((p) => p.id)).toEqual([6, 5, 4, 3, 2]);
+    expect(list.find((p) => p.id === 1)).toBeUndefined();
   });
 
   it('clear() empties the stored list', () => {
     const service = TestBed.inject(RecentPatientsService);
-    service.record(makePatient('1'));
+    service.record(makePatient(1));
     service.clear();
 
     expect(service.list()).toEqual([]);

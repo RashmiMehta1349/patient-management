@@ -58,7 +58,7 @@ describe('PatientFormComponent', () => {
     const component = fixture.componentInstance;
     const patientService = TestBed.inject(PatientService);
     const createdPatient: Patient = {
-      id: '11111111-1111-1111-1111-111111111111',
+      id: 1,
       fullName: 'Jane Doe',
       dateOfBirth: '1990-05-15',
       age: 36,
@@ -111,7 +111,7 @@ describe('PatientFormComponent (edit mode)', () => {
   let httpMock: HttpTestingController;
 
   const testPatient: Patient = {
-    id: '11111111-1111-1111-1111-111111111111',
+    id: 1,
     fullName: 'Jane Doe',
     dateOfBirth: '1990-05-15',
     age: 36,
@@ -128,7 +128,7 @@ describe('PatientFormComponent (edit mode)', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: testPatient.id }) } } }
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: String(testPatient.id) }) } } }
       ]
     });
     httpMock = TestBed.inject(HttpTestingController);

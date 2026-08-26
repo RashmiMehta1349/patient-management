@@ -19,7 +19,7 @@ export interface ResetPasswordRequest {
 }
 
 export interface CurrentUser {
-  id: string;
+  id: number;
   email: string;
   lastLoginAt: string | null;
 }

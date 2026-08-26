@@ -37,7 +37,6 @@ public class CreatePatientCommandHandler
         var now = _dateTimeProvider.UtcNow;
         var patient = new Patient
         {
-            Id = Guid.NewGuid(),
             FullName = request.FullName.Trim(),
             DateOfBirth = dateOfBirth,
             Gender = request.Gender.Trim(),

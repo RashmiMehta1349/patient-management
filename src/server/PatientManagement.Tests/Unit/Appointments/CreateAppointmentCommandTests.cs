@@ -22,7 +22,7 @@ public class CreateAppointmentCommandTests
     private readonly Mock<IDateTimeProvider> _dateTimeProvider = new();
 
     private static readonly DateTime FixedUtcNow = new(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc);
-    private static readonly Guid ExistingPatientId = Guid.NewGuid();
+    private static readonly long ExistingPatientId = Random.Shared.NextInt64(1, long.MaxValue);
 
     public CreateAppointmentCommandTests()
     {
@@ -31,7 +31,7 @@ public class CreateAppointmentCommandTests
             .Setup(r => r.GetByIdAsync(ExistingPatientId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Patient { Id = ExistingPatientId, FullName = "Jane Doe", Gender = "Female", PhoneNumber = "555", DateOfBirth = new DateOnly(1990, 1, 1) });
         _appointmentRepository
-            .Setup(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Appointment>());
     }
 
@@ -63,7 +63,7 @@ public class CreateAppointmentCommandTests
     {
         var handler = CreateHandler();
         var request = ValidRequest();
-        request.PatientId = Guid.Empty;
+        request.PatientId = 0L;
 
         var result = await handler.HandleAsync(request);
 
@@ -99,11 +99,11 @@ public class CreateAppointmentCommandTests
     public async Task UnknownPatientId_ReturnsFailure()
     {
         _patientRepository
-            .Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Patient?)null);
         var handler = CreateHandler();
         var request = ValidRequest();
-        request.PatientId = Guid.NewGuid();
+        request.PatientId = Random.Shared.NextInt64(1, long.MaxValue);
 
         var result = await handler.HandleAsync(request);
 
@@ -114,9 +114,9 @@ public class CreateAppointmentCommandTests
     [Fact]
     public async Task OverlapDetected_StillSucceedsButFlagsWarning()
     {
-        var conflicting = new Appointment { Id = Guid.NewGuid(), PatientId = ExistingPatientId, AppointmentTime = new TimeOnly(9, 15), Status = AppointmentStatuses.Scheduled };
+        var conflicting = new Appointment { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = ExistingPatientId, AppointmentTime = new TimeOnly(9, 15), Status = AppointmentStatuses.Scheduled };
         _appointmentRepository
-            .Setup(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Appointment> { conflicting });
 
         var handler = CreateHandler();

@@ -10,9 +10,9 @@ namespace PatientManagement.Domain.Entities;
 /// </summary>
 public class Medication
 {
-    public Guid Id { get; set; }
+    public long Id { get; set; }
 
-    public Guid VisitId { get; set; }
+    public long VisitId { get; set; }
 
     public string Name { get; set; } = string.Empty;
 

@@ -38,7 +38,7 @@ public class CreateVisitCommandHandler
 
     public async Task<Result<VisitDto>> HandleAsync(CreateVisitRequestDto request, CancellationToken cancellationToken = default)
     {
-        if (request.PatientId == Guid.Empty)
+        if (request.PatientId == 0L)
         {
             return Result<VisitDto>.Failure("Patient is required.");
         }
@@ -85,7 +85,6 @@ public class CreateVisitCommandHandler
         var now = _dateTimeProvider.UtcNow;
         var visit = new Visit
         {
-            Id = Guid.NewGuid(),
             PatientId = request.PatientId,
             AppointmentId = request.AppointmentId,
             VisitDate = now,

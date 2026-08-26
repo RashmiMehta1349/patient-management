@@ -23,7 +23,7 @@ public class GetPatientByIdQueryHandler
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<PatientDto?> HandleAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<PatientDto?> HandleAsync(long id, CancellationToken cancellationToken = default)
     {
         var patient = await _patientRepository.GetByIdAsync(id, cancellationToken);
         if (patient is null)

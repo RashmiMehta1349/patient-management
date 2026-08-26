@@ -8,9 +8,9 @@ import { AppointmentService } from '../../../core/appointments/appointment.servi
 import { Appointment } from '../../../core/appointments/appointments.models';
 
 describe('AppointmentsListComponent', () => {
-  const makeAppointment = (id: string, time: string, patientName = 'Jane Doe'): Appointment => ({
+  const makeAppointment = (id: number, time: string, patientName = 'Jane Doe'): Appointment => ({
     id,
-    patientId: 'p1',
+    patientId: 1,
     patientName,
     appointmentDate: '2026-08-26',
     appointmentTime: time,
@@ -33,7 +33,7 @@ describe('AppointmentsListComponent', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);
     spyOn(appointmentService, 'listByDate').and.returnValue(
-      of([makeAppointment('1', '08:00'), makeAppointment('2', '10:30')])
+      of([makeAppointment(1, '08:00'), makeAppointment(2, '10:30')])
     );
 
     const fixture = TestBed.createComponent(AppointmentsListComponent);
@@ -61,14 +61,14 @@ describe('AppointmentsListComponent', () => {
   it('patient name links to /patients/{patientId} (Module 7 cross-navigation gap closure)', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);
-    spyOn(appointmentService, 'listByDate').and.returnValue(of([makeAppointment('1', '08:00', 'Amy Baker')]));
+    spyOn(appointmentService, 'listByDate').and.returnValue(of([makeAppointment(1, '08:00', 'Amy Baker')]));
 
     const fixture = TestBed.createComponent(AppointmentsListComponent);
     fixture.detectChanges();
 
     const nameLink: HTMLAnchorElement = fixture.nativeElement.querySelector('.patient-name-link');
     expect(nameLink).toBeTruthy();
-    expect(nameLink.getAttribute('href')).toBe('/patients/p1');
+    expect(nameLink.getAttribute('href')).toBe('/patients/1');
     expect(nameLink.textContent?.trim()).toBe('Amy Baker');
   });
 
@@ -92,7 +92,7 @@ describe('AppointmentsListComponent', () => {
   it('changing status via the control calls updateStatus and updates the row in place', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);
-    const appointment = makeAppointment('1', '09:00');
+    const appointment = makeAppointment(1, '09:00');
     spyOn(appointmentService, 'listByDate').and.returnValue(of([appointment]));
     const updateSpy = spyOn(appointmentService, 'updateStatus').and.returnValue(
       of({ ...appointment, status: 'Completed' })
@@ -104,14 +104,14 @@ describe('AppointmentsListComponent', () => {
 
     component.onStatusChange(component.appointments[0], 'Completed');
 
-    expect(updateSpy).toHaveBeenCalledWith('1', 'Completed');
+    expect(updateSpy).toHaveBeenCalledWith(1, 'Completed');
     expect(component.appointments[0].status).toBe('Completed');
   });
 
   it('status update error surfaces inline and reverts the status without losing the row', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);
-    const appointment = makeAppointment('1', '09:00');
+    const appointment = makeAppointment(1, '09:00');
     spyOn(appointmentService, 'listByDate').and.returnValue(of([appointment]));
     spyOn(appointmentService, 'updateStatus').and.returnValue(throwError(() => ({ status: 500 })));
 
@@ -122,14 +122,14 @@ describe('AppointmentsListComponent', () => {
     component.onStatusChange(component.appointments[0], 'Completed');
 
     expect(component.appointments[0].status).toBe('Scheduled');
-    expect(component.statusUpdateErrorId).toBe('1');
+    expect(component.statusUpdateErrorId).toBe(1);
     expect(component.appointments.length).toBe(1);
   });
 
   it('renders a "Start Consultation" link with the correct query params for a Scheduled row', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);
-    const appointment = makeAppointment('1', '09:00');
+    const appointment = makeAppointment(1, '09:00');
     spyOn(appointmentService, 'listByDate').and.returnValue(of([appointment]));
 
     const fixture = TestBed.createComponent(AppointmentsListComponent);
@@ -137,13 +137,13 @@ describe('AppointmentsListComponent', () => {
 
     const link: HTMLAnchorElement = fixture.nativeElement.querySelector('.start-consultation-link');
     expect(link).toBeTruthy();
-    expect(link.getAttribute('href')).toBe('/consultations/new?patientId=p1&appointmentId=1');
+    expect(link.getAttribute('href')).toBe('/consultations/new?patientId=1&appointmentId=1');
   });
 
   it('does not render "Start Consultation" for a non-Scheduled row', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);
-    const appointment = { ...makeAppointment('1', '09:00'), status: 'Completed' as const };
+    const appointment = { ...makeAppointment(1, '09:00'), status: 'Completed' as const };
     spyOn(appointmentService, 'listByDate').and.returnValue(of([appointment]));
 
     const fixture = TestBed.createComponent(AppointmentsListComponent);

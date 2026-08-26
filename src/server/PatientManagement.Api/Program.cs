@@ -60,7 +60,7 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
                 var subClaim = context.Principal?.FindFirst("sub")?.Value;
                 var stampClaim = context.Principal?.FindFirst(AuthClaimTypes.SecurityStamp)?.Value;
 
-                if (subClaim is null || !Guid.TryParse(subClaim, out var userId) || stampClaim is null)
+                if (subClaim is null || !long.TryParse(subClaim, out var userId) || stampClaim is null)
                 {
                     context.Fail("Invalid token claims.");
                     return;

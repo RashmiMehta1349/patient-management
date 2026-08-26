@@ -19,7 +19,7 @@ public class VisitRepository : IVisitRepository
         _dbContext = dbContext;
     }
 
-    public Task<Visit?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public Task<Visit?> GetByIdAsync(long id, CancellationToken cancellationToken = default) =>
         _dbContext.Visits
             .Include(v => v.Medications.OrderBy(m => m.SortOrder))
             .FirstOrDefaultAsync(v => v.Id == id, cancellationToken);
@@ -37,7 +37,7 @@ public class VisitRepository : IVisitRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Visit>> GetByPatientIdAsync(Guid patientId, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Visit>> GetByPatientIdAsync(long patientId, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
     {
         var query = _dbContext.Visits
             .AsNoTracking()
@@ -59,7 +59,7 @@ public class VisitRepository : IVisitRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task ReplaceMedicationsAsync(Guid visitId, IReadOnlyList<Medication> medications, CancellationToken cancellationToken = default)
+    public async Task ReplaceMedicationsAsync(long visitId, IReadOnlyList<Medication> medications, CancellationToken cancellationToken = default)
     {
         // Replace-on-save (approved plan §4): delete the visit's existing medication rows and
         // insert the submitted set within the same DbContext unit of work as the visit's other

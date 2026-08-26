@@ -22,8 +22,8 @@ public class UpdateAppointmentCommandTests
     private readonly Mock<IDateTimeProvider> _dateTimeProvider = new();
 
     private static readonly DateTime FixedUtcNow = new(2026, 8, 25, 12, 0, 0, DateTimeKind.Utc);
-    private static readonly Guid AppointmentId = Guid.NewGuid();
-    private static readonly Guid PatientId = Guid.NewGuid();
+    private static readonly long AppointmentId = Random.Shared.NextInt64(1, long.MaxValue);
+    private static readonly long PatientId = Random.Shared.NextInt64(1, long.MaxValue);
 
     public UpdateAppointmentCommandTests()
     {
@@ -31,7 +31,7 @@ public class UpdateAppointmentCommandTests
         _patientRepository.Setup(r => r.GetByIdAsync(PatientId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Patient { Id = PatientId, FullName = "Jane Doe", Gender = "Female", PhoneNumber = "555", DateOfBirth = new DateOnly(1990, 1, 1) });
         _appointmentRepository
-            .Setup(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Appointment>());
     }
 
@@ -90,9 +90,9 @@ public class UpdateAppointmentCommandTests
     [Fact]
     public async Task UnknownId_ReturnsNotFound()
     {
-        _appointmentRepository.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Appointment?)null);
+        _appointmentRepository.Setup(r => r.GetByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>())).ReturnsAsync((Appointment?)null);
 
-        var result = await CreateHandler().HandleAsync(Guid.NewGuid(), new UpdateAppointmentRequestDto { AppointmentDate = "2026-08-27", AppointmentTime = "10:00" });
+        var result = await CreateHandler().HandleAsync(Random.Shared.NextInt64(1, long.MaxValue), new UpdateAppointmentRequestDto { AppointmentDate = "2026-08-27", AppointmentTime = "10:00" });
 
         Assert.True(result.IsNotFound);
     }

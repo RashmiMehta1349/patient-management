@@ -33,7 +33,7 @@ public class UpdateAppointmentCommandHandler
         _options = options.Value;
     }
 
-    public async Task<Result<AppointmentDto>> HandleAsync(Guid id, UpdateAppointmentRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<Result<AppointmentDto>> HandleAsync(long id, UpdateAppointmentRequestDto request, CancellationToken cancellationToken = default)
     {
         var appointment = await _appointmentRepository.GetByIdAsync(id, cancellationToken);
         if (appointment is null)

@@ -28,7 +28,7 @@ public class LoginCommandTests
     [Fact]
     public async Task ValidCredentials_ReturnsSuccessWithToken()
     {
-        var user = new User { Id = Guid.NewGuid(), Email = "doc@example.com", PasswordHash = "hashed", SecurityStamp = "stamp" };
+        var user = new User { Id = Random.Shared.NextInt64(1, long.MaxValue), Email = "doc@example.com", PasswordHash = "hashed", SecurityStamp = "stamp" };
         _userRepository.Setup(r => r.GetByEmailAsync("doc@example.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _passwordHasher.Setup(h => h.VerifyPassword("hashed", "correct-password")).Returns(true);
         _jwtTokenService.Setup(j => j.IssueToken(user)).Returns(("jwt-token", DateTime.UtcNow.AddMinutes(20)));
@@ -45,7 +45,7 @@ public class LoginCommandTests
     [Fact]
     public async Task WrongPassword_ReturnsGenericFailure()
     {
-        var user = new User { Id = Guid.NewGuid(), Email = "doc@example.com", PasswordHash = "hashed", SecurityStamp = "stamp" };
+        var user = new User { Id = Random.Shared.NextInt64(1, long.MaxValue), Email = "doc@example.com", PasswordHash = "hashed", SecurityStamp = "stamp" };
         _userRepository.Setup(r => r.GetByEmailAsync("doc@example.com", It.IsAny<CancellationToken>())).ReturnsAsync(user);
         _passwordHasher.Setup(h => h.VerifyPassword("hashed", "wrong-password")).Returns(false);
 

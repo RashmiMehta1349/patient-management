@@ -10,6 +10,8 @@ import { VisitService } from '../../../core/visits/visit.service';
 import { Visit } from '../../../core/visits/visits.models';
 import { PrescriptionService } from '../../../core/prescriptions/prescription.service';
 import { RecentPatientsService } from '../../../core/patients/recent-patients.service';
+import { DataExportService } from '../../../core/data-export/data-export.service';
+import { triggerDownload } from '../../../core/shared/download/trigger-download';
 
 /**
  * Read-only Patient Profile view (Increment 2), extended in Increment 3 to wire the previously
@@ -34,6 +36,7 @@ export class PatientDetailComponent implements OnInit {
   private readonly visitService = inject(VisitService);
   private readonly prescriptionService = inject(PrescriptionService);
   private readonly recentPatientsService = inject(RecentPatientsService);
+  private readonly dataExportService = inject(DataExportService);
 
   id: string | null = null;
   loading = true;
@@ -55,7 +58,13 @@ export class PatientDetailComponent implements OnInit {
   fromDate = '';
   toDate = '';
 
-  printingVisitId: string | null = null;
+  printingVisitId: number | null = null;
+
+  /** Module 8 (Data Export) — patient-level export state (plan §8). includeHistory defaults off,
+   * matching the server's default (§5 Open Question 3): opt-in via this checkbox. */
+  includeHistoryInExport = false;
+  exportingPatient = false;
+  exportError = false;
 
   ngOnInit(): void {
     // Angular reuses this component instance across patients when navigating between
@@ -168,7 +177,7 @@ export class PatientDetailComponent implements OnInit {
 
   /** Fetches the server-generated prescription PDF for a given visit and opens it in a new tab —
    * read-only action, mirrors ConsultationFormComponent.printPrescription. */
-  printPrescription(visitId: string): void {
+  printPrescription(visitId: number): void {
     if (this.printingVisitId) {
       return;
     }
@@ -189,6 +198,49 @@ export class PatientDetailComponent implements OnInit {
       },
       error: () => {
         this.printingVisitId = null;
+      }
+    });
+  }
+
+  /** Read-only action (R7) — downloads this patient's export file (Module 8). Scoped strictly to
+   * this one patient's own data; includeHistoryInExport controls whether a summarized visit
+   * history section is appended (server default: off). */
+  exportPatientCsv(): void {
+    if (this.exportingPatient || !this.patient) {
+      return;
+    }
+    this.exportingPatient = true;
+    this.exportError = false;
+    const patientId = this.patient.id;
+
+    this.dataExportService.exportPatientCsv(patientId, this.includeHistoryInExport).subscribe({
+      next: (blob) => {
+        this.exportingPatient = false;
+        triggerDownload(blob, `patient-${patientId}-export.csv`);
+      },
+      error: () => {
+        this.exportingPatient = false;
+        this.exportError = true;
+      }
+    });
+  }
+
+  exportPatientPdf(): void {
+    if (this.exportingPatient || !this.patient) {
+      return;
+    }
+    this.exportingPatient = true;
+    this.exportError = false;
+    const patientId = this.patient.id;
+
+    this.dataExportService.exportPatientPdf(patientId, this.includeHistoryInExport).subscribe({
+      next: (blob) => {
+        this.exportingPatient = false;
+        triggerDownload(blob, `patient-${patientId}-export.pdf`);
+      },
+      error: () => {
+        this.exportingPatient = false;
+        this.exportError = true;
       }
     });
   }

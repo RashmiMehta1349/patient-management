@@ -27,7 +27,7 @@ public class GetVisitsByPatientIdQueryHandler
     }
 
     public async Task<Result<IReadOnlyList<VisitDto>>> HandleAsync(
-        Guid patientId,
+        long patientId,
         DateTime? fromDate = null,
         DateTime? toDate = null,
         CancellationToken cancellationToken = default)

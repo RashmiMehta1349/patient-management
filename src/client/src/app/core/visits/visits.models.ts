@@ -15,8 +15,8 @@ export interface Medication {
 }
 
 export interface CreateVisitRequest {
-  patientId: string;
-  appointmentId?: string;
+  patientId: number;
+  appointmentId?: number;
   temperatureValue?: number | null;
   temperatureNotRecorded: boolean;
   bloodPressureValue?: string | null;
@@ -42,11 +42,11 @@ export interface UpdateVisitRequest {
 }
 
 export interface Visit {
-  id: string;
-  patientId: string;
+  id: number;
+  patientId: number;
   /** Hydrated server-side for display — not a client-side join. */
   patientName: string;
-  appointmentId: string | null;
+  appointmentId: number | null;
   visitDate: string;
   temperatureValue: number | null;
   temperatureNotRecorded: boolean;
