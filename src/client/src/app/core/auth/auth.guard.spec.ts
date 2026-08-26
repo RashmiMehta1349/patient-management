@@ -5,6 +5,7 @@ import { provideRouter, Router, UrlTree } from '@angular/router';
 import { RouterStateSnapshot } from '@angular/router';
 import { authGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { RETURN_URL_STORAGE_KEY } from './return-url';
 
 describe('authGuard', () => {
   let authService: AuthService;
@@ -12,6 +13,7 @@ describe('authGuard', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     TestBed.configureTestingModule({
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])]
     });
@@ -19,7 +21,10 @@ describe('authGuard', () => {
     router = TestBed.inject(Router);
   });
 
-  afterEach(() => localStorage.clear());
+  afterEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
 
   function runGuard(url: string) {
     return TestBed.runInInjectionContext(() =>
@@ -35,13 +40,14 @@ describe('authGuard', () => {
     expect(result).toBeTrue();
   });
 
-  it('redirects to /login preserving returnUrl when not authenticated', () => {
+  it('redirects to /login, storing the return URL in sessionStorage rather than the query string', () => {
     authService.isAuthenticated.set(false);
     const createUrlTreeSpy = spyOn(router, 'createUrlTree').and.callThrough();
 
     const result = runGuard('/dashboard');
 
     expect(result instanceof UrlTree).toBeTrue();
-    expect(createUrlTreeSpy).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/dashboard' } });
+    expect(createUrlTreeSpy).toHaveBeenCalledWith(['/login']);
+    expect(sessionStorage.getItem(RETURN_URL_STORAGE_KEY)).toBe('/dashboard');
   });
 });
