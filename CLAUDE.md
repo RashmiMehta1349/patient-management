@@ -26,8 +26,8 @@ The application is decomposed into 10 modules in `Modules\Application_Module_Bre
 6. Patient History
 7. Search & Navigation
 8. Data Export
-9. Data Backup & Reliability (cross-cutting)
-10. Administration (thin layer on Module 1)
+
+Modules 9 (Data Backup & Reliability) and 10 (Administration) are deferred — deprioritized per explicit product decision, not currently planned. Do not plan or build them without an explicit scope-change conversation.
 
 Build modules in this order — each unblocks the next. Module detail files carry the authoritative scope/business rules for that module; the breakdown doc is a cached summary and loses to the individual `Modules\NN_*.md` file on conflict.
 
@@ -49,7 +49,7 @@ When asked to build a module, follow this pipeline via the matching subagent rat
 
 ## Technology stack
 
-- **Client**: Angular (standalone components, no SSR), per the prior Module 1 scaffold — session token kept in `localStorage`, HTTP interceptor for Bearer auth and global 401 handling, `auth.guard` for route protection.
+- **Client**: Angular (standalone components, no SSR), per the prior Module 1 scaffold — session token kept in `localStorage`, HTTP interceptor for Bearer auth and global 401 handling, `auth.guard` for route protection. **Styling: Tailwind CSS** (configured in `src/client/tailwind.config.js` + `.postcssrc.json`, directives in `src/client/src/styles.scss`) — new/updated components should be styled with Tailwind utility classes directly in the template rather than hand-written component `.scss`; only reach for a component-scoped `.scss` file for something Tailwind utilities can't express (complex animations, `::ng-deep` overrides, etc.).
 - **Server**: **.NET C#** (ASP.NET Core Web API). This is a change from the original scaffold, which used Node/Express + Prisma — that code was removed and should not be reused or extended. Rebuild the server on .NET conventions instead: Entity Framework Core for data access, xUnit (or NUnit/MSTest) for tests, standard ASP.NET Core middleware pipeline for concerns like HTTPS enforcement and auth. Follow `.gitignore`'s existing `.NET` section (`bin/`, `obj/`, `*.user`, `*.suo`) — it's already in place for this stack.
 - Planning docs (`Planning\NN_*_Plan.md`, once produced by planning-agent) should target this Angular + .NET C# stack; if an existing plan still assumes Node/Express, flag the drift rather than silently implementing against it.
 

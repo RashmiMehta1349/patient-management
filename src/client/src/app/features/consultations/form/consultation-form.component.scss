@@ -1,157 +1,110 @@
 .page {
-  padding: 1.5rem;
+  @apply p-6 sm:p-8 lg:p-10;
 }
 
 .card {
-  max-width: 860px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  @apply max-w-5xl mx-auto bg-white rounded-xl p-8 sm:p-10 shadow-sm border border-slate-200;
+}
+
+h1 {
+  @apply text-3xl font-semibold text-slate-900 mb-5;
 }
 
 .patient-context {
-  margin-bottom: 1rem;
-  color: #444;
+  @apply mb-6 text-slate-600 text-base;
 }
 
 .walk-in-badge {
-  margin-left: 0.5rem;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  background: #fef3c7;
-  color: #92400e;
-  font-size: 0.75rem;
-  font-weight: 600;
-  vertical-align: middle;
+  @apply ml-2 py-0.5 px-2.5 rounded-full bg-amber-50 text-amber-700 text-xs font-medium align-middle;
 }
 
 .vital-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  border: none;
-  padding: 0;
-  margin: 0 0 1rem;
+  @apply flex flex-wrap items-center gap-4 border-0 p-0 mb-5 mt-0;
 
   legend {
-    width: 8rem;
-    font-weight: 600;
-    padding: 0;
+    @apply w-36 font-semibold text-slate-900 p-0 text-base;
   }
 
   input[type='number'],
   input[type='text'] {
-    flex: 1;
-    padding: 0.4rem;
+    @apply flex-1 py-2.5 px-4 border border-slate-300 rounded-lg text-base transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
   }
 
   &.invalid input[type='number'],
   &.invalid input[type='text'] {
-    border: 1px solid #b91c1c;
+    @apply border-red-400 focus:ring-red-400 focus:border-red-400;
   }
 
   .field-error {
-    flex-basis: 100%;
-    color: #b91c1c;
-    font-size: 0.8rem;
-    margin-left: 8.75rem;
+    @apply basis-full text-red-600 text-sm ml-36;
   }
 }
 
 .not-recorded-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  white-space: nowrap;
+  @apply flex items-center gap-2 whitespace-nowrap text-base text-slate-600;
 }
 
 .field {
-  margin-bottom: 1rem;
+  @apply mb-5;
 
   label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
+    @apply block font-semibold text-slate-900 mb-2 text-base;
   }
 
   textarea {
-    width: 100%;
-    padding: 0.4rem;
+    @apply w-full py-2.5 px-4 border border-slate-300 rounded-lg text-base transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
   }
 }
 
 .actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  @apply flex items-center gap-4;
 }
 
 .medications-section {
-  border: none;
-  padding: 0;
-  margin: 0 0 1.5rem;
+  @apply border-0 p-0 mt-0 mb-6;
 
   legend {
-    font-weight: 600;
-    padding: 0;
-    margin-bottom: 0.5rem;
+    @apply font-semibold text-slate-900 p-0 mb-3;
   }
 }
 
 .medication-row {
-  display: grid;
+  @apply grid gap-3 mb-3 items-center;
   grid-template-columns: 1.1fr 0.8fr 0.9fr 0.8fr 1.6fr auto;
-  gap: 0.6rem;
-  margin-bottom: 0.6rem;
-  align-items: center;
 
   input[type='text'] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid #cbd2d9;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    @apply w-full box-border py-2.5 px-3.5 border border-slate-300 rounded-lg text-base transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
   }
 
   &.invalid input[type='text'] {
-    border: 1px solid #b91c1c;
+    @apply border-red-400 focus:ring-red-400 focus:border-red-400;
   }
 
   .field-error {
+    @apply text-red-600 text-xs;
     grid-column: 1 / -1;
-    color: #b91c1c;
-    font-size: 0.8rem;
   }
 }
 
 .medication-row-header {
-  margin-bottom: 0.4rem;
+  @apply mb-1.5;
 
   span {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    @apply text-xs font-semibold text-slate-500 uppercase tracking-wide;
   }
 }
 
 @media (max-width: 720px) {
   .medication-row:not(.medication-row-header) {
+    @apply gap-2 p-3 border border-slate-200 rounded-lg mb-3;
     grid-template-columns: 1fr;
-    gap: 0.4rem;
-    padding: 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    margin-bottom: 0.75rem;
   }
 
   .medication-row-header {
-    display: none;
+    @apply hidden;
   }
 
   .remove-row {
@@ -160,43 +113,45 @@
 }
 
 .remove-row {
-  white-space: nowrap;
+  @apply whitespace-nowrap text-sm text-red-600 font-medium;
+  @apply hover:text-red-700;
 }
 
 .add-row {
-  margin-top: 0.25rem;
+  @apply mt-1 text-sm text-blue-600 font-medium;
+  @apply hover:text-blue-700;
 }
 
 .print-link {
-  background: none;
-  border: 1px solid #0d4429;
-  color: #0d4429;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  cursor: pointer;
+  @apply bg-white border border-slate-300 text-slate-700 py-2.5 px-5 rounded-lg text-base font-medium cursor-pointer transition-colors;
+  @apply hover:bg-slate-50;
 
   &:disabled {
-    opacity: 0.6;
-    cursor: default;
+    @apply opacity-60 cursor-default hover:bg-white;
   }
 }
 
 .banner {
-  padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  @apply p-4 rounded-lg mb-5 text-base font-medium;
 }
 
 .banner-error {
-  background: #fdecea;
-  color: #611a15;
+  @apply bg-red-50 text-red-700 border border-red-100;
 }
 
 .banner-success {
-  background: #eafaf0;
-  color: #0d4429;
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-100;
 }
 
 .back-link {
-  color: #555;
+  @apply text-slate-500 text-sm font-medium no-underline;
+  @apply hover:text-slate-700;
+}
+
+form button[type='submit'] {
+  @apply bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 py-2.5 text-base font-semibold shadow-sm transition-colors;
+
+  &:disabled {
+    @apply opacity-60 cursor-default hover:bg-blue-600;
+  }
 }

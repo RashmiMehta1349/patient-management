@@ -1,109 +1,65 @@
 .page {
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem 1rem;
+  @apply min-h-screen flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8 bg-slate-50;
 }
 
 .card {
-  width: 100%;
-  max-width: 560px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  padding: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  box-sizing: border-box;
+  @apply w-full max-w-2xl box-border flex flex-col gap-2 bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-10;
 
   h1 {
-    font-size: 1.35rem;
-    margin: 0 0 1.5rem;
-    color: #0b5fff;
+    @apply text-3xl font-semibold text-slate-900 mt-0 mb-6;
   }
 
   form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+    @apply flex flex-col gap-6;
   }
 
   .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    @apply flex flex-col gap-2;
   }
 
   label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #334155;
+    @apply text-base font-medium text-slate-700;
   }
 
   input,
   select {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid #cbd2d9;
-    border-radius: 4px;
-    font-size: 1rem;
+    @apply w-full box-border text-base rounded-lg border border-slate-300 px-4 py-3 transition-colors;
 
     &:focus {
-      outline: none;
-      border-color: #0b5fff;
-      box-shadow: 0 0 0 3px rgba(11, 95, 255, 0.15);
+      @apply outline-none ring-2 ring-blue-500 border-blue-500;
     }
   }
 
   .field-error {
-    color: #b91c1c;
-    font-size: 0.8rem;
+    @apply text-xs text-red-600;
   }
 
   .actions {
-    margin-top: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
+    @apply flex items-center gap-5 mt-3;
   }
 
   button {
-    padding: 0.7rem 1.25rem;
-    background: #0b5fff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
+    @apply text-white text-sm font-semibold cursor-pointer border-0 rounded-lg px-5 py-2.5 bg-blue-600 shadow-sm transition-colors hover:bg-blue-700;
 
     &:disabled {
-      opacity: 0.6;
-      cursor: default;
+      @apply opacity-60 cursor-default hover:bg-blue-600;
     }
   }
 
   .back-link {
-    font-size: 0.85rem;
-    color: #0b5fff;
-    text-decoration: none;
+    @apply text-sm text-blue-600 font-medium no-underline hover:text-blue-700 hover:underline;
   }
 
   dl {
-    display: grid;
+    @apply grid gap-x-4 gap-y-1 text-sm mt-2;
     grid-template-columns: auto 1fr;
-    gap: 0.25rem 1rem;
-    margin: 0.5rem 0 0;
-    font-size: 0.9rem;
   }
 
   dt {
-    font-weight: 600;
+    @apply font-semibold text-slate-900;
   }
 
   dd {
-    margin: 0;
+    @apply m-0 text-slate-600;
   }
 }

@@ -39,7 +39,7 @@ Before starting work, confirm the repository is in a clean, known state for this
 ## What You Do
 
 1. **Confirm scope** — identify which module (and which `Planning\NN_*_Plan.md`) is being implemented. If multiple modules are requested, confirm the build order and work through them one at a time, one plan at a time.
-2. **Ground in the plan** — re-read the relevant plan in full: Architecture Approach, Database Entities, APIs, UI/Screens, File Structure, Security Considerations, Test Strategy, Acceptance Criteria, and — most importantly for this agent — the **Implementation Tasks** checklist, which becomes your step-by-step execution order.
+2. **Ground in the plan** — re-read the relevant plan in full: Architecture Approach, Database Entities, APIs, UI/Screens, File Structure, Security Considerations, Test Strategy, Acceptance Criteria, and — most importantly for this agent — the **Implementation Tasks** checklist, which becomes your step-by-step execution order. Per CLAUDE.md, client styling is **Tailwind CSS**: style new/updated components with Tailwind utility classes directly in the template rather than writing component `.scss`; only add `.scss` for something Tailwind can't express.
 3. **Initialize a progress tracker** — before writing code, restate the plan's Implementation Tasks as a numbered checklist with a status per item (`pending`). Keep this checklist visible and update it after every step — this is the "incremental progress is tracked" half of this agent's job, not an optional nicety.
 4. **Execute one step at a time** — for each Implementation Tasks item, in order:
    a. Mark it `in progress`.
