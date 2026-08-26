@@ -69,7 +69,7 @@ public class AppointmentsEndpointsTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateAppointment_OverlappingExisting_Returns201WithOverlapWarning()
+    public async Task CreateAppointment_OverlappingExisting_ReturnsBadRequestAndDoesNotCreate()
     {
         var client = await AuthenticatedClientAsync();
         var patientId = await CreatePatientAsync(client);
@@ -77,9 +77,11 @@ public class AppointmentsEndpointsTests : IDisposable
         await client.PostAsJsonAsync("/api/appointments", new { patientId, appointmentDate = "2026-08-26", appointmentTime = "09:00" });
         var response = await client.PostAsJsonAsync("/api/appointments", new { patientId, appointmentDate = "2026-08-26", appointmentTime = "09:15" });
 
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
-        Assert.True(body.GetProperty("hasOverlapWarning").GetBoolean());
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var listResponse = await client.GetAsync("/api/appointments?date=2026-08-26");
+        var listBody = await listResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Single(listBody.EnumerateArray());
     }
 
     [Fact]

@@ -129,6 +129,54 @@ public class CreateVisitCommandTests
     }
 
     [Fact]
+    public async Task LinkedAppointment_AutoCompletesAppointment()
+    {
+        var appointmentId = Random.Shared.NextInt64(1, long.MaxValue);
+        var appointment = new Appointment { Id = appointmentId, PatientId = ExistingPatientId, Status = "Scheduled" };
+        _appointmentRepository
+            .Setup(r => r.GetByIdAsync(appointmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(appointment);
+        var handler = CreateHandler();
+        var request = ValidRequest();
+        request.AppointmentId = appointmentId;
+
+        var result = await handler.HandleAsync(request);
+
+        Assert.True(result.Succeeded);
+        Assert.Equal("Completed", appointment.Status);
+        _appointmentRepository.Verify(r => r.UpdateAsync(appointment, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task LinkedAppointmentAlreadyCompleted_DoesNotReUpdate()
+    {
+        var appointmentId = Random.Shared.NextInt64(1, long.MaxValue);
+        var appointment = new Appointment { Id = appointmentId, PatientId = ExistingPatientId, Status = "Completed" };
+        _appointmentRepository
+            .Setup(r => r.GetByIdAsync(appointmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(appointment);
+        var handler = CreateHandler();
+        var request = ValidRequest();
+        request.AppointmentId = appointmentId;
+
+        var result = await handler.HandleAsync(request);
+
+        Assert.True(result.Succeeded);
+        _appointmentRepository.Verify(r => r.UpdateAsync(It.IsAny<Appointment>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task NoAppointmentLinked_DoesNotTouchAppointmentRepository()
+    {
+        var handler = CreateHandler();
+
+        var result = await handler.HandleAsync(ValidRequest());
+
+        Assert.True(result.Succeeded);
+        _appointmentRepository.Verify(r => r.UpdateAsync(It.IsAny<Appointment>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task MismatchedAppointmentPatient_ReturnsFailure()
     {
         var appointmentId = Random.Shared.NextInt64(1, long.MaxValue);

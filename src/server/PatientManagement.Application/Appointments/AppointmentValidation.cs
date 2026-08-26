@@ -10,7 +10,7 @@ namespace PatientManagement.Application.Appointments;
 /// </summary>
 public static class AppointmentValidation
 {
-    public static List<string> Validate(long patientId, string appointmentDate, string appointmentTime, out DateOnly date, out TimeOnly time)
+    public static List<string> Validate(long patientId, string appointmentDate, string appointmentTime, out DateOnly date, out TimeOnly time, DateOnly? today = null)
     {
         var errors = new List<string>();
         date = default;
@@ -29,6 +29,10 @@ public static class AppointmentValidation
                  && !DateOnly.TryParse(appointmentDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
         {
             errors.Add("Date is invalid.");
+        }
+        else if (today.HasValue && date < today.Value)
+        {
+            errors.Add("Cannot schedule an appointment for a past date.");
         }
 
         if (string.IsNullOrWhiteSpace(appointmentTime))

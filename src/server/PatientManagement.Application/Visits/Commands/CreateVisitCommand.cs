@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using PatientManagement.Application.Appointments;
 using PatientManagement.Application.Appointments.Services;
 using PatientManagement.Application.Auth.Services;
 using PatientManagement.Application.Common;
@@ -15,7 +16,10 @@ namespace PatientManagement.Application.Visits.Commands;
 /// Validates and persists a new Visit (consultation record). PatientId is required and must
 /// reference an existing Patient (R6); AppointmentId is optional but, when supplied, must
 /// reference an existing Appointment whose PatientId matches this visit's PatientId. Vitals are
-/// normalized (never rejected) per VisitValidation's rules (R2).
+/// normalized (never rejected) per VisitValidation's rules (R2). When a visit is linked to an
+/// appointment, that appointment is auto-marked Completed — recording a consultation is the real
+/// signal that the visit happened, so status shouldn't need a separate manual step that can be
+/// forgotten (this was the source of "Completed" appointments with no matching visit).
 /// </summary>
 public class CreateVisitCommandHandler
 {
@@ -68,9 +72,10 @@ public class CreateVisitCommandHandler
             return Result<VisitDto>.NotFound("Patient not found.");
         }
 
+        Domain.Entities.Appointment? appointment = null;
         if (request.AppointmentId.HasValue)
         {
-            var appointment = await _appointmentRepository.GetByIdAsync(request.AppointmentId.Value, cancellationToken);
+            appointment = await _appointmentRepository.GetByIdAsync(request.AppointmentId.Value, cancellationToken);
             if (appointment is null)
             {
                 return Result<VisitDto>.NotFound("Appointment not found.");
@@ -109,6 +114,13 @@ public class CreateVisitCommandHandler
         visit.Medications = medications;
 
         await _visitRepository.AddAsync(visit, cancellationToken);
+
+        if (appointment is not null && appointment.Status != AppointmentStatuses.Completed)
+        {
+            appointment.Status = AppointmentStatuses.Completed;
+            appointment.UpdatedAt = now;
+            await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
+        }
 
         var dto = VisitMapper.ToDto(visit, patient.FullName);
         return Result<VisitDto>.Success(dto);

@@ -1,115 +1,95 @@
 .page {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  padding: 2rem 1rem;
+  @apply min-h-screen flex justify-center px-4 py-8 sm:px-6 lg:px-8 bg-slate-50;
 }
 
 .grid-card {
-  width: 100%;
-  max-width: 900px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  padding: 2rem;
+  @apply w-full max-w-6xl bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-10;
 }
 
 .grid-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  @apply flex items-center justify-between mb-6;
 
   h1 {
-    font-size: 1.25rem;
-    margin: 0;
-    color: #0b5fff;
+    @apply text-3xl font-semibold m-0 text-slate-900;
   }
 }
 
 .add-patient-button {
-  padding: 0.6rem 1rem;
-  background: #0b5fff;
-  color: #fff;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 0.9rem;
+  @apply text-white no-underline text-sm font-semibold px-4 py-2.5 bg-blue-600 rounded-lg shadow-sm transition-colors hover:bg-blue-700;
 }
 
 .search-box {
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #cbd2d9;
-  border-radius: 4px;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+  @apply w-full text-base mb-6 px-4 py-3 border border-slate-300 rounded-lg transition-colors;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
 }
 
 .patients-table {
-  width: 100%;
-  border-collapse: collapse;
+  @apply w-full border-collapse;
 
   th,
   td {
-    text-align: left;
-    padding: 0.6rem 0.5rem;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 0.9rem;
+    @apply text-left text-base px-4 py-4 border-b border-slate-100;
+  }
+
+  th {
+    @apply text-xs font-semibold text-slate-500 uppercase tracking-wide py-3;
+  }
+
+  tbody tr {
+    @apply transition-colors hover:bg-slate-50;
   }
 
   .patient-name-link {
-    color: #0b5fff;
-    text-decoration: none;
-    font-weight: 500;
+    @apply text-blue-600 no-underline font-medium;
 
     &:hover {
-      text-decoration: underline;
+      @apply text-blue-700 underline;
     }
   }
 
   .edit-col {
-    width: 3rem;
-    text-align: center;
+    @apply w-12 text-center;
   }
 }
 
 .edit-icon {
-  text-decoration: none;
-  color: #0b5fff;
-  font-size: 1.1rem;
+  @apply no-underline text-blue-600 text-base;
+
+  &:hover {
+    @apply text-blue-700;
+  }
 }
 
 .pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.25rem;
+  @apply flex items-center justify-center gap-4 mt-6;
 
   button {
-    padding: 0.5rem 1rem;
-    border: 1px solid #cbd2d9;
-    background: #fff;
-    border-radius: 4px;
-    cursor: pointer;
+    @apply bg-white cursor-pointer px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 transition-colors;
+    @apply hover:bg-slate-50;
 
     &:disabled {
-      opacity: 0.5;
-      cursor: default;
+      @apply opacity-50 cursor-default hover:bg-white;
     }
   }
 }
 
+.page-size-select {
+  @apply flex items-center gap-2 text-sm font-medium text-slate-700;
+
+  select {
+    @apply bg-white cursor-pointer px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+}
+
 .empty-state {
-  text-align: center;
-  padding: 2rem 0;
+  @apply text-center py-10 text-slate-500;
 
   .add-patient-link {
-    color: #0b5fff;
+    @apply text-blue-600 font-medium hover:text-blue-700 hover:underline;
   }
 }
 
 .banner-error {
-  color: #b91c1c;
-  margin-bottom: 0.75rem;
+  @apply text-red-600 mb-3;
 }

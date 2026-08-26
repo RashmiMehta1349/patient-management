@@ -63,6 +63,13 @@ export class AppointmentsListComponent implements OnInit {
       return;
     }
 
+    // appointment.status hasn't changed yet, so on Cancel the next change-detection cycle
+    // re-syncs the <select>'s displayed value back from [ngModel]="appointment.status" — no
+    // manual DOM revert needed.
+    if (!window.confirm(`Change ${appointment.patientName}'s appointment status to "${status}"?`)) {
+      return;
+    }
+
     this.statusUpdateErrorId = null;
     const previousStatus = appointment.status;
     appointment.status = status;

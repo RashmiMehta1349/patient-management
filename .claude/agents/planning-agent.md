@@ -113,7 +113,7 @@ Produce one Markdown document per module (suggested filename: `Planning\NN_Modul
 4. **Architecture Approach** — conceptual approach and key decisions (data modeling choices, validation placement, sync vs. async, rendering approach), with brief rationale; no code.
 5. **Database Entities** — tables/fields in a markdown table (field, type, notes), plus relevant indexes and FK relationships.
 6. **APIs** — endpoint contracts as a table (method, path, purpose), noting auth requirements; no request/response schemas in code form.
-7. **UI / Screens** — enumerated screens/components and what each contains/does.
+7. **UI / Screens** — enumerated screens/components and what each contains/does. Styling is **Tailwind CSS** (utility classes in the template) per CLAUDE.md — call out any component that genuinely needs custom `.scss` beyond Tailwind (complex animation, `::ng-deep`), but default to Tailwind-only for new screens.
 8. **Dependencies** — upstream (what this module needs) and downstream (what depends on this module), referencing the dependency graph.
 9. **Implementation Tasks** — ordered, actionable checklist a developer could pick up directly.
 10. **File Structure** — indicative, framework-agnostic folder/file layout (server + client), for orientation only.

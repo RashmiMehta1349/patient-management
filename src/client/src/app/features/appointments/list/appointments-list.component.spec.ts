@@ -89,7 +89,7 @@ describe('AppointmentsListComponent', () => {
     expect(component.selectedDate).not.toBe(initialDate);
   });
 
-  it('changing status via the control calls updateStatus and updates the row in place', () => {
+  it('changing status via the control asks for confirmation, then calls updateStatus and updates the row in place', () => {
     setup();
     const appointmentService = TestBed.inject(AppointmentService);
     const appointment = makeAppointment(1, '09:00');
@@ -97,6 +97,7 @@ describe('AppointmentsListComponent', () => {
     const updateSpy = spyOn(appointmentService, 'updateStatus').and.returnValue(
       of({ ...appointment, status: 'Completed' })
     );
+    const confirmSpy = spyOn(window, 'confirm').and.returnValue(true);
 
     const fixture = TestBed.createComponent(AppointmentsListComponent);
     fixture.detectChanges();
@@ -104,8 +105,27 @@ describe('AppointmentsListComponent', () => {
 
     component.onStatusChange(component.appointments[0], 'Completed');
 
+    expect(confirmSpy).toHaveBeenCalled();
     expect(updateSpy).toHaveBeenCalledWith(1, 'Completed');
     expect(component.appointments[0].status).toBe('Completed');
+  });
+
+  it('declining the confirmation leaves the status and updateStatus call untouched', () => {
+    setup();
+    const appointmentService = TestBed.inject(AppointmentService);
+    const appointment = makeAppointment(1, '09:00');
+    spyOn(appointmentService, 'listByDate').and.returnValue(of([appointment]));
+    const updateSpy = spyOn(appointmentService, 'updateStatus');
+    spyOn(window, 'confirm').and.returnValue(false);
+
+    const fixture = TestBed.createComponent(AppointmentsListComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance;
+
+    component.onStatusChange(component.appointments[0], 'Completed');
+
+    expect(updateSpy).not.toHaveBeenCalled();
+    expect(component.appointments[0].status).toBe('Scheduled');
   });
 
   it('status update error surfaces inline and reverts the status without losing the row', () => {
@@ -114,6 +134,7 @@ describe('AppointmentsListComponent', () => {
     const appointment = makeAppointment(1, '09:00');
     spyOn(appointmentService, 'listByDate').and.returnValue(of([appointment]));
     spyOn(appointmentService, 'updateStatus').and.returnValue(throwError(() => ({ status: 500 })));
+    spyOn(window, 'confirm').and.returnValue(true);
 
     const fixture = TestBed.createComponent(AppointmentsListComponent);
     fixture.detectChanges();

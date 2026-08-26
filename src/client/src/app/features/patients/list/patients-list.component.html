@@ -63,6 +63,14 @@
         <button type="button" (click)="previousPage()" [disabled]="page <= 1">Previous</button>
         <span>Page {{ page }} of {{ totalPages }}</span>
         <button type="button" (click)="nextPage()" [disabled]="page >= totalPages">Next</button>
+        <label class="page-size-select">
+          Rows per page
+          <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" aria-label="Rows per page">
+            @for (size of pageSizeOptions; track size) {
+              <option [ngValue]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
       </div>
     }
   </div>

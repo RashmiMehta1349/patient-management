@@ -21,6 +21,7 @@ public class VisitsController : ControllerBase
     private readonly UpdateVisitCommandHandler _updateVisitHandler;
     private readonly GetVisitByIdQueryHandler _getVisitByIdHandler;
     private readonly GetVisitsByPatientIdQueryHandler _getVisitsByPatientIdHandler;
+    private readonly GetVisitsByPatientIdPagedQueryHandler _getVisitsByPatientIdPagedHandler;
     private readonly GetPrescriptionPdfQueryHandler _getPrescriptionPdfHandler;
 
     public VisitsController(
@@ -28,12 +29,14 @@ public class VisitsController : ControllerBase
         UpdateVisitCommandHandler updateVisitHandler,
         GetVisitByIdQueryHandler getVisitByIdHandler,
         GetVisitsByPatientIdQueryHandler getVisitsByPatientIdHandler,
+        GetVisitsByPatientIdPagedQueryHandler getVisitsByPatientIdPagedHandler,
         GetPrescriptionPdfQueryHandler getPrescriptionPdfHandler)
     {
         _createVisitHandler = createVisitHandler;
         _updateVisitHandler = updateVisitHandler;
         _getVisitByIdHandler = getVisitByIdHandler;
         _getVisitsByPatientIdHandler = getVisitsByPatientIdHandler;
+        _getVisitsByPatientIdPagedHandler = getVisitsByPatientIdPagedHandler;
         _getPrescriptionPdfHandler = getPrescriptionPdfHandler;
     }
 
@@ -59,12 +62,29 @@ public class VisitsController : ControllerBase
     /// VisitDate. ASP.NET Core model binding rejects an unparseable date string before this action
     /// even runs (DateTime? binding failure -> automatic 400 via [ApiController]).
     /// </summary>
+    /// <summary>
+    /// page/pageSize are optional: omitted (the DataExport internal call and any pre-pagination
+    /// caller) returns the full, unpaginated history exactly as before; either one present
+    /// switches to the paginated PagedResultDto envelope, matching GET /api/patients's pattern.
+    /// </summary>
     [HttpGet]
-    public async Task<ActionResult> GetAll([FromQuery] long? patientId, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, CancellationToken cancellationToken)
+    public async Task<ActionResult> GetAll([FromQuery] long? patientId, [FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate, [FromQuery] int? page, [FromQuery] int? pageSize, CancellationToken cancellationToken)
     {
         if (!patientId.HasValue)
         {
             return BadRequest(new { message = "patientId is required." });
+        }
+
+        if (page.HasValue || pageSize.HasValue)
+        {
+            var pagedResult = await _getVisitsByPatientIdPagedHandler.HandleAsync(
+                patientId.Value, page ?? 1, pageSize ?? 25, fromDate, toDate, cancellationToken);
+            if (!pagedResult.Succeeded)
+            {
+                return BadRequest(new { message = pagedResult.Error });
+            }
+
+            return Ok(pagedResult.Value);
         }
 
         var result = await _getVisitsByPatientIdHandler.HandleAsync(patientId.Value, fromDate, toDate, cancellationToken);

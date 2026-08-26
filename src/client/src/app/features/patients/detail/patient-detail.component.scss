@@ -1,270 +1,173 @@
 .page {
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem 1rem;
+  @apply min-h-screen flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8;
 }
 
 .card {
-  width: 100%;
-  max-width: 480px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  @apply w-full max-w-4xl bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-10 flex flex-col gap-3;
 
   h1 {
-    font-size: 1.25rem;
-    margin: 0 0 1rem;
-    color: #0b5fff;
+    @apply text-3xl font-semibold mt-0 mb-6 text-slate-900;
   }
 
   dl {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.25rem 1rem;
-    margin: 0.5rem 0 0;
-    font-size: 0.9rem;
+    @apply grid gap-x-8 gap-y-4 mt-2 mb-0 text-base grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr];
   }
 
   dt {
-    font-weight: 600;
+    @apply font-medium text-slate-500;
   }
 
   dd {
-    margin: 0;
+    @apply m-0 text-slate-900 font-medium;
   }
 
   .banner-error {
-    color: #b91c1c;
-    background: #fef2f2;
-    border-radius: 4px;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+    @apply text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3 text-sm;
   }
 
   .actions {
-    margin-top: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+    @apply mt-6 flex items-center gap-4;
 
     a {
-      color: #0b5fff;
-      text-decoration: none;
+      @apply text-blue-600 no-underline font-medium hover:text-blue-700 hover:underline;
     }
   }
 
   .back-link {
-    font-size: 0.85rem;
-    color: #0b5fff;
-    text-decoration: none;
+    @apply text-sm text-blue-600 no-underline font-medium hover:text-blue-700 hover:underline;
   }
 
   .export-section {
-    margin-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 1rem;
+    @apply mt-6 border-t border-slate-200 pt-5;
 
     h2 {
-      font-size: 1rem;
-      margin: 0 0 0.5rem;
+      @apply text-xl font-semibold mt-0 mb-4 text-slate-900;
     }
   }
 
   .include-history-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    color: #374151;
-    margin-bottom: 0.5rem;
+    @apply flex items-center gap-2 text-sm text-slate-600 mb-3;
   }
 
   .export-actions {
-    display: flex;
-    gap: 0.75rem;
+    @apply flex gap-3;
   }
 
   .export-csv-btn,
   .export-pdf-btn {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.85rem;
+    @apply py-2 px-3.5 text-sm bg-white border border-slate-300 text-slate-700 rounded-lg font-medium transition-colors;
+    @apply hover:bg-slate-50;
 
     &:disabled {
-      opacity: 0.6;
-      cursor: default;
+      @apply opacity-60 cursor-default hover:bg-white;
     }
   }
 
   .appointments-section {
-    margin-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 1rem;
+    @apply mt-6 border-t border-slate-200 pt-5;
   }
 
   .appointments-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    @apply flex items-center justify-between;
 
     h2 {
-      font-size: 1rem;
-      margin: 0;
+      @apply text-xl font-semibold m-0 text-slate-900;
     }
 
     a {
-      font-size: 0.85rem;
-      color: #0b5fff;
-      text-decoration: none;
+      @apply text-sm text-blue-600 no-underline font-medium hover:text-blue-700 hover:underline;
     }
   }
 
   .no-appointments {
-    font-size: 0.85rem;
-    color: #6b7280;
+    @apply text-sm text-slate-500;
   }
 
   .appointments-list {
-    list-style: none;
-    margin: 0.5rem 0 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    @apply list-none mt-4 mb-0 p-0 flex flex-col gap-1.5;
 
     li {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      padding: 0.4rem 0;
-      border-bottom: 1px solid #f1f5f9;
+      @apply flex justify-between text-base text-slate-700 py-3 px-3 border-b border-slate-100 rounded-lg;
+    }
+  }
+
+  .consultations-section {
+    @apply mt-6 border-t border-slate-200 pt-5;
+  }
+
+  .consultations-header {
+    @apply flex items-center justify-between;
+
+    h2 {
+      @apply text-xl font-semibold m-0 text-slate-900;
+    }
+
+    a {
+      @apply text-sm text-blue-600 no-underline font-medium hover:text-blue-700 hover:underline;
     }
   }
 
   .consultations-list {
-    list-style: none;
-    margin: 0.5rem 0 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    @apply list-none mt-4 mb-0 p-0 flex flex-col gap-1.5;
 
     li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      padding: 0.4rem 0;
-      border-bottom: 1px solid #f1f5f9;
+      @apply flex items-center justify-between gap-3 text-base py-4 px-3 border-b border-slate-100 rounded-lg transition-colors hover:bg-slate-50;
 
       a {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
+        @apply flex flex-col gap-1.5;
       }
     }
   }
 
   .edit-visit-link {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    color: #0b5fff;
-    border: 1px solid #0b5fff;
-    border-radius: 4px;
-    white-space: nowrap;
-    text-decoration: none;
+    @apply py-2 px-3.5 text-sm font-medium text-blue-600 border border-blue-200 rounded-lg whitespace-nowrap no-underline transition-colors;
+    @apply hover:bg-blue-50;
   }
 
   .medication-badge {
-    display: inline-block;
-    font-size: 0.75rem;
-    color: #0b5fff;
-    background: #eef4ff;
-    border-radius: 999px;
-    padding: 0.1rem 0.5rem;
-    width: fit-content;
+    @apply inline-block text-xs font-medium text-blue-700 bg-blue-50 rounded-full px-2.5 py-1 w-fit;
   }
 
   .walk-in-badge {
-    display: inline-block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #92400e;
-    background: #fef3c7;
-    border-radius: 999px;
-    padding: 0.1rem 0.5rem;
-    width: fit-content;
+    @apply inline-block text-xs font-medium text-amber-700 bg-amber-50 rounded-full px-2.5 py-1 w-fit;
   }
 
   .print-prescription-btn {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    background: none;
-    color: #0d4429;
-    border: 1px solid #0d4429;
-    white-space: nowrap;
+    @apply py-2 px-3.5 text-sm bg-white text-slate-700 border border-slate-300 rounded-lg whitespace-nowrap font-medium transition-colors;
+    @apply hover:bg-slate-50;
 
     &:disabled {
-      opacity: 0.6;
-      cursor: default;
+      @apply opacity-60 cursor-default hover:bg-white;
     }
   }
 
   .date-filter {
-    display: flex;
-    align-items: flex-end;
-    gap: 1rem;
-    margin: 0.75rem 0 0.5rem;
-    font-size: 0.8rem;
+    @apply flex items-end gap-4 mt-4 mb-3 text-sm;
 
     label {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      color: #374151;
+      @apply flex flex-col gap-1 text-slate-600;
     }
 
     input[type='date'] {
-      padding: 0.3rem 0.4rem;
-      font-size: 0.8rem;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
+      @apply py-2 px-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
     }
   }
 
   .clear-filter-btn {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    background: none;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    @apply py-2 px-3 text-sm bg-white text-slate-600 border border-slate-300 rounded-lg font-medium transition-colors hover:bg-slate-50;
     align-self: auto;
   }
 
   .no-consultations-filtered {
-    font-size: 0.85rem;
-    color: #6b7280;
+    @apply text-base text-slate-500;
   }
 
   .visit-complaints {
-    font-size: 0.85rem;
-    color: #374151;
+    @apply text-base text-slate-600;
   }
 
   button {
-    padding: 0.5rem 1rem;
-    background: #0b5fff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    align-self: flex-start;
+    @apply py-2 px-4 bg-blue-600 text-white border-0 rounded-lg text-sm font-semibold cursor-pointer self-start shadow-sm transition-colors;
+    @apply hover:bg-blue-700;
   }
 }

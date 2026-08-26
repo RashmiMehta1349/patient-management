@@ -101,31 +101,10 @@
 
 ---
 
-## Module 9: Data Backup & Reliability
-- **Purpose:** Guarantee no data loss through automated, retained backups — an infrastructure/ops-facing module rather than a doctor-facing screen.
-- **Key Functionalities:**
-  - Automated daily backup job
-  - 30-day retention policy
-  - Encrypted storage at rest
-- **Related BRD Requirements/User Stories:** Non-Functional Requirements → Reliability, Security ("Data encryption at rest and in transit")
-- **Dependencies on Other Modules:** Cuts across all data-holding modules (Patient Management, Consultation, Prescription)
-- **Priority:** Medium
-
----
-
-## Module 10: Administration (Minimal, Phase 1 scope)
-- **Purpose:** Very limited system-level configuration; explicitly not a full admin module since the BRD excludes multi-user/multi-clinic support.
-- **Key Functionalities:**
-  - Manage the single pre-provisioned doctor account (credentials, password recovery)
-  - No editable clinic branding/header-footer UI in Phase 1 (hardcoded)
-- **Related BRD Requirements/User Stories:** Users and Stakeholders → "Primary Users: General Physician (Single User)"; Out of Scope → "Receptionist or multi-user access," "Multi-doctor or multi-clinic support"
-- **Dependencies on Other Modules:** Authentication & Authorization
-- **Priority:** Low
-
----
-
 ## Modules Explicitly Excluded from Phase 1
 Per BRD "Out of Scope," the following are **not** built in this release and should not appear in the Phase 1 architecture: Billing & Payments, Insurance Processing, Lab/Pharmacy Integration, AI-based Diagnosis, Offline Mode, Mobile App, Advanced Analytics/Reporting Dashboard, Multi-user/Receptionist Access, Multi-doctor/Multi-clinic Support, Follow-up Alerts/Reminders, Audit & Logging (not mentioned in BRD — no audit trail requirement stated).
+
+**Deferred (not currently planned):** Data Backup & Reliability, Administration — deprioritized for now per explicit product decision; may be revisited later.
 
 ---
 
@@ -148,9 +127,6 @@ Prescription & Medication Management
         │
         ▼
    Patient History ───────► Data Export
-
-Data Backup & Reliability — cross-cutting (wraps all data modules)
-Administration — thin layer on top of Authentication
 ```
 
 # 2. Recommended Development Order
@@ -163,10 +139,8 @@ Administration — thin layer on top of Authentication
 6. Patient History
 7. Search & Navigation
 8. Data Export
-9. Data Backup & Reliability
-10. Administration
 
-Rationale: each stage unblocks the next in the natural clinical workflow (login → find/register patient → schedule visit → run consultation → prescribe → review history), with cross-cutting concerns (export, backup, admin) layered in once the core record-keeping loop works end-to-end.
+Rationale: each stage unblocks the next in the natural clinical workflow (login → find/register patient → schedule visit → run consultation → prescribe → review history), with cross-cutting concerns (export) layered in once the core record-keeping loop works end-to-end. Data Backup & Reliability and Administration are deferred (see above) and not part of the current build order.
 
 # 3. MVP Modules
 Everything the doctor needs to run a full consultation and leave with a printed prescription — this is essentially the whole Phase 1 scope, since the BRD is already tightly trimmed to an MVP:
@@ -180,8 +154,8 @@ Everything the doctor needs to run a full consultation and leave with a printed 
 
 # 4. Deferred / Lower-Priority for Later Iterations Within Phase 1
 - Data Export (CSV/PDF) — needed for success criteria but can trail the core consultation loop
-- Data Backup & Reliability — an ops task that can be finalized once schema stabilizes
-- Administration (password recovery, account settings) — needed before go-live but not for early internal demos
+- Data Backup & Reliability — deprioritized for now, not currently planned (see "Modules Explicitly Excluded" note above)
+- Administration (password recovery, account settings) — deprioritized for now, not currently planned (see "Modules Explicitly Excluded" note above)
 
 # 5. Future Enhancement Modules (explicitly Out of Scope per BRD, for post-Phase-1 roadmap)
 - Multi-user Access / Receptionist Role
@@ -223,14 +197,11 @@ Everything the doctor needs to run a full consultation and leave with a printed 
 │                Encrypted Relational Database               │
 │   Patients | Appointments | Visits | Vitals | Diagnoses    │
 │   Prescriptions | Medications | Users (single account)     │
-└───────────────────────────┬────────────────────────────┘
-                            │
-┌───────────────────────────▼────────────────────────────┐
-│         Automated Daily Backup Job (30-day retention)     │
 └─────────────────────────────────────────────────────────┘
 
 Cross-cutting: PDF/print rendering service (prescriptions + exports),
 TLS everywhere, encryption at rest, session-timeout middleware.
+(Automated backup job deferred — not currently planned, see Module list above.)
 ```
 
 This is a monolithic single-tenant architecture — appropriate given the BRD's explicit single-doctor, single-clinic, moderate-volume scope, with no need for microservices, message queues, or multi-tenant isolation at this stage.

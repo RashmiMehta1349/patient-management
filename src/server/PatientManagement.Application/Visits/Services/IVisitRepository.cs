@@ -19,6 +19,10 @@ public interface IVisitRepository
     /// the range (Module 6 — Patient History date-range filter). Both null returns the full history.</summary>
     Task<IReadOnlyList<Visit>> GetByPatientIdAsync(long patientId, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
 
+    /// <summary>Paginated variant of GetByPatientIdAsync — same filters/ordering, page/pageSize
+    /// applied via Skip/Take. Powers the Patient Detail visit-history grid's pagination.</summary>
+    Task<(IReadOnlyList<Visit> Items, int TotalCount)> GetByPatientIdPagedAsync(long patientId, int page, int pageSize, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
+
     /// <summary>Stages a full replace-on-save of a visit's medication set (delete existing, insert
     /// submitted) within the current DbContext unit of work — does not call SaveChanges itself, so
     /// it can be combined with the visit's own field update in a single atomic save (approved plan

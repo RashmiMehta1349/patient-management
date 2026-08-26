@@ -1,46 +1,29 @@
 .app-header {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0.85rem 1.5rem;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
+  @apply flex items-center gap-6 px-6 py-3.5 bg-white border-b border-slate-200 shadow-sm;
 }
 
 .app-title {
-  font-weight: 600;
-  color: #0b5fff;
+  @apply font-semibold text-lg text-slate-900;
 }
 
 .app-nav {
-  display: flex;
-  gap: 1rem;
-  flex: 1;
+  @apply flex gap-1 flex-1;
 }
 
 .nav-tab {
-  color: #334155;
-  text-decoration: none;
-  padding: 0.4rem 0.1rem;
-  border-bottom: 2px solid transparent;
+  @apply text-sm font-medium text-slate-500 no-underline py-2 px-3 rounded-lg border-b-2 border-transparent transition-colors;
+  @apply hover:text-slate-900 hover:bg-slate-50;
 
   &.active-tab {
-    color: #0b5fff;
-    border-bottom-color: #0b5fff;
+    @apply text-blue-600 bg-blue-50 hover:text-blue-600 hover:bg-blue-50;
   }
 }
 
 .header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  @apply flex items-center gap-3;
 }
 
 .logout-button {
-  padding: 0.5rem 1rem;
-  background: #0b5fff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  @apply py-2 px-4 bg-white text-slate-700 border border-slate-300 rounded-lg text-sm font-medium cursor-pointer transition-colors;
+  @apply hover:bg-slate-50;
 }

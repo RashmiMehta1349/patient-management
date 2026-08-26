@@ -62,7 +62,7 @@ public class UpdateAppointmentCommandTests
     }
 
     [Fact]
-    public async Task OverlapExcludesSelf_NoWarningWhenOnlyConflictIsSelf()
+    public async Task OverlapExcludesSelf_SucceedsWhenOnlyConflictIsSelf()
     {
         _appointmentRepository.Setup(r => r.GetByIdAsync(AppointmentId, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingAppointment());
         _appointmentRepository
@@ -74,6 +74,34 @@ public class UpdateAppointmentCommandTests
         Assert.True(result.Succeeded);
         Assert.False(result.Value!.HasOverlapWarning);
         _appointmentRepository.Verify(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), AppointmentId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task OverlapWithAnotherAppointment_BlocksSaveAndReturnsFailure()
+    {
+        _appointmentRepository.Setup(r => r.GetByIdAsync(AppointmentId, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingAppointment());
+        var conflicting = new Appointment { Id = Random.Shared.NextInt64(1, long.MaxValue), PatientId = PatientId, AppointmentTime = new TimeOnly(10, 15), Status = AppointmentStatuses.Scheduled };
+        _appointmentRepository
+            .Setup(r => r.GetOverlappingAsync(It.IsAny<DateOnly>(), It.IsAny<TimeOnly>(), It.IsAny<int>(), AppointmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<Appointment> { conflicting });
+
+        var result = await CreateHandler().HandleAsync(AppointmentId, new UpdateAppointmentRequestDto { AppointmentDate = "2026-08-27", AppointmentTime = "10:00" });
+
+        Assert.False(result.Succeeded);
+        Assert.False(result.IsNotFound);
+        _appointmentRepository.Verify(r => r.UpdateAsync(It.IsAny<Appointment>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task PastDate_ReturnsFailure()
+    {
+        _appointmentRepository.Setup(r => r.GetByIdAsync(AppointmentId, It.IsAny<CancellationToken>())).ReturnsAsync(ExistingAppointment());
+
+        var result = await CreateHandler().HandleAsync(AppointmentId, new UpdateAppointmentRequestDto { AppointmentDate = "2026-08-24", AppointmentTime = "10:00" }); // FixedUtcNow is 2026-08-25
+
+        Assert.False(result.Succeeded);
+        Assert.False(result.IsNotFound);
+        _appointmentRepository.Verify(r => r.UpdateAsync(It.IsAny<Appointment>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

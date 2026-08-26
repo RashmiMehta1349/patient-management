@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -6,13 +7,15 @@ using PatientManagement.Application.Appointments.Dtos;
 using PatientManagement.Application.Appointments.Services;
 using PatientManagement.Application.Common;
 using PatientManagement.Application.Patients.Services;
+using PatientManagement.Domain.Entities;
 
 namespace PatientManagement.Application.Appointments.Commands;
 
 /// <summary>
 /// Full edit (date/time/notes) — reschedule flow (Increment 3, approved plan §4/§9 task 21).
 /// Re-runs overlap detection excluding the appointment's own id, so editing to the same slot it
-/// already occupies never warns against itself.
+/// already occupies never conflicts against itself. Blocks the save on a genuine conflict (same
+/// rule change as CreateAppointmentCommandHandler).
 /// </summary>
 public class UpdateAppointmentCommandHandler
 {
@@ -41,10 +44,18 @@ public class UpdateAppointmentCommandHandler
             return Result<AppointmentDto>.NotFound("Appointment not found.");
         }
 
-        var errors = AppointmentValidation.Validate(appointment.PatientId, request.AppointmentDate, request.AppointmentTime, out var date, out var time);
+        var errors = AppointmentValidation.Validate(
+            appointment.PatientId, request.AppointmentDate, request.AppointmentTime, out var date, out var time,
+            DateOnly.FromDateTime(_dateTimeProvider.UtcNow));
         if (errors.Count > 0)
         {
             return Result<AppointmentDto>.Failure(string.Join(" ", errors));
+        }
+
+        var overlaps = await _appointmentRepository.GetOverlappingAsync(date, time, _options.SlotMinutes, appointment.Id, cancellationToken);
+        if (overlaps.Count > 0)
+        {
+            return Result<AppointmentDto>.Failure(await AppointmentOverlap.BuildErrorMessageAsync(overlaps, _patientRepository, cancellationToken));
         }
 
         appointment.AppointmentDate = date;
@@ -54,10 +65,8 @@ public class UpdateAppointmentCommandHandler
 
         await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
 
-        var overlaps = await _appointmentRepository.GetOverlappingAsync(date, time, _options.SlotMinutes, appointment.Id, cancellationToken);
-
         var patient = await _patientRepository.GetByIdAsync(appointment.PatientId, cancellationToken);
-        var dto = await AppointmentMapper.ToDtoAsync(appointment, patient?.FullName ?? string.Empty, overlaps, _patientRepository, cancellationToken);
+        var dto = await AppointmentMapper.ToDtoAsync(appointment, patient?.FullName ?? string.Empty, new List<Appointment>(), _patientRepository, cancellationToken);
 
         return Result<AppointmentDto>.Success(dto);
     }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { RETURN_URL_STORAGE_KEY } from '../../../core/auth/return-url';
 
 @Component({
   selector: 'app-login',
@@ -45,7 +46,8 @@ export class LoginComponent {
     this.authService.login(this.form.getRawValue()).subscribe({
       next: () => {
         this.submitting = false;
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+        const returnUrl = sessionStorage.getItem(RETURN_URL_STORAGE_KEY) ?? '/dashboard';
+        sessionStorage.removeItem(RETURN_URL_STORAGE_KEY);
         this.router.navigateByUrl(returnUrl);
       },
       error: () => {

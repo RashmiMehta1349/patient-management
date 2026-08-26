@@ -59,6 +59,31 @@ public class VisitRepository : IVisitRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<(IReadOnlyList<Visit> Items, int TotalCount)> GetByPatientIdPagedAsync(long patientId, int page, int pageSize, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.Visits
+            .AsNoTracking()
+            .Include(v => v.Medications.OrderBy(m => m.SortOrder))
+            .Where(v => v.PatientId == patientId);
+
+        if (fromDate.HasValue)
+        {
+            query = query.Where(v => v.VisitDate >= fromDate.Value);
+        }
+
+        if (toDate.HasValue)
+        {
+            query = query.Where(v => v.VisitDate <= toDate.Value);
+        }
+
+        query = query.OrderByDescending(v => v.VisitDate);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
+
     public async Task ReplaceMedicationsAsync(long visitId, IReadOnlyList<Medication> medications, CancellationToken cancellationToken = default)
     {
         // Replace-on-save (approved plan §4): delete the visit's existing medication rows and
