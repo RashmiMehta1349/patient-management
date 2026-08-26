@@ -52,6 +52,15 @@ export class PatientDetailComponent implements OnInit {
   visitsLoading = true;
   visitsError = false;
 
+  /** Pagination state for the Consultations grid, matching PatientsListComponent's pattern. */
+  visitsPage = 1;
+  visitsTotalCount = 0;
+  readonly visitsPageSize = 25;
+
+  get visitsTotalPages(): number {
+    return Math.max(1, Math.ceil(this.visitsTotalCount / this.visitsPageSize));
+  }
+
   /** Module 6 (Patient History) — date-range filter state (native `<input type="date">` values,
    * 'yyyy-MM-dd' or empty string). Filtering is server-side (§5 of the plan): changing either value
    * re-fetches from the extended GET /api/visits endpoint rather than filtering client-side. */
@@ -83,6 +92,7 @@ export class PatientDetailComponent implements OnInit {
       // patient doesn't silently apply to the newly selected one.
       this.fromDate = '';
       this.toDate = '';
+      this.visitsPage = 1;
 
       this.load(this.id);
       this.loadAppointments(this.id);
@@ -94,16 +104,39 @@ export class PatientDetailComponent implements OnInit {
     this.visitsLoading = true;
     this.visitsError = false;
 
-    this.visitService.listByPatientId(patientId, this.fromDate || undefined, this.toDate || undefined).subscribe({
-      next: (visits) => {
-        this.visitsLoading = false;
-        this.visits = visits;
-      },
-      error: () => {
-        this.visitsLoading = false;
-        this.visitsError = true;
-      }
-    });
+    this.visitService
+      .listByPatientIdPaged(patientId, {
+        page: this.visitsPage,
+        pageSize: this.visitsPageSize,
+        fromDate: this.fromDate || undefined,
+        toDate: this.toDate || undefined
+      })
+      .subscribe({
+        next: (result) => {
+          this.visitsLoading = false;
+          this.visits = result.items;
+          this.visitsTotalCount = result.totalCount;
+          this.visitsPage = result.page;
+        },
+        error: () => {
+          this.visitsLoading = false;
+          this.visitsError = true;
+        }
+      });
+  }
+
+  previousVisitsPage(): void {
+    if (this.visitsPage > 1 && this.id) {
+      this.visitsPage -= 1;
+      this.loadVisits(this.id);
+    }
+  }
+
+  nextVisitsPage(): void {
+    if (this.visitsPage < this.visitsTotalPages && this.id) {
+      this.visitsPage += 1;
+      this.loadVisits(this.id);
+    }
   }
 
   /** True while either From or To is set — distinguishes the "no visits in range" empty state
@@ -115,6 +148,7 @@ export class PatientDetailComponent implements OnInit {
   /** Re-fetches the visit list from the server whenever the From/To filter changes (Module 6). */
   onFilterChange(): void {
     if (this.id) {
+      this.visitsPage = 1;
       this.loadVisits(this.id);
     }
   }
