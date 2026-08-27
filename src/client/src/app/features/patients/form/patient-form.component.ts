@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PatientService } from '../../../core/patients/patient.service';
 import { PATIENT_GENDERS, Patient } from '../../../core/patients/patients.models';
+import { COUNTRY_CODES, getCountryCodeLength } from '../../../core/patients/country-codes';
 
 /**
  * Handles both create-mode (Add Patient, Increment 1) and edit-mode (Increment 2) in a single
@@ -28,6 +29,7 @@ export class PatientFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly genders = PATIENT_GENDERS;
+  readonly countryCodes = COUNTRY_CODES;
 
   readonly today = new Date().toISOString().substring(0, 10);
 
@@ -35,8 +37,21 @@ export class PatientFormComponent implements OnInit {
     fullName: ['', [Validators.required, Validators.maxLength(200)]],
     dateOfBirth: ['', [Validators.required]],
     gender: ['', [Validators.required]],
-    phoneNumber: ['', [Validators.required, Validators.maxLength(20)]]
+    countryCode: ['+91', [Validators.required]],
+    phoneNumber: ['', [Validators.required]]
   });
+
+  constructor() {
+    this.form.controls.countryCode.valueChanges.subscribe(() => this.applyPhoneNumberLengthValidator());
+    this.applyPhoneNumberLengthValidator();
+  }
+
+  private applyPhoneNumberLengthValidator(): void {
+    const { minLength, maxLength } = getCountryCodeLength(this.form.controls.countryCode.value);
+    const pattern = minLength === maxLength ? `^[0-9]{${minLength}}$` : `^[0-9]{${minLength},${maxLength}}$`;
+    this.form.controls.phoneNumber.setValidators([Validators.required, Validators.pattern(pattern)]);
+    this.form.controls.phoneNumber.updateValueAndValidity();
+  }
 
   id: string | null = null;
   isEditMode = false;
@@ -57,11 +72,13 @@ export class PatientFormComponent implements OnInit {
       this.patientService.getById(this.id).subscribe({
         next: (patient) => {
           this.loading = false;
+          const { countryCode, phoneNumber } = this.splitPhoneNumber(patient.phoneNumber);
           this.form.patchValue({
             fullName: patient.fullName,
             dateOfBirth: patient.dateOfBirth,
             gender: patient.gender,
-            phoneNumber: patient.phoneNumber
+            countryCode,
+            phoneNumber
           });
         },
         error: (err) => {
@@ -90,7 +107,7 @@ export class PatientFormComponent implements OnInit {
       fullName: raw.fullName,
       dateOfBirth: raw.dateOfBirth,
       gender: raw.gender as 'Male' | 'Female' | 'Other',
-      phoneNumber: raw.phoneNumber
+      phoneNumber: `${raw.countryCode}${raw.phoneNumber}`
     };
 
     const request$ =
@@ -110,6 +127,45 @@ export class PatientFormComponent implements OnInit {
         this.errorMessage = err?.error?.message ?? 'Could not save patient. Please check the form and try again.';
       }
     });
+  }
+
+  expectedPhoneLengthLabel(): string {
+    const { minLength, maxLength } = getCountryCodeLength(this.form.controls.countryCode.value);
+    return minLength === maxLength ? `${minLength} digits` : `${minLength}–${maxLength} digits`;
+  }
+
+  private splitPhoneNumber(stored: string): { countryCode: string; phoneNumber: string } {
+    const digitsAndPlus = stored.trim();
+    const match = [...this.countryCodes]
+      .sort((a, b) => b.dialCode.length - a.dialCode.length)
+      .find((c) => digitsAndPlus.startsWith(c.dialCode));
+
+    if (match) {
+      return { countryCode: match.dialCode, phoneNumber: digitsAndPlus.slice(match.dialCode.length).replace(/\D/g, '') };
+    }
+    return { countryCode: '+91', phoneNumber: digitsAndPlus.replace(/\D/g, '') };
+  }
+
+  blockNonDigit(event: KeyboardEvent): void {
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+    const navigationKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (navigationKeys.includes(event.key)) {
+      return;
+    }
+    if (!/^[0-9]$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  stripNonDigits(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const { maxLength } = getCountryCodeLength(this.form.controls.countryCode.value);
+    const digitsOnly = input.value.replace(/\D/g, '').slice(0, maxLength);
+    if (digitsOnly !== input.value) {
+      this.form.controls.phoneNumber.setValue(digitsOnly);
+    }
   }
 
   registerAnother(): void {

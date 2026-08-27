@@ -65,9 +65,34 @@
 
           <div class="field">
             <label for="phoneNumber">Phone number</label>
-            <input id="phoneNumber" type="tel" formControlName="phoneNumber" autocomplete="off" />
-            @if (form.controls.phoneNumber.invalid && form.controls.phoneNumber.touched) {
+            <div style="display: flex; align-items: stretch;">
+              <select
+                id="countryCode"
+                formControlName="countryCode"
+                aria-label="Country code"
+                style="border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; width: auto; flex: 0 0 auto; padding-right: 1.75rem;"
+              >
+                @for (country of countryCodes; track country.dialCode) {
+                  <option [value]="country.dialCode">{{ country.dialCode }} {{ country.name }}</option>
+                }
+              </select>
+              <input
+                id="phoneNumber"
+                type="tel"
+                inputmode="numeric"
+                formControlName="phoneNumber"
+                autocomplete="off"
+                maxlength="15"
+                style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                (keydown)="blockNonDigit($event)"
+                (input)="stripNonDigits($event)"
+              />
+            </div>
+            @if (form.controls.phoneNumber.errors?.['required'] && form.controls.phoneNumber.touched) {
               <div class="field-error">Phone number is required.</div>
+            }
+            @if (form.controls.phoneNumber.errors?.['pattern'] && form.controls.phoneNumber.touched) {
+              <div class="field-error">Enter a valid numeric phone number ({{ expectedPhoneLengthLabel() }}).</div>
             }
           </div>
 

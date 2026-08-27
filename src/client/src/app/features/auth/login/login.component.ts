@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -26,6 +26,11 @@ export class LoginComponent {
   submitting = false;
   errorMessage: string | null = null;
   sessionExpiredMessage: string | null = null;
+  readonly passwordVisible = signal(false);
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible.update((visible) => !visible);
+  }
 
   constructor() {
     const message = this.route.snapshot.queryParamMap.get('message');

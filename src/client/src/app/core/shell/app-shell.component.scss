@@ -3,7 +3,7 @@
 }
 
 .app-title {
-  @apply font-semibold text-lg text-slate-900;
+  @apply font-semibold text-lg text-slate-900 no-underline cursor-pointer;
 }
 
 .app-nav {

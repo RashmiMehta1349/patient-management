@@ -1,6 +1,6 @@
 @if (isAuthenticated()) {
   <header class="app-header">
-    <span class="app-title">Patient Management</span>
+    <a routerLink="/dashboard" class="app-title">Patient Management</a>
     <nav class="app-nav" aria-label="Primary">
       <a routerLink="/patients" routerLinkActive="active-tab" class="nav-tab">Patients</a>
       <a routerLink="/appointments" routerLinkActive="active-tab" class="nav-tab">Appointments</a>
