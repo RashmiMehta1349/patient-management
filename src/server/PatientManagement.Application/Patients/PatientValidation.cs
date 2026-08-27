@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace PatientManagement.Application.Patients;
 
@@ -10,7 +11,10 @@ namespace PatientManagement.Application.Patients;
 /// </summary>
 public static class PatientValidation
 {
-    public static List<string> Validate(string fullName, string dateOfBirth, string gender, string phoneNumber, DateTime utcNow, out DateOnly dob)
+    private static readonly Regex CountryCodePattern = new("^\\+[0-9]{1,4}$", RegexOptions.Compiled);
+    private static readonly Regex PhoneNumberPattern = new("^[0-9]{1,10}$", RegexOptions.Compiled);
+
+    public static List<string> Validate(string fullName, string dateOfBirth, string gender, string countryCode, string phoneNumber, DateTime utcNow, out DateOnly dob)
     {
         var errors = new List<string>();
         dob = default;
@@ -43,9 +47,22 @@ public static class PatientValidation
             errors.Add("Gender must be one of: Male, Female, Other.");
         }
 
+        if (string.IsNullOrWhiteSpace(countryCode))
+        {
+            errors.Add("Country code is required.");
+        }
+        else if (!CountryCodePattern.IsMatch(countryCode.Trim()))
+        {
+            errors.Add("Country code must be a valid dial code, e.g. +91.");
+        }
+
         if (string.IsNullOrWhiteSpace(phoneNumber))
         {
             errors.Add("Phone number is required.");
+        }
+        else if (!PhoneNumberPattern.IsMatch(phoneNumber.Trim()))
+        {
+            errors.Add("Phone number must be numeric and at most 10 digits.");
         }
 
         return errors;

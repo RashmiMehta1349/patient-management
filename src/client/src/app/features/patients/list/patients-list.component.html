@@ -43,7 +43,7 @@
               </td>
               <td>{{ patient.dateOfBirth }} ({{ patient.age }})</td>
               <td>{{ patient.gender }}</td>
-              <td>{{ patient.phoneNumber }}</td>
+              <td>{{ patient.countryCode }} {{ patient.phoneNumber }}</td>
               <td class="edit-col">
                 <a
                   [routerLink]="['/patients', patient.id, 'edit']"

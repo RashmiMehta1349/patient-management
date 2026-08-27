@@ -30,7 +30,8 @@ public class CreatePatientCommandTests
         FullName = "Jane Doe",
         DateOfBirth = "1990-05-15",
         Gender = "Female",
-        PhoneNumber = "555-123-4567"
+        CountryCode = "+91",
+        PhoneNumber = "9876543210"
     };
 
     [Fact]
@@ -91,6 +92,45 @@ public class CreatePatientCommandTests
         var handler = CreateHandler();
         var request = ValidRequest();
         request.PhoneNumber = "";
+
+        var result = await handler.HandleAsync(request);
+
+        Assert.False(result.Succeeded);
+        _patientRepository.Verify(r => r.AddAsync(It.IsAny<Patient>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task MissingCountryCode_ReturnsFailure()
+    {
+        var handler = CreateHandler();
+        var request = ValidRequest();
+        request.CountryCode = "";
+
+        var result = await handler.HandleAsync(request);
+
+        Assert.False(result.Succeeded);
+        _patientRepository.Verify(r => r.AddAsync(It.IsAny<Patient>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task PhoneNumberLongerThanTenDigits_ReturnsFailure()
+    {
+        var handler = CreateHandler();
+        var request = ValidRequest();
+        request.PhoneNumber = "12345678901";
+
+        var result = await handler.HandleAsync(request);
+
+        Assert.False(result.Succeeded);
+        _patientRepository.Verify(r => r.AddAsync(It.IsAny<Patient>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task NonNumericPhoneNumber_ReturnsFailure()
+    {
+        var handler = CreateHandler();
+        var request = ValidRequest();
+        request.PhoneNumber = "555-123-4";
 
         var result = await handler.HandleAsync(request);
 

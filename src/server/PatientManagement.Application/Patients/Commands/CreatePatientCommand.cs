@@ -28,7 +28,7 @@ public class CreatePatientCommandHandler
 
     public async Task<Result<PatientDto>> HandleAsync(CreatePatientRequestDto request, CancellationToken cancellationToken = default)
     {
-        var errors = PatientValidation.Validate(request.FullName, request.DateOfBirth, request.Gender, request.PhoneNumber, _dateTimeProvider.UtcNow, out var dateOfBirth);
+        var errors = PatientValidation.Validate(request.FullName, request.DateOfBirth, request.Gender, request.CountryCode, request.PhoneNumber, _dateTimeProvider.UtcNow, out var dateOfBirth);
         if (errors.Count > 0)
         {
             return Result<PatientDto>.Failure(string.Join(" ", errors));
@@ -40,6 +40,7 @@ public class CreatePatientCommandHandler
             FullName = request.FullName.Trim(),
             DateOfBirth = dateOfBirth,
             Gender = request.Gender.Trim(),
+            CountryCode = request.CountryCode.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
             CreatedAt = now,
             UpdatedAt = now
@@ -66,6 +67,7 @@ public class CreatePatientCommandHandler
             DateOfBirth = patient.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             Age = age,
             Gender = patient.Gender,
+            CountryCode = patient.CountryCode,
             PhoneNumber = patient.PhoneNumber,
             CreatedAt = patient.CreatedAt,
             UpdatedAt = patient.UpdatedAt

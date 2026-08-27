@@ -11,5 +11,9 @@ public class UpdatePatientRequestDto
     /// <summary>One of "Male", "Female", "Other".</summary>
     public string Gender { get; set; } = string.Empty;
 
+    /// <summary>International dial code, e.g. "+91".</summary>
+    public string CountryCode { get; set; } = string.Empty;
+
+    /// <summary>National number only (no dial code), max 10 digits.</summary>
     public string PhoneNumber { get; set; } = string.Empty;
 }

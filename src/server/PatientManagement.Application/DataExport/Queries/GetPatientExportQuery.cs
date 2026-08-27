@@ -90,7 +90,7 @@ public class GetPatientExportQueryHandler
             DateOfBirth = patient.DateOfBirth,
             Age = patient.Age,
             Gender = patient.Gender,
-            PhoneNumber = patient.PhoneNumber,
+            PhoneNumber = $"{patient.CountryCode}{patient.PhoneNumber}",
             RegisteredAt = patient.CreatedAt,
             VisitSummaries = visitSummaries,
             AppointmentSummaries = appointmentSummaries

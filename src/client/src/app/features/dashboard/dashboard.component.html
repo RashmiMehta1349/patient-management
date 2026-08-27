@@ -24,7 +24,7 @@
           <li class="recent-patient-item">
             <a [routerLink]="['/patients', patient.id]" class="recent-patient-link">
               <span class="recent-patient-name">{{ patient.fullName }}</span>
-              <span class="recent-patient-phone">{{ patient.phoneNumber }}</span>
+              <span class="recent-patient-phone">{{ patient.countryCode }} {{ patient.phoneNumber }}</span>
             </a>
           </li>
         }

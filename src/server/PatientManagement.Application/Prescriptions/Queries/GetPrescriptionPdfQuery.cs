@@ -51,7 +51,7 @@ public class GetPrescriptionPdfQueryHandler
             PatientName = patient.FullName,
             PatientGender = patient.Gender,
             PatientAge = age,
-            PatientPhoneNumber = patient.PhoneNumber,
+            PatientPhoneNumber = $"{patient.CountryCode}{patient.PhoneNumber}",
             VisitDate = visit.VisitDate,
             TemperatureValue = visit.TemperatureValue,
             TemperatureNotRecorded = visit.TemperatureNotRecorded,

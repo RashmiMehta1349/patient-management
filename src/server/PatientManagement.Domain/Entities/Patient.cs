@@ -22,7 +22,10 @@ public class Patient
     /// <summary>Fixed picklist: "Male", "Female", or "Other".</summary>
     public string Gender { get; set; } = string.Empty;
 
-    /// <summary>Required. Indexed for phone-based search (Increment 3). No uniqueness constraint.</summary>
+    /// <summary>Required. International dial code, e.g. "+91". Stored separately from PhoneNumber.</summary>
+    public string CountryCode { get; set; } = string.Empty;
+
+    /// <summary>Required. National number only (no dial code), max 10 digits. Indexed for phone-based search (Increment 3). No uniqueness constraint.</summary>
     public string PhoneNumber { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; }

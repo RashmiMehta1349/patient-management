@@ -32,7 +32,8 @@ public class UpdatePatientCommandTests
         FullName = "Jane Doe",
         DateOfBirth = new DateOnly(1990, 5, 15),
         Gender = "Female",
-        PhoneNumber = "555-123-4567",
+        CountryCode = "+91",
+        PhoneNumber = "9876543210",
         CreatedAt = OriginalUtc,
         UpdatedAt = OriginalUtc
     };
@@ -42,7 +43,8 @@ public class UpdatePatientCommandTests
         FullName = "Jane A. Doe",
         DateOfBirth = "1990-05-15",
         Gender = "Female",
-        PhoneNumber = "555-999-0000"
+        CountryCode = "+91",
+        PhoneNumber = "9999000000"
     };
 
     [Fact]
@@ -57,7 +59,7 @@ public class UpdatePatientCommandTests
 
         Assert.True(result.Succeeded);
         Assert.Equal("Jane A. Doe", result.Value!.FullName);
-        Assert.Equal("555-999-0000", result.Value.PhoneNumber);
+        Assert.Equal("9999000000", result.Value.PhoneNumber);
         Assert.Equal(id, result.Value.Id);
         Assert.True(patient.UpdatedAt > OriginalUtc);
         Assert.Equal(OriginalUtc, patient.CreatedAt);

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PatientManagement.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using PatientManagement.Infrastructure.Persistence;
 namespace PatientManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(PatientManagementDbContext))]
-    partial class PatientManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260827072106_AddCountryCodeToPatients")]
+    partial class AddCountryCodeToPatients
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

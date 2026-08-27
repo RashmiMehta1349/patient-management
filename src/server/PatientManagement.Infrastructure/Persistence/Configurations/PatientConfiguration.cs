@@ -24,9 +24,13 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
             .IsRequired()
             .HasMaxLength(20);
 
+        builder.Property(p => p.CountryCode)
+            .IsRequired()
+            .HasMaxLength(5);
+
         builder.Property(p => p.PhoneNumber)
             .IsRequired()
-            .HasMaxLength(20);
+            .HasMaxLength(10);
         builder.HasIndex(p => p.PhoneNumber);
 
         builder.Property(p => p.CreatedAt).IsRequired();

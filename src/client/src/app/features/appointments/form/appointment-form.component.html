@@ -51,7 +51,7 @@
                   @for (patient of patientResults; track patient.id) {
                     <li>
                       <button type="button" (click)="selectPatient(patient)">
-                        {{ patient.fullName }} — {{ patient.phoneNumber }}
+                        {{ patient.fullName }} — {{ patient.countryCode }} {{ patient.phoneNumber }}
                       </button>
                     </li>
                   }

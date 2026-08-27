@@ -6,6 +6,7 @@
 export interface RecentPatient {
   id: number;
   fullName: string;
+  countryCode: string;
   phoneNumber: string;
   /** ISO 8601 timestamp of when this patient was last recorded as viewed. */
   viewedAt: string;

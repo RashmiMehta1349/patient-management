@@ -189,6 +189,7 @@ export class PatientDetailComponent implements OnInit {
         this.recentPatientsService.record({
           id: patient.id,
           fullName: patient.fullName,
+          countryCode: patient.countryCode,
           phoneNumber: patient.phoneNumber
         });
       },

@@ -20,7 +20,7 @@
         <dt>Gender</dt>
         <dd>{{ patient.gender }}</dd>
         <dt>Phone</dt>
-        <dd>{{ patient.phoneNumber }}</dd>
+        <dd>{{ patient.countryCode }} {{ patient.phoneNumber }}</dd>
         <dt>Registered</dt>
         <dd>{{ patient.createdAt | date: 'medium' }}</dd>
       </dl>

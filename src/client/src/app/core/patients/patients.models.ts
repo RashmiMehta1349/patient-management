@@ -8,6 +8,9 @@ export interface CreatePatientRequest {
   /** ISO 8601 date string (yyyy-MM-dd), as produced by an HTML date input. */
   dateOfBirth: string;
   gender: PatientGender | '';
+  /** International dial code, e.g. "+91". Stored as its own DB column. */
+  countryCode: string;
+  /** National number only (no dial code), max 10 digits. */
   phoneNumber: string;
 }
 
@@ -29,6 +32,7 @@ export interface Patient {
   /** Computed server-side on read from dateOfBirth — never sent on create. */
   age: number;
   gender: PatientGender;
+  countryCode: string;
   phoneNumber: string;
   createdAt: string;
   updatedAt: string;

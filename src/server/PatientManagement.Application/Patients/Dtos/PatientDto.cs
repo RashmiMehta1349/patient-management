@@ -16,6 +16,8 @@ public class PatientDto
 
     public string Gender { get; set; } = string.Empty;
 
+    public string CountryCode { get; set; } = string.Empty;
+
     public string PhoneNumber { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; }

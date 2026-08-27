@@ -185,7 +185,8 @@ public class PatientsEndpointsTests : IDisposable
         Assert.NotNull(savedPatient);
         Assert.Equal("Jane Doe", savedPatient!.FullName);
         Assert.Equal("Female", savedPatient.Gender);
-        Assert.Equal("555-123-4567", savedPatient.PhoneNumber);
+        Assert.Equal("+91", savedPatient.CountryCode);
+        Assert.Equal("9876543210", savedPatient.PhoneNumber);
     }
 
     [Fact]
@@ -331,7 +332,8 @@ public class PatientsEndpointsTests : IDisposable
         fullName,
         dateOfBirth = "1990-05-15",
         gender = "Female",
-        phoneNumber = "555-123-4567"
+        countryCode = "+91",
+        phoneNumber = "9876543210"
     };
 
     private static object ValidPayload() => new
@@ -339,7 +341,8 @@ public class PatientsEndpointsTests : IDisposable
         fullName = "Jane Doe",
         dateOfBirth = "1990-05-15",
         gender = "Female",
-        phoneNumber = "555-123-4567"
+        countryCode = "+91",
+        phoneNumber = "9876543210"
     };
 
     private static async Task<string> LoginAndGetTokenAsync(HttpClient client)

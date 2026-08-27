@@ -33,7 +33,7 @@ public class UpdatePatientCommandHandler
         }
 
         var now = _dateTimeProvider.UtcNow;
-        var errors = PatientValidation.Validate(request.FullName, request.DateOfBirth, request.Gender, request.PhoneNumber, now, out var dateOfBirth);
+        var errors = PatientValidation.Validate(request.FullName, request.DateOfBirth, request.Gender, request.CountryCode, request.PhoneNumber, now, out var dateOfBirth);
         if (errors.Count > 0)
         {
             return Result<PatientDto>.Failure(string.Join(" ", errors));
@@ -42,6 +42,7 @@ public class UpdatePatientCommandHandler
         patient.FullName = request.FullName.Trim();
         patient.DateOfBirth = dateOfBirth;
         patient.Gender = request.Gender.Trim();
+        patient.CountryCode = request.CountryCode.Trim();
         patient.PhoneNumber = request.PhoneNumber.Trim();
         patient.UpdatedAt = now;
 

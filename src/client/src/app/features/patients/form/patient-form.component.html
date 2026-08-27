@@ -23,7 +23,7 @@
             <dt>Gender</dt>
             <dd>{{ createdPatient.gender }}</dd>
             <dt>Phone</dt>
-            <dd>{{ createdPatient.phoneNumber }}</dd>
+            <dd>{{ createdPatient.countryCode }} {{ createdPatient.phoneNumber }}</dd>
           </dl>
         </div>
         <button type="button" (click)="registerAnother()">Register another patient</button>
@@ -82,7 +82,7 @@
                 inputmode="numeric"
                 formControlName="phoneNumber"
                 autocomplete="off"
-                maxlength="15"
+                maxlength="10"
                 style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
                 (keydown)="blockNonDigit($event)"
                 (input)="stripNonDigits($event)"
@@ -92,7 +92,7 @@
               <div class="field-error">Phone number is required.</div>
             }
             @if (form.controls.phoneNumber.errors?.['pattern'] && form.controls.phoneNumber.touched) {
-              <div class="field-error">Enter a valid numeric phone number ({{ expectedPhoneLengthLabel() }}).</div>
+              <div class="field-error">Enter a valid numeric phone number (up to 10 digits).</div>
             }
           </div>
 
