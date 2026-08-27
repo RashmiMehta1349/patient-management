@@ -17,10 +17,4 @@ public class AuthOptions
 
     /// <summary>Access token lifetime in minutes (also drives the client inactivity timeout — A2/A4).</summary>
     public int AccessTokenLifetimeMinutes { get; set; } = 20;
-
-    /// <summary>Password reset token lifetime in minutes (A4).</summary>
-    public int ResetTokenLifetimeMinutes { get; set; } = 30;
-
-    /// <summary>Base URL used to build the reset-password link sent to the user.</summary>
-    public string ClientResetPasswordUrl { get; set; } = "http://localhost:4200/reset-password";
 }

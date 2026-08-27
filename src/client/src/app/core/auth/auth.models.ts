@@ -9,15 +9,6 @@ export interface LoginResponse {
   email: string;
 }
 
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  token: string;
-  newPassword: string;
-}
-
 export interface CurrentUser {
   id: number;
   email: string;

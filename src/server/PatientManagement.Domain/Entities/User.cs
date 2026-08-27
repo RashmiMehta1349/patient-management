@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace PatientManagement.Domain.Entities;
 
@@ -17,8 +16,8 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
 
     /// <summary>
-    /// Regenerated on password reset; embedded as a JWT claim and re-checked
-    /// on every request so previously issued tokens are invalidated.
+    /// Embedded as a JWT claim and re-checked on every request so a credential change
+    /// invalidates previously issued tokens.
     /// </summary>
     public string SecurityStamp { get; set; } = Guid.NewGuid().ToString("N");
 
@@ -29,6 +28,4 @@ public class User
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
-
-    public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
 }

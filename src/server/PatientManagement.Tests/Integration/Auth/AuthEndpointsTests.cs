@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -86,82 +85,6 @@ public class AuthEndpointsTests : IDisposable
         var response = await client.GetAsync("/api/auth/me");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task ForgotPassword_ThenResetPassword_ThenLoginWithNewPassword_RoundTripSucceeds()
-    {
-        var client = _factory.CreateClient();
-
-        var forgotResponse = await client.PostAsJsonAsync("/api/auth/forgot-password", new
-        {
-            email = AuthWebApplicationFactory.TestUserEmail
-        });
-        Assert.Equal(HttpStatusCode.OK, forgotResponse.StatusCode);
-
-        var rawToken = ExtractTokenFromLink(_factory.EmailSender.LastResetLink!);
-        const string newPassword = "BrandNewPassword456!";
-
-        var resetResponse = await client.PostAsJsonAsync("/api/auth/reset-password", new
-        {
-            token = rawToken,
-            newPassword
-        });
-        Assert.Equal(HttpStatusCode.OK, resetResponse.StatusCode);
-
-        // Old password no longer works.
-        var oldLogin = await client.PostAsJsonAsync("/api/auth/login", new
-        {
-            email = AuthWebApplicationFactory.TestUserEmail,
-            password = AuthWebApplicationFactory.TestUserPassword
-        });
-        Assert.Equal(HttpStatusCode.Unauthorized, oldLogin.StatusCode);
-
-        // New password works.
-        var newLogin = await client.PostAsJsonAsync("/api/auth/login", new
-        {
-            email = AuthWebApplicationFactory.TestUserEmail,
-            password = newPassword
-        });
-        Assert.Equal(HttpStatusCode.OK, newLogin.StatusCode);
-    }
-
-    [Fact]
-    public async Task PasswordReset_InvalidatesTokensIssuedBeforeReset()
-    {
-        var client = _factory.CreateClient();
-
-        var preResetToken = await LoginAndGetTokenAsync(client);
-
-        var forgotResponse = await client.PostAsJsonAsync("/api/auth/forgot-password", new
-        {
-            email = AuthWebApplicationFactory.TestUserEmail
-        });
-        Assert.Equal(HttpStatusCode.OK, forgotResponse.StatusCode);
-        var rawToken = ExtractTokenFromLink(_factory.EmailSender.LastResetLink!);
-
-        var resetResponse = await client.PostAsJsonAsync("/api/auth/reset-password", new
-        {
-            token = rawToken,
-            newPassword = "AnotherNewPassword789!"
-        });
-        Assert.Equal(HttpStatusCode.OK, resetResponse.StatusCode);
-
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", preResetToken);
-        var meResponse = await client.GetAsync("/api/auth/me");
-
-        Assert.Equal(HttpStatusCode.Unauthorized, meResponse.StatusCode);
-    }
-
-    private static string ExtractTokenFromLink(string resetLink)
-    {
-        var uri = new Uri(resetLink);
-        var tokenParam = uri.Query
-            .TrimStart('?')
-            .Split('&')
-            .Select(p => p.Split('=', 2))
-            .First(p => p[0] == "token");
-        return Uri.UnescapeDataString(tokenParam[1]);
     }
 
     [Fact]

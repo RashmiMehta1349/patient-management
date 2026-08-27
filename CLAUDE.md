@@ -55,4 +55,4 @@ When asked to build a module, follow this pipeline via the matching subagent rat
 
 ## Working conventions carried over from the prior scaffold
 
-The removed Module 1 implementation is recoverable via `git log`/`git show` on commits prior to `90e9910` for reference on UI/UX flow and API shape only (e.g., login/forgot/reset-password screens, auth guard/interceptor pattern) — not for server-side code, since that was Node/Express and the server is now .NET C#.
+The removed Module 1 implementation is recoverable via `git log`/`git show` on commits prior to `90e9910` for reference on UI/UX flow and API shape only (e.g., login screen, auth guard/interceptor pattern) — not for server-side code, since that was Node/Express and the server is now .NET C#.

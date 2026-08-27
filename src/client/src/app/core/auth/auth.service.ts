@@ -4,13 +4,7 @@ import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { RecentPatientsService } from '../patients/recent-patients.service';
-import {
-  CurrentUser,
-  ForgotPasswordRequest,
-  LoginRequest,
-  LoginResponse,
-  ResetPasswordRequest
-} from './auth.models';
+import { CurrentUser, LoginRequest, LoginResponse } from './auth.models';
 
 const TOKEN_STORAGE_KEY = 'pma_auth_token';
 
@@ -38,14 +32,6 @@ export class AuthService {
         this.isAuthenticated.set(true);
       })
     );
-  }
-
-  forgotPassword(request: ForgotPasswordRequest): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/auth/forgot-password`, request);
-  }
-
-  resetPassword(request: ResetPasswordRequest): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/auth/reset-password`, request);
   }
 
   me(): Observable<CurrentUser> {

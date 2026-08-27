@@ -12,8 +12,6 @@ public class PatientManagementDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
 
-    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
-
     public DbSet<Patient> Patients => Set<Patient>();
 
     public DbSet<Appointment> Appointments => Set<Appointment>();

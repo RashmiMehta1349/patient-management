@@ -45,15 +45,12 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<IVisitRepository, VisitRepository>();
 
         services.AddSingleton<IPasswordHasherService, PasswordHasherService>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
-        services.AddSingleton<IEmailSender, DevConsoleEmailSender>();
-        services.AddSingleton<IResetTokenGenerator, ResetTokenGenerator>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
         services.AddSingleton<IPrescriptionPdfGenerator, QuestPdfPrescriptionGenerator>();
         services.AddSingleton<IVisitExportPdfGenerator, QuestPdfVisitExportGenerator>();
@@ -61,8 +58,6 @@ public static class DependencyInjection
         services.AddSingleton<ICsvWriter, CsvExportWriter>();
 
         services.AddScoped<LoginCommandHandler>();
-        services.AddScoped<ForgotPasswordCommandHandler>();
-        services.AddScoped<ResetPasswordCommandHandler>();
         services.AddScoped<CreatePatientCommandHandler>();
         services.AddScoped<GetPatientByIdQueryHandler>();
         services.AddScoped<UpdatePatientCommandHandler>();

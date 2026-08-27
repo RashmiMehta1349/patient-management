@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using PatientManagement.Application.Auth.Commands;
 using PatientManagement.Application.Auth.Dtos;
 using PatientManagement.Application.Auth.Services;
-using PatientManagement.Infrastructure.Services;
 
 namespace PatientManagement.Api.Controllers;
 
@@ -16,19 +15,13 @@ namespace PatientManagement.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly LoginCommandHandler _loginHandler;
-    private readonly ForgotPasswordCommandHandler _forgotPasswordHandler;
-    private readonly ResetPasswordCommandHandler _resetPasswordHandler;
     private readonly IUserRepository _userRepository;
 
     public AuthController(
         LoginCommandHandler loginHandler,
-        ForgotPasswordCommandHandler forgotPasswordHandler,
-        ResetPasswordCommandHandler resetPasswordHandler,
         IUserRepository userRepository)
     {
         _loginHandler = loginHandler;
-        _forgotPasswordHandler = forgotPasswordHandler;
-        _resetPasswordHandler = resetPasswordHandler;
         _userRepository = userRepository;
     }
 
@@ -43,27 +36,6 @@ public class AuthController : ControllerBase
         }
 
         return Ok(result.Value);
-    }
-
-    [HttpPost("forgot-password")]
-    [AllowAnonymous]
-    public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto request, CancellationToken cancellationToken)
-    {
-        var message = await _forgotPasswordHandler.HandleAsync(request, cancellationToken);
-        return Ok(new { message });
-    }
-
-    [HttpPost("reset-password")]
-    [AllowAnonymous]
-    public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request, CancellationToken cancellationToken)
-    {
-        var result = await _resetPasswordHandler.HandleAsync(request, cancellationToken);
-        if (!result.Succeeded)
-        {
-            return BadRequest(new { message = result.Error });
-        }
-
-        return Ok(new { message = "Password has been reset successfully." });
     }
 
     [HttpGet("me")]

@@ -6,7 +6,6 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PatientManagement.Application.Auth.Services;
 using PatientManagement.Infrastructure.Persistence;
 using PatientManagement.Infrastructure.Seed;
 
@@ -23,8 +22,6 @@ public class AuthWebApplicationFactory : WebApplicationFactory<Program>
 
     private readonly SqliteConnection _connection = new("DataSource=:memory:");
 
-    public TestEmailSender EmailSender { get; } = new();
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         _connection.Open();
@@ -37,7 +34,6 @@ public class AuthWebApplicationFactory : WebApplicationFactory<Program>
             {
                 ["Auth:JwtSigningKey"] = "integration-test-signing-key-please-32chars-min",
                 ["Auth:AccessTokenLifetimeMinutes"] = "20",
-                ["Auth:ResetTokenLifetimeMinutes"] = "30",
                 ["Seed:UserEmail"] = TestUserEmail,
                 ["Seed:UserPassword"] = TestUserPassword
             });
@@ -65,13 +61,6 @@ public class AuthWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<PatientManagementDbContext>(options =>
                 options.UseSqlite(_connection));
-
-            var emailSenderDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IEmailSender));
-            if (emailSenderDescriptor is not null)
-            {
-                services.Remove(emailSenderDescriptor);
-            }
-            services.AddSingleton<IEmailSender>(EmailSender);
         });
     }
 

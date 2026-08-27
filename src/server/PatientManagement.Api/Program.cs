@@ -82,7 +82,7 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     // Every application endpoint requires a valid, unexpired, SecurityStamp-matching JWT by
-    // default; endpoints opt out explicitly via [AllowAnonymous] (login/forgot/reset only).
+    // default; endpoints opt out explicitly via [AllowAnonymous] (login only).
     options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();

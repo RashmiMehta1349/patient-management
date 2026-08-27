@@ -23,10 +23,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(64);
 
         builder.Property(u => u.CreatedAt).IsRequired();
-
-        builder.HasMany(u => u.PasswordResetTokens)
-            .WithOne(t => t.User)
-            .HasForeignKey(t => t.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

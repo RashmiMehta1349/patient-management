@@ -8,7 +8,7 @@ import { SearchWidgetComponent } from '../shared/search-widget/search-widget.com
 /**
  * Persistent header navigation shown on every authenticated screen (Increment 3 revision,
  * §9b.2). Renders nothing when there is no active session, so it never leaks the nav/logout
- * affordance onto login/forgot-password/reset-password. Owns the inactivity-timer start now
+ * affordance onto the login screen. Owns the inactivity-timer start now
  * that it — not DashboardComponent — is the component present on every authenticated screen
  * (single-owner decision per §9b.2, to avoid a double timer). Starts the timer reactively off
  * the isAuthenticated signal (not just on init) since AppShellComponent is mounted once at app
