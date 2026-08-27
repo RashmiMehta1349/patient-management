@@ -34,7 +34,7 @@ public class GetPatientExportQueryHandlerTests
         new(
             new GetPatientByIdQueryHandler(_patientRepository.Object, _dateTimeProvider.Object),
             new GetVisitsByPatientIdQueryHandler(_visitRepository.Object, _patientRepository.Object),
-            new GetAppointmentsByPatientIdQueryHandler(_appointmentRepository.Object, _patientRepository.Object));
+            new GetAppointmentsByPatientIdQueryHandler(_appointmentRepository.Object, _patientRepository.Object, _dateTimeProvider.Object));
 
     [Fact]
     public async Task UnknownPatient_ReturnsNull()

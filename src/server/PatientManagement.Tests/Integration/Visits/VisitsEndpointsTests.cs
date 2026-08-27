@@ -390,7 +390,8 @@ public class VisitsEndpointsTests : IDisposable
             fullName,
             dateOfBirth = "1990-05-15",
             gender = "Female",
-            phoneNumber = "555-123-4567"
+            countryCode = "+91",
+            phoneNumber = "9876543210"
         });
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
         return long.Parse(body.GetProperty("id").GetString()!);

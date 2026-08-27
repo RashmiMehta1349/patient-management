@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using PatientManagement.Application.Appointments.Dtos;
 using PatientManagement.Application.Appointments.Services;
+using PatientManagement.Application.Auth.Services;
 using PatientManagement.Application.Patients.Services;
 
 namespace PatientManagement.Application.Appointments.Queries;
@@ -15,11 +16,13 @@ public class GetAppointmentsByPatientIdQueryHandler
 {
     private readonly IAppointmentRepository _appointmentRepository;
     private readonly IPatientRepository _patientRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public GetAppointmentsByPatientIdQueryHandler(IAppointmentRepository appointmentRepository, IPatientRepository patientRepository)
+    public GetAppointmentsByPatientIdQueryHandler(IAppointmentRepository appointmentRepository, IPatientRepository patientRepository, IDateTimeProvider dateTimeProvider)
     {
         _appointmentRepository = appointmentRepository;
         _patientRepository = patientRepository;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<IReadOnlyList<AppointmentDto>> HandleAsync(long patientId, CancellationToken cancellationToken = default)
@@ -28,6 +31,18 @@ public class GetAppointmentsByPatientIdQueryHandler
         if (appointments.Count == 0)
         {
             return new List<AppointmentDto>();
+        }
+
+        var now = _dateTimeProvider.UtcNow;
+        var today = DateOnly.FromDateTime(now);
+        foreach (var appointment in appointments)
+        {
+            if (AppointmentAutoStatus.ShouldAutoNoShow(appointment, today))
+            {
+                appointment.Status = AppointmentStatuses.NoShow;
+                appointment.UpdatedAt = now;
+                await _appointmentRepository.UpdateAsync(appointment, cancellationToken);
+            }
         }
 
         var patient = await _patientRepository.GetByIdAsync(patientId, cancellationToken);

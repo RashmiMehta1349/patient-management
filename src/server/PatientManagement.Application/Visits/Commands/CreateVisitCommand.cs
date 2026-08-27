@@ -85,6 +85,11 @@ public class CreateVisitCommandHandler
             {
                 return Result<VisitDto>.Failure("Appointment does not belong to the specified patient.");
             }
+
+            if (AppointmentAutoStatus.ShouldAutoNoShow(appointment, DateOnly.FromDateTime(_dateTimeProvider.UtcNow)))
+            {
+                return Result<VisitDto>.Failure("Cannot start a consultation for a past appointment date. Mark it as No Show instead.");
+            }
         }
 
         var now = _dateTimeProvider.UtcNow;

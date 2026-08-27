@@ -132,7 +132,7 @@ public class CreateVisitCommandTests
     public async Task LinkedAppointment_AutoCompletesAppointment()
     {
         var appointmentId = Random.Shared.NextInt64(1, long.MaxValue);
-        var appointment = new Appointment { Id = appointmentId, PatientId = ExistingPatientId, Status = "Scheduled" };
+        var appointment = new Appointment { Id = appointmentId, PatientId = ExistingPatientId, Status = "Scheduled", AppointmentDate = DateOnly.FromDateTime(FixedUtcNow) };
         _appointmentRepository
             .Setup(r => r.GetByIdAsync(appointmentId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(appointment);
@@ -145,6 +145,26 @@ public class CreateVisitCommandTests
         Assert.True(result.Succeeded);
         Assert.Equal("Completed", appointment.Status);
         _appointmentRepository.Verify(r => r.UpdateAsync(appointment, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task LinkedAppointmentInThePastAndStillScheduled_ReturnsFailure()
+    {
+        var appointmentId = Random.Shared.NextInt64(1, long.MaxValue);
+        var appointment = new Appointment { Id = appointmentId, PatientId = ExistingPatientId, Status = "Scheduled", AppointmentDate = DateOnly.FromDateTime(FixedUtcNow).AddDays(-1) };
+        _appointmentRepository
+            .Setup(r => r.GetByIdAsync(appointmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(appointment);
+        var handler = CreateHandler();
+        var request = ValidRequest();
+        request.AppointmentId = appointmentId;
+
+        var result = await handler.HandleAsync(request);
+
+        Assert.False(result.Succeeded);
+        Assert.False(result.IsNotFound);
+        _visitRepository.Verify(r => r.AddAsync(It.IsAny<Visit>(), It.IsAny<CancellationToken>()), Times.Never);
+        _appointmentRepository.Verify(r => r.UpdateAsync(It.IsAny<Appointment>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

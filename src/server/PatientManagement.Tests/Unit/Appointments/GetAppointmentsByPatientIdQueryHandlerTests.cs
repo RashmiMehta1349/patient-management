@@ -6,6 +6,7 @@ using Moq;
 using PatientManagement.Application.Appointments;
 using PatientManagement.Application.Appointments.Queries;
 using PatientManagement.Application.Appointments.Services;
+using PatientManagement.Application.Auth.Services;
 using PatientManagement.Application.Patients.Services;
 using PatientManagement.Domain.Entities;
 using Xunit;
@@ -16,8 +17,16 @@ public class GetAppointmentsByPatientIdQueryHandlerTests
 {
     private readonly Mock<IAppointmentRepository> _appointmentRepository = new();
     private readonly Mock<IPatientRepository> _patientRepository = new();
+    private readonly Mock<IDateTimeProvider> _dateTimeProvider = new();
 
-    private GetAppointmentsByPatientIdQueryHandler CreateHandler() => new(_appointmentRepository.Object, _patientRepository.Object);
+    private static readonly DateTime FixedUtcNow = new(2026, 8, 27, 12, 0, 0, DateTimeKind.Utc);
+
+    public GetAppointmentsByPatientIdQueryHandlerTests()
+    {
+        _dateTimeProvider.Setup(d => d.UtcNow).Returns(FixedUtcNow);
+    }
+
+    private GetAppointmentsByPatientIdQueryHandler CreateHandler() => new(_appointmentRepository.Object, _patientRepository.Object, _dateTimeProvider.Object);
 
     [Fact]
     public async Task ReturnsOnlyThatPatientsAppointments()
