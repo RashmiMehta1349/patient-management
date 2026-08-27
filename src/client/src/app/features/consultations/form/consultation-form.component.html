@@ -1,145 +1,226 @@
-<div class="page">
-  <div class="card">
+<div class="p-6 sm:p-8 lg:p-10 bg-slate-50">
+  <div class="max-w-5xl mx-auto bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
     @if (loading) {
-      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-5">{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
       <p role="status">Loading…</p>
     } @else if (notFound) {
-      <h1>Edit Consultation</h1>
-      <div class="banner banner-error" role="alert">Consultation not found.</div>
-      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-5">Edit Consultation</h1>
+      <div class="rounded-xl px-4 py-3 mb-5 text-sm font-medium bg-red-50 text-red-700 border border-red-100" role="alert">Consultation not found.</div>
+      <a class="text-slate-500 text-sm font-medium no-underline hover:text-slate-700" routerLink="/dashboard">Back to dashboard</a>
     } @else if (loadError) {
-      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
-      <div class="banner banner-error" role="alert">Could not load data. Please try again.</div>
-      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-5">{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+      <div class="rounded-xl px-4 py-3 mb-5 text-sm font-medium bg-red-50 text-red-700 border border-red-100" role="alert">Could not load data. Please try again.</div>
+      <a class="text-slate-500 text-sm font-medium no-underline hover:text-slate-700" routerLink="/dashboard">Back to dashboard</a>
     } @else if (savedVisit) {
-      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
-      <div class="banner banner-success" role="status">
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-5">{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+      <div class="rounded-xl px-4 py-3 mb-5 text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-100" role="status">
         <p>Consultation for <strong>{{ savedVisit.patientName }}</strong> saved.</p>
       </div>
-      <div class="actions">
-        <a [routerLink]="backLink()">Back to patient</a>
-        <button type="button" class="print-link" (click)="printPrescription(savedVisit.id)" [disabled]="printing">
+      <div class="flex items-center gap-4">
+        <a class="text-[#2c4568] text-sm font-medium no-underline hover:text-[#1e3a5f] hover:underline" [routerLink]="backLink()">Back to patient</a>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white text-slate-700 py-2.5 px-5 text-sm font-medium shadow-sm cursor-pointer transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white"
+          (click)="printPrescription(savedVisit.id)"
+          [disabled]="printing"
+        >
           {{ printing ? 'Preparing…' : 'Print Prescription' }}
         </button>
       </div>
       @if (printError) {
-        <div class="banner banner-error" role="alert">Could not generate prescription PDF. Please try again.</div>
+        <div class="rounded-xl px-4 py-3 mt-5 text-sm font-medium bg-red-50 text-red-700 border border-red-100" role="alert">Could not generate prescription PDF. Please try again.</div>
       }
     } @else {
-      <h1>{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-5">{{ isEditMode ? 'Edit Consultation' : 'New Consultation' }}</h1>
 
       @if (patient) {
-        <p class="patient-context">
-          Patient: <strong>{{ patient.fullName }}</strong>
+        <p class="mb-6 text-slate-600 text-sm">
+          Patient: <strong class="text-slate-900 font-semibold">{{ patient.fullName }}</strong>
           @if (isWalkIn) {
-            <span class="walk-in-badge">Walk-in</span>
+            <span class="ml-2 py-0.5 px-2.5 rounded-full bg-amber-50 text-amber-700 border border-amber-100 text-xs font-medium align-middle">Walk-in</span>
           }
         </p>
       }
 
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex flex-col gap-6">
         @if (errorMessage) {
-          <div class="banner banner-error" role="alert">{{ errorMessage }}</div>
+          <div class="rounded-xl px-4 py-3 text-sm font-medium bg-red-50 text-red-700 border border-red-100" role="alert">{{ errorMessage }}</div>
         }
 
-        <fieldset class="vital-row" [class.invalid]="showVitalsValidation && !isTemperatureAddressed">
-          <legend>Temperature *</legend>
-          <input
-            type="number"
-            step="0.1"
-            formControlName="temperatureValue"
-            placeholder="e.g. 98.6"
-            aria-label="Temperature value"
-          />
-          <label class="not-recorded-toggle">
-            <input type="checkbox" formControlName="temperatureNotRecorded" />
-            Not recorded
-          </label>
-          @if (showVitalsValidation && !isTemperatureAddressed) {
-            <div class="field-error">Enter a value or check "Not recorded".</div>
-          }
-        </fieldset>
+        <div>
+          <h2 class="text-lg sm:text-xl font-semibold text-slate-900 mb-4">Vitals</h2>
+          <div class="flex flex-col gap-4">
+            <fieldset class="flex flex-wrap items-center gap-4 border-0 p-0 m-0">
+              <legend class="w-36 font-medium text-slate-700 p-0 text-sm">Temperature *</legend>
+              <input
+                type="number"
+                step="0.1"
+                formControlName="temperatureValue"
+                placeholder="e.g. 98.6"
+                aria-label="Temperature value"
+                [class]="'flex-1 rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showVitalsValidation && !isTemperatureAddressed ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <label class="flex items-center gap-2 whitespace-nowrap text-sm text-slate-600">
+                <input type="checkbox" formControlName="temperatureNotRecorded" class="rounded border-slate-300 text-[#2c4568] focus:ring-[#3d5a80]" />
+                Not recorded
+              </label>
+              @if (showVitalsValidation && !isTemperatureAddressed) {
+                <div class="basis-full text-red-600 text-xs ml-36">Enter a value or check "Not recorded".</div>
+              }
+            </fieldset>
 
-        <fieldset class="vital-row" [class.invalid]="showVitalsValidation && !isBloodPressureAddressed">
-          <legend>Blood Pressure *</legend>
-          <input
-            type="text"
-            formControlName="bloodPressureValue"
-            placeholder="e.g. 120/80"
-            aria-label="Blood pressure value"
-          />
-          <label class="not-recorded-toggle">
-            <input type="checkbox" formControlName="bloodPressureNotRecorded" />
-            Not recorded
-          </label>
-          @if (showVitalsValidation && !isBloodPressureAddressed) {
-            <div class="field-error">Enter a value or check "Not recorded".</div>
-          }
-        </fieldset>
+            <fieldset class="flex flex-wrap items-center gap-4 border-0 p-0 m-0">
+              <legend class="w-36 font-medium text-slate-700 p-0 text-sm">Blood Pressure *</legend>
+              <input
+                type="text"
+                formControlName="bloodPressureValue"
+                placeholder="e.g. 120/80"
+                aria-label="Blood pressure value"
+                [class]="'flex-1 rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showVitalsValidation && !isBloodPressureAddressed ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <label class="flex items-center gap-2 whitespace-nowrap text-sm text-slate-600">
+                <input type="checkbox" formControlName="bloodPressureNotRecorded" class="rounded border-slate-300 text-[#2c4568] focus:ring-[#3d5a80]" />
+                Not recorded
+              </label>
+              @if (showVitalsValidation && !isBloodPressureAddressed) {
+                <div class="basis-full text-red-600 text-xs ml-36">Enter a value or check "Not recorded".</div>
+              }
+            </fieldset>
 
-        <fieldset class="vital-row" [class.invalid]="showVitalsValidation && !isPulseAddressed">
-          <legend>Pulse *</legend>
-          <input
-            type="number"
-            formControlName="pulseValue"
-            placeholder="e.g. 72"
-            aria-label="Pulse value"
-          />
-          <label class="not-recorded-toggle">
-            <input type="checkbox" formControlName="pulseNotRecorded" />
-            Not recorded
-          </label>
-          @if (showVitalsValidation && !isPulseAddressed) {
-            <div class="field-error">Enter a value or check "Not recorded".</div>
-          }
-        </fieldset>
-
-        <div class="field">
-          <label for="complaints">Complaints</label>
-          <textarea id="complaints" formControlName="complaints" rows="3"></textarea>
+            <fieldset class="flex flex-wrap items-center gap-4 border-0 p-0 m-0">
+              <legend class="w-36 font-medium text-slate-700 p-0 text-sm">Pulse *</legend>
+              <input
+                type="number"
+                formControlName="pulseValue"
+                placeholder="e.g. 72"
+                aria-label="Pulse value"
+                [class]="'flex-1 rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showVitalsValidation && !isPulseAddressed ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <label class="flex items-center gap-2 whitespace-nowrap text-sm text-slate-600">
+                <input type="checkbox" formControlName="pulseNotRecorded" class="rounded border-slate-300 text-[#2c4568] focus:ring-[#3d5a80]" />
+                Not recorded
+              </label>
+              @if (showVitalsValidation && !isPulseAddressed) {
+                <div class="basis-full text-red-600 text-xs ml-36">Enter a value or check "Not recorded".</div>
+              }
+            </fieldset>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="diagnosis">Diagnosis</label>
-          <textarea id="diagnosis" formControlName="diagnosis" rows="3"></textarea>
+        <div class="border-t border-slate-100 pt-6">
+          <label for="complaints" class="block font-medium text-slate-700 mb-2 text-sm">Complaints</label>
+          <textarea
+            id="complaints"
+            formControlName="complaints"
+            rows="3"
+            class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+          ></textarea>
         </div>
 
-        <fieldset class="medications-section" formArrayName="medications">
-          <legend>Medications</legend>
+        <div class="border-t border-slate-100 pt-6">
+          <label for="diagnosis" class="block font-medium text-slate-700 mb-2 text-sm">Diagnosis</label>
+          <textarea
+            id="diagnosis"
+            formControlName="diagnosis"
+            rows="3"
+            class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+          ></textarea>
+        </div>
+
+        <fieldset class="border-0 p-0 m-0 border-t border-slate-100 pt-6" formArrayName="medications">
+          <legend class="text-lg sm:text-xl font-semibold text-slate-900 p-0 mb-4">Medications</legend>
 
           @if (medications.controls.length > 0) {
-            <div class="medication-row medication-row-header" aria-hidden="true">
-              <span>Name</span>
-              <span>Dosage</span>
-              <span>Frequency</span>
-              <span>Duration</span>
-              <span>Instructions</span>
+            <div
+              class="grid gap-3 mb-2 items-center grid-cols-[1.1fr_0.8fr_0.9fr_0.8fr_1.6fr_auto] max-[720px]:hidden"
+              aria-hidden="true"
+            >
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Name</span>
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Dosage</span>
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Frequency</span>
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Duration</span>
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Instructions</span>
               <span></span>
             </div>
           }
 
           @for (row of medications.controls; track row; let i = $index) {
-            <div class="medication-row" [formGroupName]="i" [class.invalid]="showMedicationValidation && isMedicationRowIncomplete(i)">
-              <input type="text" formControlName="name" placeholder="Name" aria-label="Medicine name" maxlength="200" />
-              <input type="text" formControlName="dosage" placeholder="Dosage" aria-label="Dosage" maxlength="100" />
-              <input type="text" formControlName="frequency" placeholder="Frequency" aria-label="Frequency" maxlength="100" />
-              <input type="text" formControlName="duration" placeholder="Duration" aria-label="Duration" maxlength="100" />
-              <input type="text" formControlName="instructions" placeholder="Instructions" aria-label="Instructions" maxlength="500" />
-              <button type="button" class="remove-row" (click)="removeMedicationRow(i)" aria-label="Remove medicine">Remove</button>
+            <div
+              class="grid gap-3 mb-3 items-center grid-cols-[1.1fr_0.8fr_0.9fr_0.8fr_1.6fr_auto] max-[720px]:grid-cols-1 max-[720px]:gap-2 max-[720px]:p-4 max-[720px]:border max-[720px]:border-slate-200 max-[720px]:rounded-xl max-[720px]:mb-3"
+              [formGroupName]="i"
+            >
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="Name"
+                aria-label="Medicine name"
+                maxlength="200"
+                [class]="'w-full box-border rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showMedicationValidation && isMedicationRowIncomplete(i) ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <input
+                type="text"
+                formControlName="dosage"
+                placeholder="Dosage"
+                aria-label="Dosage"
+                maxlength="100"
+                [class]="'w-full box-border rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showMedicationValidation && isMedicationRowIncomplete(i) ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <input
+                type="text"
+                formControlName="frequency"
+                placeholder="Frequency"
+                aria-label="Frequency"
+                maxlength="100"
+                [class]="'w-full box-border rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showMedicationValidation && isMedicationRowIncomplete(i) ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <input
+                type="text"
+                formControlName="duration"
+                placeholder="Duration"
+                aria-label="Duration"
+                maxlength="100"
+                [class]="'w-full box-border rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showMedicationValidation && isMedicationRowIncomplete(i) ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <input
+                type="text"
+                formControlName="instructions"
+                placeholder="Instructions"
+                aria-label="Instructions"
+                maxlength="500"
+                [class]="'w-full box-border rounded-xl border px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 ' + (showMedicationValidation && isMedicationRowIncomplete(i) ? 'border-red-300 ring-1 ring-red-100 focus:ring-red-400 focus:border-red-400' : 'border-slate-300 focus:ring-[#3d5a80] focus:border-[#3d5a80]')"
+              />
+              <button
+                type="button"
+                class="whitespace-nowrap text-sm text-slate-400 font-medium hover:text-red-600 transition-colors max-[720px]:justify-self-start"
+                (click)="removeMedicationRow(i)"
+                aria-label="Remove medicine"
+              >
+                Remove
+              </button>
               @if (showMedicationValidation && isMedicationRowIncomplete(i)) {
-                <div class="field-error">Complete all 5 fields for this medicine, or remove the row.</div>
+                <div class="text-red-600 text-xs col-span-full">Complete all 5 fields for this medicine, or remove the row.</div>
               }
             </div>
           }
 
-          <button type="button" class="add-row" (click)="addMedicationRow()">+ Add Medicine</button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-[#2c4568] transition-colors hover:bg-[#eef2f9] hover:border-[#93abc9] mt-1"
+            (click)="addMedicationRow()"
+          >
+            + Add Medicine
+          </button>
         </fieldset>
 
-        <div class="actions">
-          <button type="submit" [disabled]="submitting">
+        <div class="flex items-center gap-4 border-t border-slate-100 pt-6">
+          <button
+            type="submit"
+            [disabled]="submitting"
+            class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2c4568] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-[#2c4568]"
+          >
             {{ submitting ? 'Saving…' : 'Save consultation' }}
           </button>
-          <a class="back-link" [routerLink]="backLink()">Cancel</a>
+          <a class="text-slate-500 text-sm font-medium no-underline hover:text-slate-700" [routerLink]="backLink()">Cancel</a>
         </div>
       </form>
     }

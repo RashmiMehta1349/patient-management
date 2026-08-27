@@ -15,7 +15,8 @@ describe('SearchWidgetComponent', () => {
     dateOfBirth: '1990-05-15',
     age: 36,
     gender: 'Female',
-    phoneNumber: '555-123-4567',
+    countryCode: '+91',
+    phoneNumber: '9876543210',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   });
@@ -77,7 +78,7 @@ describe('SearchWidgetComponent', () => {
     spyOn(patientService, 'list').and.returnValue(of(pagedResult([makePatient(1, 'Amy Baker')], 1)));
     const recentPatientsService = TestBed.inject(RecentPatientsService);
     spyOn(recentPatientsService, 'list').and.returnValue([
-      { id: 2, fullName: 'Zack Adams', phoneNumber: '555-000-0002', viewedAt: new Date().toISOString() }
+      { id: 2, fullName: 'Zack Adams', countryCode: '+91', phoneNumber: '5550002', viewedAt: new Date().toISOString() }
     ]);
 
     const fixture = TestBed.createComponent(SearchWidgetComponent);

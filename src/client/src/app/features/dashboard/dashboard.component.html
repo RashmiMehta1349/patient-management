@@ -1,30 +1,74 @@
-<main class="dashboard-content">
-  <h1>Dashboard</h1>
-  <p>You are signed in.</p>
-  @if (currentUser) {
-    <p class="user-email">{{ currentUser.email }}</p>
-  }
+<main class="px-6 py-10 sm:px-8 lg:px-10 max-w-5xl mx-auto">
+  <div class="flex items-center gap-3">
+    <span class="h-11 w-11 rounded-xl bg-[#eef2f9] border border-[#dbe4f3] flex items-center justify-center shrink-0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#2c4568]">
+        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+    </span>
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+      <p class="text-sm text-slate-500">
+        You are signed in
+        @if (currentUser) {
+          as <span class="font-medium text-slate-700">{{ currentUser.email }}</span>
+        }
+      </p>
+    </div>
+  </div>
 
-  <section class="walk-in-section">
-    <h2>Walk-in Patient</h2>
-    <p class="walk-in-hint">Patient arrived without an appointment? Find them or register them, then start the consultation directly.</p>
-    <div class="walk-in-actions">
-      <a routerLink="/patients" class="walk-in-button walk-in-button-primary">Find Patient</a>
-      <a routerLink="/patients/new" class="walk-in-button">+ Register New Patient</a>
+  <section class="mt-8 max-w-2xl px-6 py-6 sm:px-8 sm:py-8 border border-slate-200 rounded-2xl bg-white shadow-sm">
+    <div class="flex items-start gap-4">
+      <span class="h-10 w-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-600">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </span>
+      <div>
+        <h2 class="text-lg sm:text-xl font-semibold text-slate-900">Walk-in Patient</h2>
+        <p class="mt-1.5 mb-0 text-sm text-slate-500 leading-relaxed">Patient arrived without an appointment? Find them or register them, then start the consultation directly.</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap gap-3 mt-6">
+      <a
+        routerLink="/patients"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2c4568] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors no-underline hover:bg-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:ring-offset-2"
+      >
+        Find Patient
+      </a>
+      <a
+        routerLink="/patients/new"
+        class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors no-underline hover:bg-slate-50 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3d5a80]"
+      >
+        + Register New Patient
+      </a>
     </div>
   </section>
 
-  <section class="recent-patients-section">
-    <h2>Recently Viewed Patients</h2>
+  <section class="mt-10 max-w-2xl border-t border-slate-100 pt-8">
+    <div class="flex items-center gap-2.5 mb-4">
+      <span class="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </span>
+      <h2 class="text-lg sm:text-xl font-semibold text-slate-900">Recently Viewed Patients</h2>
+    </div>
     @if (recentPatients.length === 0) {
-      <p class="empty-state">No recently viewed patients yet.</p>
+      <p class="empty-state text-center py-10 text-sm text-slate-500 border border-dashed border-slate-200 rounded-2xl">No recently viewed patients yet.</p>
     } @else {
-      <ul class="recent-patients-list">
+      <ul class="recent-patients-list list-none m-0 p-0 flex flex-col gap-2.5">
         @for (patient of recentPatients; track patient.id) {
-          <li class="recent-patient-item">
-            <a [routerLink]="['/patients', patient.id]" class="recent-patient-link">
-              <span class="recent-patient-name">{{ patient.fullName }}</span>
-              <span class="recent-patient-phone">{{ patient.countryCode }} {{ patient.phoneNumber }}</span>
+          <li class="border border-slate-200 rounded-xl bg-white transition-all hover:border-slate-300 hover:shadow-sm">
+            <a [routerLink]="['/patients', patient.id]" class="recent-patient-link flex items-center justify-between py-4 px-5 no-underline text-slate-900 text-sm">
+              <span class="recent-patient-name font-medium">{{ patient.fullName }}</span>
+              <span class="text-slate-500 text-sm">{{ patient.countryCode }} {{ patient.phoneNumber }}</span>
             </a>
           </li>
         }

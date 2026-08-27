@@ -1,39 +1,51 @@
-<div class="page">
-  <div class="card">
+<div class="min-h-screen flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8 bg-slate-50">
+  <div class="w-full max-w-2xl box-border flex flex-col gap-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
     @if (loading) {
-      <h1>Edit Appointment</h1>
-      <p role="status">Loading appointment…</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">Edit Appointment</h1>
+      <p role="status" class="text-sm text-slate-500">Loading appointment…</p>
     } @else if (notFound) {
-      <h1>Edit Appointment</h1>
-      <div class="banner banner-error" role="alert">Appointment not found.</div>
-      <a class="back-link" routerLink="/appointments">Back to appointments</a>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">Edit Appointment</h1>
+      <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-red-50 text-red-700 border border-red-100" role="alert">Appointment not found.</div>
+      <a class="text-sm text-[#2c4568] font-medium no-underline hover:text-[#1e3a5f] hover:underline" routerLink="/appointments">Back to appointments</a>
     } @else if (loadError) {
-      <h1>Edit Appointment</h1>
-      <div class="banner banner-error" role="alert">Could not load data. Please try again.</div>
-      <a class="back-link" routerLink="/appointments">Back to appointments</a>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">Edit Appointment</h1>
+      <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-red-50 text-red-700 border border-red-100" role="alert">Could not load data. Please try again.</div>
+      <a class="text-sm text-[#2c4568] font-medium no-underline hover:text-[#1e3a5f] hover:underline" routerLink="/appointments">Back to appointments</a>
     } @else {
-      <h1>{{ isEditMode ? 'Edit Appointment' : 'Schedule Appointment' }}</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">{{ isEditMode ? 'Edit Appointment' : 'Schedule Appointment' }}</h1>
 
       @if (savedAppointment) {
-        <div class="banner banner-success" role="status">
+        <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-emerald-50 text-emerald-700 border border-emerald-100" role="status">
           <p>Appointment for <strong>{{ savedAppointment.patientName }}</strong> scheduled for
             {{ savedAppointment.appointmentDate }} at {{ savedAppointment.appointmentTime }}.</p>
         </div>
-        <button type="button" (click)="scheduleAnother()">Schedule another appointment</button>
-        <a class="back-link" routerLink="/appointments">Back to appointments</a>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2c4568] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:ring-offset-2"
+          (click)="scheduleAnother()"
+        >
+          Schedule another appointment
+        </button>
+        <a class="text-sm text-[#2c4568] font-medium no-underline hover:text-[#1e3a5f] hover:underline mt-1" routerLink="/appointments">Back to appointments</a>
       } @else {
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <form class="flex flex-col gap-6" [formGroup]="form" (ngSubmit)="submit()" novalidate>
           @if (errorMessage) {
-            <div class="banner banner-error" role="alert">{{ errorMessage }}</div>
+            <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-red-50 text-red-700 border border-red-100" role="alert">{{ errorMessage }}</div>
           }
 
-          <div class="field">
-            <label for="patientSearch">Patient</label>
+          <div class="flex flex-col gap-2 relative">
+            <label for="patientSearch" class="text-sm font-medium text-slate-700">Patient</label>
             @if (selectedPatient) {
-              <div class="selected-patient">
-                <span>{{ selectedPatient.fullName }}</span>
+              <div class="flex items-center justify-between px-4 py-3 border border-slate-200 rounded-xl bg-slate-50">
+                <span class="text-sm text-slate-900">{{ selectedPatient.fullName }}</span>
                 @if (!patientLocked) {
-                  <button type="button" class="clear-patient" (click)="clearSelectedPatient()">Change</button>
+                  <button
+                    type="button"
+                    class="text-xs font-medium bg-white text-[#2c4568] px-2.5 py-1.5 border border-slate-300 rounded-lg transition-colors hover:bg-[#eef2f9] hover:border-[#93abc9]"
+                    (click)="clearSelectedPatient()"
+                  >
+                    Change
+                  </button>
                 }
               </div>
             } @else {
@@ -45,12 +57,17 @@
                 [ngModelOptions]="{ standalone: true }"
                 (ngModelChange)="onPatientSearchChange($event)"
                 autocomplete="off"
+                class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
               />
               @if (patientResults.length > 0) {
-                <ul class="patient-results">
+                <ul class="absolute top-full left-0 right-0 z-10 list-none overflow-y-auto mt-1.5 py-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-[220px]">
                   @for (patient of patientResults; track patient.id) {
                     <li>
-                      <button type="button" (click)="selectPatient(patient)">
+                      <button
+                        type="button"
+                        class="w-full text-left text-slate-900 border-0 text-sm px-3.5 py-2.5 bg-white transition-colors hover:bg-[#eef2f9]"
+                        (click)="selectPatient(patient)"
+                      >
                         {{ patient.fullName }} — {{ patient.countryCode }} {{ patient.phoneNumber }}
                       </button>
                     </li>
@@ -58,37 +75,57 @@
                 </ul>
               }
               @if (patientTouched && !selectedPatient) {
-                <div class="field-error">Patient is required.</div>
+                <div class="text-xs font-medium text-red-600 mt-1">Patient is required.</div>
               }
             }
           </div>
 
-          <div class="field">
-            <label for="appointmentDate">Date</label>
-            <input id="appointmentDate" type="date" formControlName="appointmentDate" [attr.min]="minDate" />
+          <div class="flex flex-col gap-2 relative">
+            <label for="appointmentDate" class="text-sm font-medium text-slate-700">Date</label>
+            <input
+              id="appointmentDate"
+              type="date"
+              formControlName="appointmentDate"
+              [attr.min]="minDate"
+              class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+            />
             @if (form.controls.appointmentDate.invalid && form.controls.appointmentDate.touched) {
-              <div class="field-error">Date is required.</div>
+              <div class="text-xs font-medium text-red-600 mt-1">Date is required.</div>
             }
           </div>
 
-          <div class="field">
-            <label for="appointmentTime">Time</label>
-            <input id="appointmentTime" type="time" formControlName="appointmentTime" />
+          <div class="flex flex-col gap-2 relative">
+            <label for="appointmentTime" class="text-sm font-medium text-slate-700">Time</label>
+            <input
+              id="appointmentTime"
+              type="time"
+              formControlName="appointmentTime"
+              class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+            />
             @if (form.controls.appointmentTime.invalid && form.controls.appointmentTime.touched) {
-              <div class="field-error">Time is required.</div>
+              <div class="text-xs font-medium text-red-600 mt-1">Time is required.</div>
             }
           </div>
 
-          <div class="field">
-            <label for="notes">Notes (optional)</label>
-            <textarea id="notes" formControlName="notes" rows="3"></textarea>
+          <div class="flex flex-col gap-2 relative">
+            <label for="notes" class="text-sm font-medium text-slate-700">Notes (optional)</label>
+            <textarea
+              id="notes"
+              formControlName="notes"
+              rows="3"
+              class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+            ></textarea>
           </div>
 
-          <div class="actions">
-            <button type="submit" [disabled]="submitting">
+          <div class="flex items-center gap-5 mt-3">
+            <button
+              type="submit"
+              [disabled]="submitting"
+              class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2c4568] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#2c4568]"
+            >
               {{ submitting ? 'Saving…' : 'Save appointment' }}
             </button>
-            <a class="back-link" routerLink="/appointments">Cancel</a>
+            <a class="text-sm font-medium text-slate-600 hover:text-slate-900" routerLink="/appointments">Cancel</a>
           </div>
         </form>
       }

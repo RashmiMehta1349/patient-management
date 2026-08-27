@@ -18,8 +18,7 @@ import { SearchWidgetComponent } from '../shared/search-widget/search-widget.com
   selector: 'app-shell',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, SearchWidgetComponent],
-  templateUrl: './app-shell.component.html',
-  styleUrl: './app-shell.component.scss'
+  templateUrl: './app-shell.component.html'
 })
 export class AppShellComponent {
   private readonly authService = inject(AuthService);

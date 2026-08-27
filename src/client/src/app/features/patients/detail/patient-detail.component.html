@@ -1,132 +1,198 @@
-<div class="page">
-  <div class="card">
-    <h1>Patient Profile</h1>
+<div class="min-h-screen flex items-start justify-center bg-slate-50 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="w-full max-w-4xl bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 flex flex-col gap-3">
+    <h1 class="text-2xl sm:text-3xl font-bold mt-0 mb-6 text-slate-900 tracking-tight">Patient Profile</h1>
 
     @if (loading) {
-      <p role="status">Loading patient…</p>
+      <p role="status" class="text-sm text-slate-500">Loading patient…</p>
     } @else if (notFound) {
-      <div class="banner banner-error" role="alert">Patient not found.</div>
-      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      <div class="banner-error mb-3 font-medium text-sm px-4 py-3 rounded-xl text-red-700 bg-red-50 border border-red-100" role="alert">Patient not found.</div>
+      <a class="text-sm text-[#2c4568] no-underline font-medium hover:text-[#1e3a5f] hover:underline" routerLink="/dashboard">Back to dashboard</a>
     } @else if (error) {
-      <div class="banner banner-error" role="alert">Could not load patient. Please try again.</div>
-      <button type="button" (click)="retry()">Retry</button>
-      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      <div class="banner-error mb-3 font-medium text-sm px-4 py-3 rounded-xl text-red-700 bg-red-50 border border-red-100" role="alert">Could not load patient. Please try again.</div>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2c4568] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:ring-offset-2 self-start cursor-pointer"
+        (click)="retry()"
+      >
+        Retry
+      </button>
+      <a class="text-sm text-[#2c4568] no-underline font-medium hover:text-[#1e3a5f] hover:underline" routerLink="/dashboard">Back to dashboard</a>
     } @else if (patient) {
-      <dl>
-        <dt>Full name</dt>
-        <dd>{{ patient.fullName }}</dd>
-        <dt>Date of birth</dt>
-        <dd>{{ patient.dateOfBirth }} (age {{ patient.age }})</dd>
-        <dt>Gender</dt>
-        <dd>{{ patient.gender }}</dd>
-        <dt>Phone</dt>
-        <dd>{{ patient.countryCode }} {{ patient.phoneNumber }}</dd>
-        <dt>Registered</dt>
-        <dd>{{ patient.createdAt | date: 'medium' }}</dd>
+      <dl class="grid gap-x-8 gap-y-4 mt-2 mb-0 text-base grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr]">
+        <dt class="text-sm font-medium text-slate-500">Full name</dt>
+        <dd class="m-0 text-slate-900 font-medium">{{ patient.fullName }}</dd>
+        <dt class="text-sm font-medium text-slate-500">Date of birth</dt>
+        <dd class="m-0 text-slate-900 font-medium">{{ patient.dateOfBirth }} (age {{ patient.age }})</dd>
+        <dt class="text-sm font-medium text-slate-500">Gender</dt>
+        <dd class="m-0 text-slate-900 font-medium">{{ patient.gender }}</dd>
+        <dt class="text-sm font-medium text-slate-500">Phone</dt>
+        <dd class="m-0 text-slate-900 font-medium">{{ patient.countryCode }} {{ patient.phoneNumber }}</dd>
+        <dt class="text-sm font-medium text-slate-500">Registered</dt>
+        <dd class="m-0 text-slate-900 font-medium">{{ patient.createdAt | date: 'medium' }}</dd>
       </dl>
 
-      <div class="actions">
-        <a [routerLink]="['/patients', patient.id, 'edit']">Edit</a>
-        <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      <div class="mt-6 flex items-center gap-4">
+        <a class="text-[#2c4568] no-underline font-medium hover:text-[#1e3a5f] hover:underline" [routerLink]="['/patients', patient.id, 'edit']">Edit</a>
+        <a class="text-sm text-[#2c4568] no-underline font-medium hover:text-[#1e3a5f] hover:underline" routerLink="/dashboard">Back to dashboard</a>
       </div>
 
-      <section class="export-section" aria-label="Export patient data">
-        <h2>Export</h2>
-        <label class="include-history-toggle">
-          <input type="checkbox" [(ngModel)]="includeHistoryInExport" name="includeHistoryInExport" />
+      <section class="mt-6 border-t border-slate-100 pt-6" aria-label="Export patient data">
+        <h2 class="text-lg sm:text-xl font-semibold mt-0 mb-4 text-slate-900">Export</h2>
+        <label class="flex items-center gap-2 text-sm text-slate-600 mb-3">
+          <input type="checkbox" class="rounded border-slate-300 text-[#2c4568] focus:ring-[#3d5a80]" [(ngModel)]="includeHistoryInExport" name="includeHistoryInExport" />
           Include visit history
         </label>
-        <div class="export-actions">
-          <button type="button" class="export-csv-btn" (click)="exportPatientCsv()" [disabled]="exportingPatient">
+        <div class="flex gap-3">
+          <button
+            type="button"
+            class="export-csv-btn inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white cursor-pointer self-start"
+            (click)="exportPatientCsv()"
+            [disabled]="exportingPatient"
+          >
             {{ exportingPatient ? 'Preparing…' : 'Export CSV' }}
           </button>
-          <button type="button" class="export-pdf-btn" (click)="exportPatientPdf()" [disabled]="exportingPatient">
+          <button
+            type="button"
+            class="export-pdf-btn inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white cursor-pointer self-start"
+            (click)="exportPatientPdf()"
+            [disabled]="exportingPatient"
+          >
             {{ exportingPatient ? 'Preparing…' : 'Export PDF' }}
           </button>
         </div>
         @if (exportError) {
-          <div class="banner banner-error" role="alert">Could not export this patient. Please try again.</div>
+          <div class="banner-error mt-3 font-medium text-sm px-4 py-3 rounded-xl text-red-700 bg-red-50 border border-red-100" role="alert">Could not export this patient. Please try again.</div>
         }
       </section>
 
-      <section class="appointments-section">
-        <div class="appointments-header">
-          <h2>Appointments</h2>
-          <a [routerLink]="['/appointments/new']" [queryParams]="{ patientId: patient.id }">+ Schedule</a>
+      <section class="mt-6 border-t border-slate-100 pt-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg sm:text-xl font-semibold m-0 text-slate-900">Appointments</h2>
+          <a
+            class="text-sm text-[#2c4568] no-underline font-medium hover:text-[#1e3a5f] hover:underline"
+            [routerLink]="['/appointments/new']"
+            [queryParams]="{ patientId: patient.id }"
+          >
+            + Schedule
+          </a>
         </div>
 
         @if (appointmentsLoading) {
-          <p role="status">Loading appointments…</p>
+          <p role="status" class="mt-3 text-sm text-slate-500">Loading appointments…</p>
         } @else if (appointmentsError) {
-          <div class="banner banner-error" role="alert">Could not load appointments.</div>
+          <div class="banner-error mt-3 font-medium text-sm px-4 py-3 rounded-xl text-red-700 bg-red-50 border border-red-100" role="alert">Could not load appointments.</div>
         } @else if (appointments.length === 0) {
-          <p class="no-appointments">No appointments for this patient yet.</p>
+          <p class="mt-3 text-sm text-slate-500">No appointments for this patient yet.</p>
         } @else {
-          <ul class="appointments-list">
+          <ul class="appointments-list list-none mt-4 mb-0 p-0 flex flex-col gap-2">
             @for (appointment of appointments; track appointment.id) {
-              <li>
-                <span class="appointment-date">{{ appointment.appointmentDate }} {{ appointment.appointmentTime }}</span>
-                <span class="appointment-status">{{ appointment.status }}</span>
+              <li class="flex justify-between items-center text-sm text-slate-700 py-3 px-4 border border-slate-200 rounded-xl bg-white transition-colors hover:border-slate-300 hover:bg-slate-50">
+                <span class="appointment-date font-medium text-slate-900">{{ appointment.appointmentDate }} {{ appointment.appointmentTime }}</span>
+                <span
+                  class="appointment-status inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  [class.bg-sky-50]="appointment.status === 'Scheduled'"
+                  [class.text-sky-700]="appointment.status === 'Scheduled'"
+                  [class.bg-emerald-50]="appointment.status === 'Completed'"
+                  [class.text-emerald-700]="appointment.status === 'Completed'"
+                  [class.bg-slate-100]="appointment.status !== 'Scheduled' && appointment.status !== 'Completed'"
+                  [class.text-slate-600]="appointment.status !== 'Scheduled' && appointment.status !== 'Completed'"
+                >
+                  {{ appointment.status }}
+                </span>
               </li>
             }
           </ul>
         }
       </section>
 
-      <section class="consultations-section">
-        <div class="consultations-header">
-          <h2>Consultations</h2>
-          <a [routerLink]="['/consultations/new']" [queryParams]="{ patientId: patient.id }">+ New Consultation</a>
+      <section class="mt-6 border-t border-slate-100 pt-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg sm:text-xl font-semibold m-0 text-slate-900">Consultations</h2>
+          <a
+            class="text-sm text-[#2c4568] no-underline font-medium hover:text-[#1e3a5f] hover:underline"
+            [routerLink]="['/consultations/new']"
+            [queryParams]="{ patientId: patient.id }"
+          >
+            + New Consultation
+          </a>
         </div>
 
-        <div class="date-filter" role="search" aria-label="Filter consultations by date">
-          <label>
+        <div class="flex items-end gap-4 mt-4 mb-3 text-sm" role="search" aria-label="Filter consultations by date">
+          <label class="flex flex-col gap-1.5 text-sm font-medium text-slate-600">
             From
-            <input type="date" [(ngModel)]="fromDate" name="fromDate" (change)="onFilterChange()" />
+            <input
+              type="date"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+              [(ngModel)]="fromDate"
+              name="fromDate"
+              (change)="onFilterChange()"
+            />
           </label>
-          <label>
+          <label class="flex flex-col gap-1.5 text-sm font-medium text-slate-600">
             To
-            <input type="date" [(ngModel)]="toDate" name="toDate" (change)="onFilterChange()" />
+            <input
+              type="date"
+              class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+              [(ngModel)]="toDate"
+              name="toDate"
+              (change)="onFilterChange()"
+            />
           </label>
           @if (isFiltered) {
-            <button type="button" class="clear-filter-btn" (click)="clearFilter()">Clear filter</button>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:border-slate-400 cursor-pointer"
+              (click)="clearFilter()"
+            >
+              Clear filter
+            </button>
           }
         </div>
 
         @if (visitsLoading) {
-          <p role="status">Loading consultations…</p>
+          <p role="status" class="text-sm text-slate-500">Loading consultations…</p>
         } @else if (visitsError) {
-          <div class="banner banner-error" role="alert">Could not load consultations.</div>
+          <div class="banner-error mb-3 font-medium text-sm px-4 py-3 rounded-xl text-red-700 bg-red-50 border border-red-100" role="alert">Could not load consultations.</div>
         } @else if (visits.length === 0 && isFiltered) {
-          <p class="no-consultations-filtered">No visits found in the selected date range.</p>
+          <p class="no-consultations-filtered text-sm text-slate-500">No visits found in the selected date range.</p>
         } @else if (visits.length === 0) {
-          <p class="no-consultations">No consultations recorded for this patient yet.</p>
+          <p class="no-consultations text-sm text-slate-500">No consultations recorded for this patient yet.</p>
         } @else {
-          <ul class="consultations-list">
+          <ul class="consultations-list list-none mt-4 mb-0 p-0 flex flex-col gap-2">
             @for (visit of visits; track visit.id) {
-              <li>
-                <a [routerLink]="['/visits', visit.id]">
-                  <span class="visit-date">{{ visit.visitDate | date: 'medium' }}</span>
+              <li class="flex items-center justify-between gap-3 text-sm py-4 px-4 border border-slate-200 rounded-xl bg-white transition-colors hover:border-slate-300 hover:bg-slate-50">
+                <a class="flex flex-col gap-1.5" [routerLink]="['/visits', visit.id]">
+                  <span class="visit-date font-medium text-slate-900">{{ visit.visitDate | date: 'medium' }}</span>
                   @if (visit.appointmentId === null) {
-                    <span class="walk-in-badge">Walk-in</span>
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-amber-700 bg-amber-50 w-fit">Walk-in</span>
                   }
-                  <span class="visit-vitals">
+                  <span class="visit-vitals text-slate-600">
                     Temp: {{ visit.temperatureNotRecorded ? 'Not recorded' : visit.temperatureValue }}
                     · BP: {{ visit.bloodPressureNotRecorded ? 'Not recorded' : visit.bloodPressureValue }}
                     · Pulse: {{ visit.pulseNotRecorded ? 'Not recorded' : visit.pulseValue }}
                   </span>
                   @if (visit.complaints) {
-                    <span class="visit-complaints">Complaints: {{ visit.complaints }}</span>
+                    <span class="visit-complaints text-sm text-slate-600">Complaints: {{ visit.complaints }}</span>
                   }
                   @if (visit.diagnosis) {
-                    <span class="visit-diagnosis">{{ visit.diagnosis }}</span>
+                    <span class="visit-diagnosis text-slate-600">{{ visit.diagnosis }}</span>
                   }
                   @if (visit.medications.length > 0) {
-                    <span class="medication-badge">{{ visit.medications.length }} medicine{{ visit.medications.length === 1 ? '' : 's' }}</span>
+                    <span class="medication-badge inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-[#1e3a5f] bg-[#eef2f9] w-fit">{{ visit.medications.length }} medicine{{ visit.medications.length === 1 ? '' : 's' }}</span>
                   }
                 </a>
-                <a class="edit-visit-link" [routerLink]="['/consultations', visit.id, 'edit']">Edit</a>
-                <button type="button" class="print-prescription-btn" (click)="printPrescription(visit.id)" [disabled]="printingVisitId === visit.id">
+                <a
+                  class="edit-visit-link inline-flex items-center justify-center py-2 px-3.5 text-sm font-medium text-[#1e3a5f] border border-[#b9cbe0] rounded-xl whitespace-nowrap no-underline transition-colors hover:bg-[#eef2f9]"
+                  [routerLink]="['/consultations', visit.id, 'edit']"
+                >
+                  Edit
+                </a>
+                <button
+                  type="button"
+                  class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white cursor-pointer whitespace-nowrap"
+                  (click)="printPrescription(visit.id)"
+                  [disabled]="printingVisitId === visit.id"
+                >
                   {{ printingVisitId === visit.id ? 'Preparing…' : 'Print Prescription' }}
                 </button>
               </li>
@@ -136,16 +202,16 @@
           <div class="flex items-center justify-center gap-4 mt-6">
             <button
               type="button"
-              class="bg-white cursor-pointer px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white cursor-pointer"
               (click)="previousVisitsPage()"
               [disabled]="visitsPage <= 1"
             >
               Previous
             </button>
-            <span>Page {{ visitsPage }} of {{ visitsTotalPages }}</span>
+            <span class="text-sm text-slate-600">Page {{ visitsPage }} of {{ visitsTotalPages }}</span>
             <button
               type="button"
-              class="bg-white cursor-pointer px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-default disabled:hover:bg-white cursor-pointer"
               (click)="nextVisitsPage()"
               [disabled]="visitsPage >= visitsTotalPages"
             >

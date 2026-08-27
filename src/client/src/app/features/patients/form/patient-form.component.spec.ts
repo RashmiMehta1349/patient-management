@@ -63,7 +63,8 @@ describe('PatientFormComponent', () => {
       dateOfBirth: '1990-05-15',
       age: 36,
       gender: 'Female',
-      phoneNumber: '555-123-4567',
+      countryCode: '+91',
+      phoneNumber: '9876543210',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -73,7 +74,8 @@ describe('PatientFormComponent', () => {
       fullName: 'Jane Doe',
       dateOfBirth: '1990-05-15',
       gender: 'Female',
-      phoneNumber: '555-123-4567'
+      countryCode: '+91',
+      phoneNumber: '9876543210'
     });
     component.submit();
 
@@ -93,6 +95,7 @@ describe('PatientFormComponent', () => {
       fullName: 'Jane Doe',
       dateOfBirth: '1990-05-15',
       gender: 'Female',
+      countryCode: '+91',
       phoneNumber: ''
     });
     // Bypass Angular's own required validator to exercise the handler's error path directly,
@@ -116,7 +119,8 @@ describe('PatientFormComponent (edit mode)', () => {
     dateOfBirth: '1990-05-15',
     age: 36,
     gender: 'Female',
-    phoneNumber: '555-123-4567',
+    countryCode: '+91',
+    phoneNumber: '9876543210',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -151,7 +155,8 @@ describe('PatientFormComponent (edit mode)', () => {
       fullName: 'Jane Doe',
       dateOfBirth: '1990-05-15',
       gender: 'Female',
-      phoneNumber: '555-123-4567'
+      countryCode: '+91',
+      phoneNumber: '9876543210'
     });
   });
 
@@ -170,7 +175,8 @@ describe('PatientFormComponent (edit mode)', () => {
       fullName: 'Jane A. Doe',
       dateOfBirth: '1990-05-15',
       gender: 'Female',
-      phoneNumber: '555-999-0000'
+      countryCode: '+91',
+      phoneNumber: '9999000000'
     });
     component.submit();
 
@@ -178,7 +184,8 @@ describe('PatientFormComponent (edit mode)', () => {
       fullName: 'Jane A. Doe',
       dateOfBirth: '1990-05-15',
       gender: 'Female',
-      phoneNumber: '555-999-0000'
+      countryCode: '+91',
+      phoneNumber: '9999000000'
     });
     expect(createSpy).not.toHaveBeenCalled();
   });
@@ -199,7 +206,8 @@ describe('PatientFormComponent (edit mode)', () => {
       fullName: 'Jane A. Doe',
       dateOfBirth: '1990-05-15',
       gender: 'Female',
-      phoneNumber: '555-999-0000'
+      countryCode: '+91',
+      phoneNumber: '9999000000'
     });
     component.submit();
 
@@ -220,7 +228,8 @@ describe('PatientFormComponent (edit mode)', () => {
       fullName: 'Jane A. Doe',
       dateOfBirth: '1990-05-15',
       gender: 'Female',
-      phoneNumber: '555-999-0000'
+      countryCode: '+91',
+      phoneNumber: '9999000000'
     });
     component.submit();
 

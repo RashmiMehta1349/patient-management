@@ -29,8 +29,7 @@ import { PrescriptionService } from '../../../core/prescriptions/prescription.se
   selector: 'app-consultation-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './consultation-form.component.html',
-  styleUrl: './consultation-form.component.scss'
+  templateUrl: './consultation-form.component.html'
 })
 export class ConsultationFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

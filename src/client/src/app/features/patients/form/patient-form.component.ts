@@ -21,8 +21,7 @@ const PHONE_NUMBER_MAX_LENGTH = 10;
   selector: 'app-patient-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './patient-form.component.html',
-  styleUrl: './patient-form.component.scss'
+  templateUrl: './patient-form.component.html'
 })
 export class PatientFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

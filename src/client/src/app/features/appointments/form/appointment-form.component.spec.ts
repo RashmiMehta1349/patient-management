@@ -16,7 +16,8 @@ describe('AppointmentFormComponent', () => {
     dateOfBirth: '1990-05-15',
     age: 36,
     gender: 'Female',
-    phoneNumber: '555-123-4567',
+    countryCode: '+91',
+    phoneNumber: '9876543210',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };

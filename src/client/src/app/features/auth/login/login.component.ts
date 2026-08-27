@@ -9,8 +9,7 @@ import { RETURN_URL_STORAGE_KEY } from '../../../core/auth/return-url';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  templateUrl: './login.component.html'
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);

@@ -14,8 +14,7 @@ function passwordsMatchValidator(control: AbstractControl): ValidationErrors | n
   selector: 'app-reset-password',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss'
+  templateUrl: './reset-password.component.html'
 })
 export class ResetPasswordComponent {
   private readonly fb = inject(FormBuilder);

@@ -26,8 +26,7 @@ import { triggerDownload } from '../../../core/shared/download/trigger-download'
   selector: 'app-patient-detail',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './patient-detail.component.html',
-  styleUrl: './patient-detail.component.scss'
+  templateUrl: './patient-detail.component.html'
 })
 export class PatientDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

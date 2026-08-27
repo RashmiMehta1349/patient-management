@@ -34,8 +34,8 @@ describe('DashboardComponent', () => {
     setup();
     const recentPatientsService = TestBed.inject(RecentPatientsService);
     spyOn(recentPatientsService, 'list').and.returnValue([
-      { id: 2, fullName: 'Zack Adams', phoneNumber: '555-000-0002', viewedAt: new Date().toISOString() },
-      { id: 1, fullName: 'Amy Baker', phoneNumber: '555-000-0001', viewedAt: new Date().toISOString() }
+      { id: 2, fullName: 'Zack Adams', countryCode: '+91', phoneNumber: '5550002', viewedAt: new Date().toISOString() },
+      { id: 1, fullName: 'Amy Baker', countryCode: '+91', phoneNumber: '5550001', viewedAt: new Date().toISOString() }
     ]);
 
     const fixture = TestBed.createComponent(DashboardComponent);

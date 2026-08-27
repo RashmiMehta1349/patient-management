@@ -1,76 +1,99 @@
-<div class="page">
-  <div class="card">
+<div class="min-h-screen flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8 bg-slate-50">
+  <div class="w-full max-w-2xl box-border flex flex-col gap-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
     @if (loading) {
-      <h1>Edit Patient</h1>
-      <p role="status">Loading patient…</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">Edit Patient</h1>
+      <p role="status" class="text-slate-500">Loading patient…</p>
     } @else if (notFound) {
-      <h1>Edit Patient</h1>
-      <div class="banner banner-error" role="alert">Patient not found.</div>
-      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">Edit Patient</h1>
+      <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-red-50 text-red-700 border border-red-100" role="alert">Patient not found.</div>
+      <a class="back-link text-sm text-[#2c4568] font-medium no-underline hover:text-[#1e3a5f] hover:underline" routerLink="/dashboard">Back to dashboard</a>
     } @else if (loadError) {
-      <h1>Edit Patient</h1>
-      <div class="banner banner-error" role="alert">Could not load patient. Please try again.</div>
-      <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">Edit Patient</h1>
+      <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-red-50 text-red-700 border border-red-100" role="alert">Could not load patient. Please try again.</div>
+      <a class="back-link text-sm text-[#2c4568] font-medium no-underline hover:text-[#1e3a5f] hover:underline" routerLink="/dashboard">Back to dashboard</a>
     } @else {
-      <h1>{{ isEditMode ? 'Edit Patient' : 'Add Patient' }}</h1>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-0 mb-6">{{ isEditMode ? 'Edit Patient' : 'Add Patient' }}</h1>
 
       @if (createdPatient) {
-        <div class="banner banner-success" role="status">
+        <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-emerald-50 text-emerald-700 border border-emerald-100" role="status">
           <p><strong>{{ createdPatient.fullName }}</strong> was registered successfully.</p>
-          <dl>
-            <dt>Date of birth</dt>
-            <dd>{{ createdPatient.dateOfBirth }} (age {{ createdPatient.age }})</dd>
-            <dt>Gender</dt>
-            <dd>{{ createdPatient.gender }}</dd>
-            <dt>Phone</dt>
-            <dd>{{ createdPatient.countryCode }} {{ createdPatient.phoneNumber }}</dd>
+          <dl class="grid gap-x-4 gap-y-1 text-sm mt-2" style="grid-template-columns: auto 1fr;">
+            <dt class="font-semibold text-slate-900">Date of birth</dt>
+            <dd class="m-0 text-slate-600">{{ createdPatient.dateOfBirth }} (age {{ createdPatient.age }})</dd>
+            <dt class="font-semibold text-slate-900">Gender</dt>
+            <dd class="m-0 text-slate-600">{{ createdPatient.gender }}</dd>
+            <dt class="font-semibold text-slate-900">Phone</dt>
+            <dd class="m-0 text-slate-600">{{ createdPatient.countryCode }} {{ createdPatient.phoneNumber }}</dd>
           </dl>
         </div>
-        <button type="button" (click)="registerAnother()">Register another patient</button>
-        <a class="back-link" routerLink="/dashboard">Back to dashboard</a>
+        <button
+          type="button"
+          (click)="registerAnother()"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2c4568] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:ring-offset-2"
+        >
+          Register another patient
+        </button>
+        <a class="back-link text-sm text-[#2c4568] font-medium no-underline hover:text-[#1e3a5f] hover:underline" routerLink="/dashboard">Back to dashboard</a>
       } @else {
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="flex flex-col gap-6">
           @if (errorMessage) {
-            <div class="banner banner-error" role="alert">{{ errorMessage }}</div>
+            <div class="py-3 px-4 rounded-xl text-sm mb-3 font-medium bg-red-50 text-red-700 border border-red-100" role="alert">{{ errorMessage }}</div>
           }
 
-          <div class="field">
-            <label for="fullName">Full name</label>
-            <input id="fullName" type="text" formControlName="fullName" autocomplete="off" />
+          <div class="flex flex-col gap-1.5">
+            <label for="fullName" class="text-sm font-medium text-slate-700">Full name</label>
+            <input
+              id="fullName"
+              type="text"
+              formControlName="fullName"
+              autocomplete="off"
+              class="w-full box-border text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+            />
             @if (form.controls.fullName.invalid && form.controls.fullName.touched) {
-              <div class="field-error">Full name is required.</div>
+              <div class="text-xs font-medium text-red-600 mt-1">Full name is required.</div>
             }
           </div>
 
-          <div class="field">
-            <label for="dateOfBirth">Date of birth</label>
-            <input id="dateOfBirth" type="date" formControlName="dateOfBirth" [max]="today" />
+          <div class="flex flex-col gap-1.5">
+            <label for="dateOfBirth" class="text-sm font-medium text-slate-700">Date of birth</label>
+            <input
+              id="dateOfBirth"
+              type="date"
+              formControlName="dateOfBirth"
+              [max]="today"
+              class="w-full box-border text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+            />
             @if (form.controls.dateOfBirth.invalid && form.controls.dateOfBirth.touched) {
-              <div class="field-error">Date of birth is required.</div>
+              <div class="text-xs font-medium text-red-600 mt-1">Date of birth is required.</div>
             }
           </div>
 
-          <div class="field">
-            <label for="gender">Gender</label>
-            <select id="gender" formControlName="gender">
+          <div class="flex flex-col gap-1.5">
+            <label for="gender" class="text-sm font-medium text-slate-700">Gender</label>
+            <select
+              id="gender"
+              formControlName="gender"
+              class="w-full box-border text-sm rounded-xl border border-slate-300 px-3.5 py-2.5 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80]"
+            >
               <option value="" disabled>Select…</option>
               @for (gender of genders; track gender) {
                 <option [value]="gender">{{ gender }}</option>
               }
             </select>
             @if (form.controls.gender.invalid && form.controls.gender.touched) {
-              <div class="field-error">Gender is required.</div>
+              <div class="text-xs font-medium text-red-600 mt-1">Gender is required.</div>
             }
           </div>
 
-          <div class="field">
-            <label for="phoneNumber">Phone number</label>
+          <div class="flex flex-col gap-1.5">
+            <label for="phoneNumber" class="text-sm font-medium text-slate-700">Phone number</label>
             <div style="display: flex; align-items: stretch;">
               <select
                 id="countryCode"
                 formControlName="countryCode"
                 aria-label="Country code"
-                style="border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; width: auto; flex: 0 0 auto; padding-right: 1.75rem;"
+                class="box-border text-sm border border-slate-300 px-3.5 py-2.5 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80] rounded-l-xl"
+                style="border-right: none; width: auto; flex: 0 0 auto; padding-right: 1.75rem;"
               >
                 @for (country of countryCodes; track country.dialCode) {
                   <option [value]="country.dialCode">{{ country.dialCode }} {{ country.name }}</option>
@@ -83,27 +106,31 @@
                 formControlName="phoneNumber"
                 autocomplete="off"
                 maxlength="10"
-                style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                class="w-full box-border text-sm border border-slate-300 px-3.5 py-2.5 shadow-sm transition-colors placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:border-[#3d5a80] rounded-r-xl"
                 (keydown)="blockNonDigit($event)"
                 (input)="stripNonDigits($event)"
               />
             </div>
             @if (form.controls.phoneNumber.errors?.['required'] && form.controls.phoneNumber.touched) {
-              <div class="field-error">Phone number is required.</div>
+              <div class="text-xs font-medium text-red-600 mt-1">Phone number is required.</div>
             }
             @if (form.controls.phoneNumber.errors?.['pattern'] && form.controls.phoneNumber.touched) {
-              <div class="field-error">Enter a valid numeric phone number (up to 10 digits).</div>
+              <div class="text-xs font-medium text-red-600 mt-1">Enter a valid numeric phone number (up to 10 digits).</div>
             }
           </div>
 
-          <div class="actions">
-            <button type="submit" [disabled]="submitting">
+          <div class="flex items-center gap-5 mt-3">
+            <button
+              type="submit"
+              [disabled]="submitting"
+              class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2c4568] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#3d5a80] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#2c4568]"
+            >
               {{ submitting ? 'Saving…' : 'Save patient' }}
             </button>
             @if (isEditMode && id) {
-              <a class="back-link" [routerLink]="['/patients', id]">Cancel</a>
+              <a class="back-link text-sm font-medium text-slate-600 no-underline hover:text-slate-900" [routerLink]="['/patients', id]">Cancel</a>
             } @else {
-              <a class="back-link" routerLink="/dashboard">Cancel</a>
+              <a class="back-link text-sm font-medium text-slate-600 no-underline hover:text-slate-900" routerLink="/dashboard">Cancel</a>
             }
           </div>
         </form>

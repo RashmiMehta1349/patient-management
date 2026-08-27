@@ -19,8 +19,7 @@ const SEARCH_DEBOUNCE_MS = 300;
   selector: 'app-patients-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './patients-list.component.html',
-  styleUrl: './patients-list.component.scss'
+  templateUrl: './patients-list.component.html'
 })
 export class PatientsListComponent implements OnInit {
   private readonly patientService = inject(PatientService);

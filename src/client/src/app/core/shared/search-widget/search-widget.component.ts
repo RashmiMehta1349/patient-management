@@ -22,8 +22,7 @@ const DROPDOWN_PAGE_SIZE = 8;
   selector: 'app-search-widget',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './search-widget.component.html',
-  styleUrl: './search-widget.component.scss'
+  templateUrl: './search-widget.component.html'
 })
 export class SearchWidgetComponent {
   private readonly patientService = inject(PatientService);

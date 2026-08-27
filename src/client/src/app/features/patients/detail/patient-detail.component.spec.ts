@@ -21,7 +21,8 @@ describe('PatientDetailComponent', () => {
     dateOfBirth: '1990-05-15',
     age: 36,
     gender: 'Female',
-    phoneNumber: '555-123-4567',
+    countryCode: '+91',
+    phoneNumber: '9876543210',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -461,6 +462,7 @@ describe('PatientDetailComponent', () => {
     expect(recordSpy).toHaveBeenCalledWith({
       id: testPatient.id,
       fullName: testPatient.fullName,
+      countryCode: testPatient.countryCode,
       phoneNumber: testPatient.phoneNumber
     });
   });
@@ -485,7 +487,8 @@ describe('PatientDetailComponent', () => {
       dateOfBirth: '1980-02-10',
       age: 46,
       gender: 'Male',
-      phoneNumber: '555-987-6543',
+      countryCode: '+91',
+      phoneNumber: '9876543210',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };

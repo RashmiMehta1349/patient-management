@@ -24,8 +24,7 @@ const SEARCH_DEBOUNCE_MS = 300;
   selector: 'app-appointment-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
-  templateUrl: './appointment-form.component.html',
-  styleUrl: './appointment-form.component.scss'
+  templateUrl: './appointment-form.component.html'
 })
 export class AppointmentFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

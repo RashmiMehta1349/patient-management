@@ -16,8 +16,7 @@ import { RecentPatient } from '../../core/patients/recent-patients.models';
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);

@@ -56,7 +56,7 @@ describe('AuthService', () => {
   it('logout() clears recently-viewed patients (Module 7 §12 mitigation)', () => {
     localStorage.setItem('pma_auth_token', 'existing-token');
     const recentPatientsService = TestBed.inject(RecentPatientsService);
-    recentPatientsService.record({ id: 1, fullName: 'Amy Baker', phoneNumber: '555-000-0001' });
+    recentPatientsService.record({ id: 1, fullName: 'Amy Baker', countryCode: '+91', phoneNumber: '5550001' });
     expect(recentPatientsService.list().length).toBe(1);
 
     service.logout();

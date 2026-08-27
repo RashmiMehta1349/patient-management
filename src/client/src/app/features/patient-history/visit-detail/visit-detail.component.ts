@@ -25,7 +25,6 @@ import { triggerDownload } from '../../../core/shared/download/trigger-download'
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './visit-detail.component.html',
-  styleUrl: './visit-detail.component.scss'
 })
 export class VisitDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

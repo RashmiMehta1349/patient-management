@@ -7,7 +7,8 @@ describe('RecentPatientsService', () => {
   const makePatient = (id: number, fullName = 'Patient ' + id) => ({
     id,
     fullName,
-    phoneNumber: '555-000-' + id
+    countryCode: '+91',
+    phoneNumber: '5550000' + id
   });
 
   beforeEach(() => {

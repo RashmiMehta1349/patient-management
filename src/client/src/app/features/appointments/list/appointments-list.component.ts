@@ -14,8 +14,7 @@ import { APPOINTMENT_STATUSES, Appointment, AppointmentStatus } from '../../../c
   selector: 'app-appointments-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './appointments-list.component.html',
-  styleUrl: './appointments-list.component.scss'
+  templateUrl: './appointments-list.component.html'
 })
 export class AppointmentsListComponent implements OnInit {
   private readonly appointmentService = inject(AppointmentService);
