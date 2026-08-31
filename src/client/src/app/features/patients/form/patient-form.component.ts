@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PatientService } from '../../../core/patients/patient.service';
 import { PATIENT_GENDERS, Patient } from '../../../core/patients/patients.models';
 import { COUNTRY_CODES } from '../../../core/patients/country-codes';
+import { RecentPatientsService } from '../../../core/patients/recent-patients.service';
 
 const PHONE_NUMBER_MAX_LENGTH = 10;
 
@@ -28,6 +29,7 @@ export class PatientFormComponent implements OnInit {
   private readonly patientService = inject(PatientService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly recentPatientsService = inject(RecentPatientsService);
 
   readonly genders = PATIENT_GENDERS;
   readonly countryCodes = COUNTRY_CODES;
@@ -109,6 +111,14 @@ export class PatientFormComponent implements OnInit {
           this.router.navigate(['/patients', this.id]);
         } else {
           this.createdPatient = patient;
+          // Record newly registered patients as "recently viewed" (Module 7, §5) so they
+          // surface on the Dashboard immediately, not only after a later profile visit.
+          this.recentPatientsService.record({
+            id: patient.id,
+            fullName: patient.fullName,
+            countryCode: patient.countryCode,
+            phoneNumber: patient.phoneNumber
+          });
         }
       },
       error: (err) => {
